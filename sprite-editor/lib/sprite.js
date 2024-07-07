@@ -8,7 +8,8 @@ export class Sprite {
     for (let y = 0; y < size; y++) {
       this.data[y] = []
       for (let x = 0; x < size; x++) {
-        this.data[y][x] = null
+        // random data
+        this.data[y][x] = null //Math.floor(Math.random() * 16)
       }
     }
   }

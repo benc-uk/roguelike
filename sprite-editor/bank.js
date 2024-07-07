@@ -1,6 +1,6 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/module.esm.min.js'
 
-Alpine.data('sheet', () => ({
+export default () => ({
   spriteImages: [],
   activeSprite: null,
 
@@ -24,4 +24,4 @@ Alpine.data('sheet', () => ({
   updateSprite() {
     this.spriteImages[this.$store.sprites.selectedIndex()] = this.$store.sprites.selected().toImageSrc(this.$store.pal.colours)
   },
-}))
+})

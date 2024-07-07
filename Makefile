@@ -11,3 +11,6 @@ watch:
 
 serve:
 	vite --port 3000 web
+
+editor:
+	cd sprite-editor && vite --port 8000

@@ -2,13 +2,15 @@ import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/module.esm
 
 import './assets/style.css'
 
-import './editor.js'
-import './palette.js'
-import './sheet.js'
-import { Sprite } from './sprite.js'
+import { Sprite } from './lib/sprite.js'
 
-export const SIZE = 12
+// Sub components of the sprite editor
+import Editor from './editor.js'
+import Palette from './palette.js'
+import Bank from './bank.js'
+import Scratch from './scratch.js'
 
+// The colours available to the sprite editor
 const colours = []
 colours.push('#fefefe')
 colours.push('#e5d5d0')
@@ -28,8 +30,6 @@ colours.push('#44d0ff')
 colours.push('#6666cc')
 colours.push('#a82cea')
 
-const sprites = []
-
 // Global store for palette data
 Alpine.store('pal', {
   colours,
@@ -48,9 +48,18 @@ Alpine.store('pal', {
   },
 })
 
+const SIZE = 12
+const BANK_SIZE = 32
+
+// Bank of sprites
+const spriteBank = []
+for (let i = 0; i < BANK_SIZE; i++) {
+  spriteBank.push(new Sprite(i, SIZE))
+}
+
 // Global store for sprite data
 Alpine.store('sprites', {
-  sprites,
+  sprites: spriteBank,
   _selected: 0,
 
   selected() {
@@ -64,9 +73,19 @@ Alpine.store('sprites', {
   select(index) {
     this._selected = index
   },
+
+  get(index) {
+    return this.sprites[index]
+  },
 })
 
-for (let i = 0; i < 80; i++) {
-  const s = new Sprite(i, SIZE)
-  sprites.push(s)
-}
+Alpine.data('palette', Palette)
+Alpine.data('bank', Bank)
+Alpine.data('palette', Palette)
+Alpine.data('editor', Editor)
+Alpine.data('scratch', Scratch)
+
+// Main Alpine app with global data
+Alpine.data('app', () => ({
+  size: SIZE,
+}))

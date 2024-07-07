@@ -1,6 +1,4 @@
-import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/module.esm.min.js'
-
-Alpine.data('palette', () => ({
+export default () => ({
   editColour(e, i) {
     this.$store.pal.colours[i] = e.target.value
     this.$store.pal.select(i)
@@ -12,4 +10,4 @@ Alpine.data('palette', () => ({
     e.preventDefault()
     this.$store.pal.select(i)
   },
-}))
+})

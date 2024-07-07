@@ -1,8 +1,4 @@
-import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/module.esm.min.js'
-
-import { SIZE } from './main.js'
-
-Alpine.data('editor', () => ({
+export default (size) => ({
   cellSize: 0,
   ctx: null,
   sprite: null,
@@ -11,7 +7,7 @@ Alpine.data('editor', () => ({
   init() {
     const canvas = this.$refs.canvas
     this.ctx = this.$refs.canvas.getContext('2d')
-    this.cellSize = canvas.width / SIZE
+    this.cellSize = canvas.width / size
     this.sprite = this.$store.sprites.selected()
     this.pallet = this.$store.pal
 
@@ -24,14 +20,14 @@ Alpine.data('editor', () => ({
     this.ctx.strokeStyle = '#222'
     this.ctx.lineWidth = 2
 
-    for (let x = 0; x <= SIZE; x++) {
+    for (let x = 0; x <= size; x++) {
       this.ctx.beginPath()
       this.ctx.moveTo(x * this.cellSize, 0)
       this.ctx.lineTo(x * this.cellSize, this.$refs.canvas.height)
       this.ctx.stroke()
     }
 
-    for (let y = 0; y <= SIZE; y++) {
+    for (let y = 0; y <= size; y++) {
       this.ctx.beginPath()
       this.ctx.moveTo(0, y * this.cellSize)
       this.ctx.lineTo(this.$refs.canvas.width, y * this.cellSize)
@@ -46,8 +42,8 @@ Alpine.data('editor', () => ({
     this.ctx.fillStyle = '#000'
     this.ctx.fillRect(0, 0, this.$refs.canvas.width, this.$refs.canvas.height)
 
-    for (let y = 0; y < SIZE; y++) {
-      for (let x = 0; x < SIZE; x++) {
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
         if (this.sprite.data[y][x] !== null) {
           this.ctx.fillStyle = this.$store.pal.colours[this.sprite.data[y][x]]
           this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
@@ -91,4 +87,4 @@ Alpine.data('editor', () => ({
   colourChange(event) {
     this.colour = event.target.value
   },
-}))
+})

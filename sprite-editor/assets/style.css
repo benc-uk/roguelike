@@ -20,7 +20,7 @@ canvas {
   padding: 0.5rem;
 }
 
-.sheet {
+.bank {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
@@ -32,7 +32,7 @@ canvas {
   background-color: rgb(0, 0, 0);
 }
 
-.sheet img {
+.bank img {
   width: 48px;
   height: 48px;
   border: 1px solid #222;
@@ -58,5 +58,39 @@ input[type='color'] {
 
 .selected {
   border: 1px solid rgb(224, 217, 217) !important;
-  /* margin: 0px !important; */
+}
+
+button {
+  background-color: rgb(0, 0, 0);
+  font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+  color: rgb(214, 214, 214);
+  border: 1px solid rgb(214, 214, 214);
+  padding: 0.5rem;
+  margin: 0.3rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+button:hover {
+  background-color: rgb(214, 214, 214);
+  color: rgb(0, 0, 0);
+}
+
+.scratch {
+  display: grid;
+  /* columns is updated dynamically by the component */
+  grid-template-columns: repeat(3, fit-content(100%));
+  grid-template-rows: repeat(3, 1fr);
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  padding: 0;
+  background-color: black;
+}
+
+.scratch img {
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  border: none;
+  image-rendering: pixelated;
 }
