@@ -1,0 +1,62 @@
+body {
+  overflow: hidden;
+  background-color: rgb(31, 31, 31);
+  color: beige;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+canvas {
+  background-color: rgb(0, 0, 0);
+  /* border: 3px solid #555; */
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: top;
+}
+
+.padded {
+  padding: 0.5rem;
+}
+
+.sheet {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  margin: 0.5rem;
+  padding: 0;
+  width: 440px;
+  height: 440px;
+  overflow-y: scroll;
+  background-color: rgb(0, 0, 0);
+}
+
+.sheet img {
+  width: 48px;
+  height: 48px;
+  border: 1px solid #222;
+  margin: 0;
+  image-rendering: pixelated;
+}
+
+input[type='color'] {
+  width: 2.67rem;
+  height: 2.8rem;
+  padding: 0rem;
+  margin: 0.1rem;
+  border: none;
+  background-color: rgb(0, 0, 0);
+}
+
+.pallete {
+  display: flex;
+  flex-wrap: wrap;
+  width: 370px;
+  background-color: #000;
+}
+
+.selected {
+  border: 1px solid rgb(224, 217, 217) !important;
+  /* margin: 0px !important; */
+}

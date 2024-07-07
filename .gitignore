@@ -1,0 +1,5 @@
+bin/
+.vite/
+tmp/
+web/*.wasm
+web/assets/

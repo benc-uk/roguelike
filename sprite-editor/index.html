@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sprite Editor</title>
+    <script type="module" src="main.js"></script>
+    <link rel="shortcut icon" href="favicon.png" type="image/png" />
+  </head>
+  <body>
+    <div class="row">
+      <div x-data="editor()" class="padded" x-effect="drawSprite(); drawGrid()">
+        <canvas width="600" height="600" x-ref="canvas" @click="handleClick" @contextmenu.prevent="handleClick" @mousemove="handleClick">
+        </canvas>
+        <br />
+        <span x-text="sprite.name"></span>
+      </div>
+
+      <div>
+        <div x-data="palette()" class="padded pallete">
+          <template x-for="(colour, index) in $store.pal.colours" :key="index">
+            <input type="color" 
+            :value="colour" 
+            @change="editColour($event, index)" 
+            @click="$store.pal.select(index)"
+            @contextmenu="selectColour($event, index)"
+            :class="index == $store.pal.selected() ? 'selected' : ''"/>
+          </template>
+        </div>
+
+        <div x-data="sheet()" class="padded sheet" x-effect="updateSprite">
+          <template x-for="(imgSrc, index) in spriteImages">
+            <img :src="imgSrc" @click="$store.sprites.select(index)" 
+            :class="index == $store.sprites.selectedIndex() ? 'selected' : ''"></img>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/module.esm.min.js'
+      Alpine.start()
+    </script>
+  </body>
+</html>
