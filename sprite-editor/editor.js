@@ -5,6 +5,8 @@ export default (size) => ({
   pallet: null,
 
   init() {
+    console.log('Editor init')
+
     const canvas = this.$refs.canvas
     this.ctx = this.$refs.canvas.getContext('2d')
     this.cellSize = canvas.width / size

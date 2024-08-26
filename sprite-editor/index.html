@@ -6,54 +6,78 @@
     <title>Sprite Editor</title>
     <script type="module" src="main.js"></script>
     <link rel="shortcut icon" href="favicon.png" type="image/png" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple-icons/siimple-icons.css" />
+
   </head>
   <body x-data="app">
-    <div class="row" aria-label="Toolbar">
-      <button>NEW</button>
-      <button>LOAD</button>
-      <button>SAVE</button>
-      <button>EXPORT</button>
-      <button>CONFIG</button>
-    </div>
-
-    <div class="row" aria-label="Main area">
-      <div x-data="editor(size)" class="padded" x-effect="drawSprite(); drawGrid()">
-        <canvas width="600" height="600" x-ref="canvas" @click="handleClick" @contextmenu.prevent="handleClick" @mousemove="handleClick">
-        </canvas>
-        <br />
-        <span x-text="sprite.name"></span>
-      </div>
-
+    <template x-if="projectLoaded">
       <div>
-        <div x-data="palette" class="padded pallete">
-          <template x-for="(colour, index) in $store.pal.colours" :key="index">
-            <input type="color" 
-            :value="colour" 
-            @change="editColour($event, index)" 
-            @click="$store.pal.select(index)"
-            @contextmenu="selectColour($event, index)"
-            :class="index == $store.pal.selected() ? 'selected' : ''"/>
-          </template>
+        <div class="row" aria-label="Toolbar">
+
+          <button @click="saveToStorage"><i class="si-disk fs24"></i> &nbsp; SAVE</button>
+          <button><i class="si-download fs24"></i> &nbsp; IMPORT</button>
+          <button><i class="si-file fs24"></i> &nbsp; EXPORT</button>
+          <div style="width: 4rem"></div>
+          <button><i class="si-stack fs24"></i> &nbsp; GENERATE</button>
+          <div style="width: 4rem"></div>
+          <button @click="eraseProject"><i class="si-file-x fs24"></i> &nbsp; ERASE</button>
         </div>
 
-        <div x-data="bank" class="padded bank" x-effect="updateSprite">
-          <template x-for="(imgSrc, index) in spriteImages">
-            <img :src="imgSrc" @click="$store.sprites.select(index)" 
-            :class="index == $store.sprites.selectedIndex() ? 'selected' : ''"></img>
-          </template>
+        <div class="row" aria-label="Main area">
+          <div x-data="editor(size)" class="padded" x-effect="drawSprite(); drawGrid()">
+            <canvas width="600" height="600" x-ref="canvas" @click="handleClick" @contextmenu.prevent="handleClick" @mousemove="handleClick">
+            </canvas>
+            <br />
+            <span x-text="sprite.name"></span>
+          </div>
+
+          <div>
+            <div x-data="palette" class="padded pallete">
+              <template x-for="(colour, index) in $store.pal.colours" :key="index">
+                <input type="color" 
+                :value="colour" 
+                @change="editColour($event, index)" 
+                @click="$store.pal.select(index)"
+                @contextmenu="selectColour($event, index)"
+                :class="index == $store.pal.selected() ? 'selected' : ''"/>
+              </template>
+            </div>
+    
+
+            <div x-data="bank" class="padded bank" x-effect="updateSprite">
+              <template x-for="(imgSrc, index) in spriteImages">
+                <img :src="imgSrc" @click="$store.sprites.select(index)" 
+                :class="index == $store.sprites.selectedIndex() ? 'selected' : ''"></img>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" aria-label="Scratch area">
+          <div x-data="scratch()" class="padded scratch" x-ref="scratchGrid" x-effect="updateSprite">
+            <template x-for="(cell, index) in map">
+              <img :src="cell.image" @click="clickCell($event, index)" @contextmenu.prevent="clickCell($event, index)"/>
+            </template>
+          </div>
         </div>
       </div>
+    </template>
+
+    <div x-show="!projectLoaded" class="dialog">
+      <h1>NEW PROJECT</h1>
+    
+      Sprite Size
+      <input type="number" x-model="newSpriteSize" placeholder="12" min="4" max="32"/>
+      
+      Palette Size
+      <input type="number" x-model="newPaletteSize" placeholder="12" min="4" max="32"/>
+      
+      Bank Size
+      <input type="number" x-model="newBankSize" placeholder="12" min="4" max="32"/>
+
+      <button @click="newProject()">CREATE</button> 
     </div>
-
-    <div class="row" aria-label="Scratch area">
-      <div x-data="scratch()" class="padded scratch" x-ref="scratchGrid" x-effect="updateSprite">
-        <template x-for="(cell, index) in map">
-          <img :src="cell.image" @click="clickCell($event, index)" @contextmenu.prevent="clickCell($event, index)"/>
-        </template>
-      </div>
-    </div>
-
-
+    
     <script type="module">
       // Import and initialize Alpine.js
       import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/module.esm.min.js'

@@ -1,4 +1,4 @@
-.PHONY: build watch serve
+.PHONY: build watch serve editor
 
 build:
 	env GOOS=js GOARCH=wasm go build -o web/main.wasm main.go

@@ -7,6 +7,8 @@ export default () => ({
   height: 6,
 
   init() {
+    console.log('Scratch init')
+
     this.$refs.scratchGrid.style.gridTemplateColumns = `repeat(${this.width}, fit-content(100%))`
 
     let total = this.width * this.height

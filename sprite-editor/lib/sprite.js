@@ -33,4 +33,12 @@ export class Sprite {
     // return image data URL
     return canvas.toDataURL()
   }
+
+  loadData(data) {
+    if (data.length !== this.size) {
+      throw new Error('Data is not the correct size')
+    }
+
+    this.data = data
+  }
 }

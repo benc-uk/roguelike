@@ -3,6 +3,7 @@ import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/module.esm
 import './assets/style.css'
 
 import { Sprite } from './lib/sprite.js'
+import { randomHexColor } from './lib/colours.js'
 
 // Sub components of the sprite editor
 import Editor from './editor.js'
@@ -10,29 +11,9 @@ import Palette from './palette.js'
 import Bank from './bank.js'
 import Scratch from './scratch.js'
 
-// The colours available to the sprite editor
-const colours = []
-colours.push('#fefefe')
-colours.push('#e5d5d0')
-colours.push('#808080')
-colours.push('#404040')
-colours.push('#895826')
-colours.push('#ff8000')
-colours.push('#da0000')
-colours.push('#774009')
-
-colours.push('#d3bc87')
-colours.push('#ffe228')
-colours.push('#6dff66')
-colours.push('#009900')
-colours.push('#192ee8')
-colours.push('#44d0ff')
-colours.push('#6666cc')
-colours.push('#a82cea')
-
 // Global store for palette data
 Alpine.store('pal', {
-  colours,
+  colours: [],
   _selected: 0,
 
   selected() {
@@ -48,18 +29,9 @@ Alpine.store('pal', {
   },
 })
 
-const SIZE = 12
-const BANK_SIZE = 32
-
-// Bank of sprites
-const spriteBank = []
-for (let i = 0; i < BANK_SIZE; i++) {
-  spriteBank.push(new Sprite(i, SIZE))
-}
-
 // Global store for sprite data
 Alpine.store('sprites', {
-  sprites: spriteBank,
+  sprites: [],
   _selected: 0,
 
   selected() {
@@ -87,5 +59,94 @@ Alpine.data('scratch', Scratch)
 
 // Main Alpine app with global data
 Alpine.data('app', () => ({
-  size: SIZE,
+  size: 16,
+  projectLoaded: false,
+  newSpriteSize: 12,
+  newPaletteSize: 16,
+  newBankSize: 128,
+
+  init() {
+    console.log('App initializing')
+
+    try {
+      this.loadFromStorage()
+    } catch (e) {
+      console.error('Error loading project', e)
+    }
+  },
+
+  async loadFromStorage() {
+    const projectData = await localStorage.getItem('project')
+    if (projectData) {
+      console.log('Loading stored project')
+      try {
+        const proj = await JSON.parse(projectData)
+
+        const loadSprites = []
+        for (const s of proj.sprites) {
+          const sprite = new Sprite(s.id, s.size)
+          sprite.loadData(s.data)
+          loadSprites.push(sprite)
+        }
+
+        const loadPal = []
+        for (const c of proj.palette) {
+          loadPal.push(c)
+        }
+
+        Alpine.store('pal').colours = loadPal
+        Alpine.store('sprites').sprites = loadSprites
+        this.size = proj.size
+
+        this.projectLoaded = true
+      } catch (e) {
+        console.error('Error loading & parsing project', e)
+      }
+    }
+  },
+
+  saveToStorage() {
+    console.log('Saving project to storage')
+    localStorage.setItem(
+      'project',
+      JSON.stringify({
+        size: this.size,
+        sprites: Alpine.store('sprites').sprites,
+        palette: Alpine.store('pal').colours,
+      })
+    )
+  },
+
+  newProject() {
+    try {
+      const spriteBank = []
+      for (let i = 0; i < this.newBankSize; i++) {
+        spriteBank.push(new Sprite(i, this.newSpriteSize))
+      }
+      Alpine.store('sprites').sprites = spriteBank
+
+      const palette = []
+      for (let i = 0; i < this.newPaletteSize; i++) {
+        palette.push(randomHexColor())
+      }
+      Alpine.store('pal').colours = palette
+
+      this.size = this.newSpriteSize
+
+      this.saveToStorage()
+      this.projectLoaded = true
+      console.log('New project created and stored')
+    } catch (e) {
+      console.error('Error creating new project', e)
+    }
+  },
+
+  eraseProject() {
+    console.log('Erasing project')
+    const resp = prompt('Are you sure you want to erase the project? Enter "yes" to confirm')
+    if (resp === 'yes') {
+      localStorage.removeItem('project')
+      this.projectLoaded = false
+    }
+  },
 }))

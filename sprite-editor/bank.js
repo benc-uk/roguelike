@@ -5,6 +5,8 @@ export default () => ({
   activeSprite: null,
 
   init() {
+    console.log('Bank init')
+
     this.activeSprite = this.$store.sprites.selected()
     for (const s of this.$store.sprites.sprites) {
       this.spriteImages.push(s.toImageSrc(this.$store.pal.colours))
