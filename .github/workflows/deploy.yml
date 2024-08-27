@@ -19,7 +19,7 @@ permissions:
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   # Single deploy job since we're just deploying
@@ -37,12 +37,10 @@ jobs:
 
       - name: Build site
         run: |
-          cd sprite-editor 
-          npx vite build --target esnext --base wasm-dungeon/
-          cd ..
-          mkdir -p deploy/sprite-editor
-          mv ./sprite-editor/dist/* ./deploy/sprite-editor
-          echo "Placeholder here" > ./deploy/index.html
+          make build-wasm build-editor
+          mkdir -p site/sprite-editor
+          cp -r ./sprite-editor/dist/* ./site/sprite-editor
+          cp -r ./web/* ./site
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -50,8 +48,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: "./deploy"
+          path: "./site"
 
       - name: Deploy to GitHub Pages
         id: deployment

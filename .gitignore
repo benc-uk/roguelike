@@ -3,3 +3,5 @@ bin/
 tmp/
 web/*.wasm
 web/assets/
+site/
+dist/
