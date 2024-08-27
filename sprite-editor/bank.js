@@ -1,5 +1,3 @@
-import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/module.esm.min.js'
-
 export default () => ({
   spriteImages: [],
   activeSprite: null,

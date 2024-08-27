@@ -89,4 +89,42 @@ export default (size) => ({
   colourChange(event) {
     this.colour = event.target.value
   },
+
+  toolClear() {
+    this.sprite.data = this.sprite.data.map(() => Array(size).fill(null))
+  },
+
+  toolFlipX() {
+    this.sprite.data = this.sprite.data.map((row) => row.reverse())
+  },
+
+  toolFlipY() {
+    this.sprite.data = this.sprite.data.reverse()
+  },
+
+  toolColour() {
+    this.sprite.data = this.sprite.data.map((row) => row.map((cell) => (cell === null ? null : this.$store.pal.selected())))
+  },
+
+  toolMoveDown() {
+    this.sprite.data.unshift(this.sprite.data.pop())
+  },
+
+  toolMoveUp() {
+    this.sprite.data.push(this.sprite.data.shift())
+  },
+
+  toolMoveRight() {
+    this.sprite.data = this.sprite.data.map((row) => {
+      row.unshift(row.pop())
+      return row
+    })
+  },
+
+  toolMoveLeft() {
+    this.sprite.data = this.sprite.data.map((row) => {
+      row.push(row.shift())
+      return row
+    })
+  },
 })

@@ -1,7 +1,6 @@
 export class Sprite {
-  constructor(index = 0, size = 16) {
-    this.name = `Sprite ${index}`
-    this.index = index
+  constructor(name, size = 16) {
+    this.name = name ? name : `Sprite ${Math.random().toString(36).substring(7)}`
     this.data = []
     this.size = size
 
@@ -40,5 +39,17 @@ export class Sprite {
     }
 
     this.data = data
+  }
+
+  drawOnCanvas(ctx, x, y, palette = []) {
+    for (let sy = 0; sy < this.size; sy++) {
+      for (let sx = 0; sx < this.size; sx++) {
+        const pixel = palette[this.data[sy][sx]]
+        if (pixel) {
+          ctx.fillStyle = pixel
+          ctx.fillRect(x + sx, y + sy, 1, 1)
+        }
+      }
+    }
   }
 }
