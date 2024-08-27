@@ -83,6 +83,13 @@ export default () => ({
       }
       this.$store.pal.colours = palette
 
+      // Create a blank map 12*6
+      // TODO: Fix hard coded map size
+      this.$store.map = []
+      for (let i = 0; i < 12 * 6; i++) {
+        this.$store.map.push(-1)
+      }
+
       this.size = this.newSpriteSize
 
       this.saveToStorage()
