@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy sprite editor
+name: Deploy site
 
 on:
   # Runs on pushes targeting the default branch
@@ -31,13 +31,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+
+      - name: Build site
+        run: |
+          cd sprite-editor 
+          npx vite build --target esnext --base wasm-dungeon/
+          cd ..
+          mkdir -p deploy/sprite-editor
+          mv ./sprite-editor/dist/* ./deploy/sprite-editor
+          echo "Placeholder here" > ./deploy/index.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: "./sprite-editor/dist"
+          path: "./deploy"
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
