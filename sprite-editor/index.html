@@ -8,76 +8,100 @@
   <script type="module" src="main.js"></script>
   <link rel="shortcut icon" href="favicon.png" type="image/png" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple-icons/siimple-icons.css" />
-
 </head>
 
 <body x-data="app" x-effect="saveToStorage()">
   <template x-if="projectLoaded">
     <div>
       <div class="row" aria-label="Toolbar">
-        <!-- <button @click="saveToStorage"><i class="si-disk fs24"></i> &nbsp; SAVE</button> -->
         <button @click="exportProject"><i class="si-file fs24"></i> &nbsp; EXPORT</button>
         <button @click="exportAllSprites"><i class="si-stack fs24"></i> &nbsp; GENERATE</button>
+        <button @click="switchTransparent"><i class="si-square-half fs24"></i> &nbsp; BG TRANS</button>
         <div style="width: 4rem"></div>
         <button @click="eraseProject"><i class="si-file-x fs24"></i> &nbsp; RESET</button>
       </div>
 
-      <div class="row" aria-label="Main area" >
-        <div x-data="editor(size)" class="padded" x-effect="drawSprite(); drawGrid();"
-          @keyup.w.window="toolMoveUp"
-          @keyup.s.window="toolMoveDown"
-          @keyup.a.window="toolMoveLeft"
-          @keyup.d.window="toolMoveRight">
-          <div class="row align-center">
-            <div class="grow">Editing:&nbsp;<input type="text" x-model="sprite.name" ></input></div>
-
-            <button @click="toolFlipX"> <i class="si-arrow-alt-left fs24"></i></button>
-            <button @click="toolFlipY"> <i class="si-arrow-alt-up fs24"></i></button>
-            <button @click="toolColour"><i class="si-square-fill fs24"></i></button>
-            <button @click="toolCopy">  <i class="si-copy fs24"></i></button>
+      <!-- Main row of the app -->
+      <div class="row" aria-label="Main area">
+        <div x-data="editor(size)" class="padded" x-effect="drawSprite(); drawGrid()">
+          <!-- Editor toolbar -->
+          <div class="row align-center" aria-label="Editor Toolbar">
+            <div class="grow">Editing:&nbsp;<input type="text" x-model="sprite.name"></input></div>
+            <button @click="toolFlipX"> <i class="si-align-center fs24"></i></button>
+            <button @click="toolFlipY"> <i class="si-align-middle fs24"></i></button>
+            <button @click="toolColour"> <i class="si-droplet fs24"></i></button>
+            <button @click="toolCopy"> <i class="si-copy fs24"></i></button>
             <button @click="toolPaste"> <i class="si-files fs24"></i></button>
             <button @click="toolClear"> <i class="si-trash fs24"></i></button>
           </div>
-          <canvas width="600" height="600" x-ref="canvas" @click="handleClick" 
-            
-            @contextmenu.prevent="handleClick"
-            @mousemove="handleClick">
+
+          <!-- Sprite editor canvas -->
+          <canvas width="600" height="600" x-ref="canvas" class="transbg" @click="handleClick" tabindex="0"
+            @contextmenu.prevent="handleClick" @mousemove="handleClick" @keyup.w="toolMoveUp" @keyup.s="toolMoveDown"
+            @keyup.a="toolMoveLeft" @keyup.d="toolMoveRight">
           </canvas>
         </div>
 
+        <!-- Column right has the palette and sprite bank -->
         <div>
           <div class="padded">
             <h4>Colour Palette</h4>
-            <div x-data="palette" class="pallete">
-              <template x-for="(colour, index) in $store.pal.colours" :key="index">
-                <input type="color" :value="colour" @change="editColour($event, index)"
-                  @click="$store.pal.select(index)" @contextmenu="selectColour($event, index)"
-                  :class="index == $store.pal.selected() ? 'selected' : ''" />
+            <div x-data="palette">
+              <button @click="bulkEdit = !bulkEdit" x-show="!bulkEdit" class="h40 flr">
+                <i class="si-pen fs24"></i>
+              </button>
+              <div class="row">
+                <textarea x-show="bulkEdit" type="text" x-model="bulkColours" rows="16" cols="10"></textarea>
+                <button x-show="bulkEdit" @click="bulkSave" class="h40">
+                  <i class="si-disk fs24"></i>
+                </button>
+                <button x-show="bulkEdit" @click="bulkEdit = false" class="h40">
+                  <i class="si-history-undo fs24"></i>
+                </button>
+              </div>
+              <template x-if="!bulkEdit">
+                <div class="palette">
+                  <template x-for="(colour, index) in $store.pal.colours" :key="index">
+                    <input type="color" :value="colour" @change="editColour($event, index)"
+                      @click="$store.pal.select(index)" @contextmenu="selectColour($event, index)"
+                      :class="index == $store.pal.selected() ? 'selected' : ''" />
+                  </template>
+                </div>
               </template>
             </div>
           </div>
 
           <div class="padded">
             <h4>Sprite Bank</h4>
-            <div x-data="bank" class="bank" x-effect="updateSprite">
-              <template x-for="(imgSrc, index) in spriteImages">
-                <img :src="imgSrc" @click="$store.sprites.select(index)"
-                  :class="index == $store.sprites.selectedIndex() ? 'selected' : ''"></img>
-              </template>
+            <div x-data="bank" x-effect="updateSprite">
+              <div class="transbg">
+                <div class="bank" x-ref="bankBg">
+                  <template x-for="(imgSrc, index) in spriteImages">
+                    <img :src="imgSrc" @click="$store.sprites.select(index)"
+                      :class="index == $store.sprites.selectedIndex() ? 'selected' : ''"></img>
+                  </template>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="row" aria-label="Scratch area">
-        <div>
-          <h4>Test Map Area</h4>
-          <div x-data="map()" class="padded scratch" x-ref="scratchGrid" x-effect="updateSprite(); updateStore()">
-            <template x-for="(cell, index) in map">
-              <img :src="cell.image" @click="clickCell($event, index)"
-                @contextmenu.prevent="clickCell($event, index)" />
-            </template>
+      <!-- Next row has the map area -->
+      <div class="" aria-label="Test map area">
+        <h4>Test Map Area</h4>
+        <div x-data="map()" class="row" x-effect="updateSprite(); updateStore()">
+          <div class="transbg">
+            <div class="" x-ref="mapBg">
+              <div class="padded map" x-ref="mapGrid">
+                <template x-for="(cell, index) in map">
+                  <img :src="cell.image" @click="clickCell($event, index)"
+                    @contextmenu.prevent="clickCell($event, index)" />
+                </template>
+              </div>
+            </div>
           </div>
+          <button @click="clearMap" style="height:40px"><i class="si-trash fs24"></i></button>
         </div>
       </div>
     </div>

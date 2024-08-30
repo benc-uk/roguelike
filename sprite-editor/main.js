@@ -49,8 +49,6 @@ Alpine.store('sprites', {
   },
 })
 
-Alpine.store('scratch', [])
-
 Alpine.data('app', App)
 Alpine.data('palette', Palette)
 Alpine.data('bank', Bank)

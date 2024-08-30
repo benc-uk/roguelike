@@ -2,7 +2,6 @@ export default (size) => ({
   cellSize: 0,
   ctx: null,
   sprite: null,
-  pallet: null,
 
   init() {
     console.log('Editor init')
@@ -11,7 +10,6 @@ export default (size) => ({
     this.ctx = this.$refs.canvas.getContext('2d')
     this.cellSize = canvas.width / size
     this.sprite = this.$store.sprites.selected()
-    this.pallet = this.$store.pal
 
     this.drawSprite()
     this.drawGrid()
@@ -41,7 +39,9 @@ export default (size) => ({
     // Weirdly this makes reactivity work
     this.sprite = this.$store.sprites.selected()
 
-    this.ctx.fillStyle = '#000'
+    this.ctx.clearRect(0, 0, this.$refs.canvas.width, this.$refs.canvas.height)
+
+    this.ctx.fillStyle = this.$store.transparent ? 'rgba(0, 0, 0, 0)' : 'black'
     this.ctx.fillRect(0, 0, this.$refs.canvas.width, this.$refs.canvas.height)
 
     for (let y = 0; y < size; y++) {
@@ -81,7 +81,8 @@ export default (size) => ({
   },
 
   clearCell(x, y) {
-    this.ctx.clearRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
+    this.ctx.fillStyle = this.$store.transparent ? 'rgba(0, 0, 0, 0)' : 'black'
+    this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize)
     this.$store.sprites.selected().data[y][x] = null
     this.drawGrid()
   },

@@ -1,5 +1,6 @@
 import { Sprite } from './lib/sprite.js'
 import { randomHexColor } from './lib/colours.js'
+import { WIDTH as mapWidth, HEIGHT as mapHeight } from './map.js'
 
 export default () => ({
   size: 16,
@@ -8,6 +9,7 @@ export default () => ({
   newPaletteSize: 16,
   newBankSize: 128,
   copySprite: null,
+  transparent: false,
 
   init() {
     console.log('App initializing')
@@ -40,11 +42,20 @@ export default () => ({
           loadPal.push(c)
         }
 
+        this.size = proj.size
         this.$store.pal.colours = loadPal
         this.$store.sprites.sprites = loadSprites
-        this.size = proj.size
         this.$store.sprites.select(proj.selected)
-        this.$store.map = proj.map
+        this.$store.transparent = proj.transparent || false
+
+        if (!proj.map) {
+          this.$store.map = []
+          for (let i = 0; i < mapWidth * mapHeight; i++) {
+            this.$store.map.push(-1)
+          }
+        } else {
+          this.$store.map = proj.map
+        }
 
         this.projectLoaded = true
       } catch (e) {
@@ -62,6 +73,7 @@ export default () => ({
         palette: this.$store.pal.colours,
         selected: this.$store.sprites.selectedIndex(),
         map: this.$store.map,
+        transparent: this.$store.transparent,
       })
     )
   },
@@ -70,6 +82,8 @@ export default () => ({
     console.log('Creating new project')
 
     try {
+      this.size = this.newSpriteSize
+
       const spriteBank = []
       for (let i = 0; i < this.newBankSize; i++) {
         const name = `Sprite ${i}`
@@ -83,15 +97,12 @@ export default () => ({
       }
       this.$store.pal.colours = palette
 
-      // Create a blank map 12*6
-      // TODO: Fix hard coded map size
       this.$store.map = []
-      for (let i = 0; i < 12 * 6; i++) {
+      for (let i = 0; i < mapWidth * mapHeight; i++) {
         this.$store.map.push(-1)
       }
 
-      this.size = this.newSpriteSize
-
+      this.transparent = 'rgba(0, 0, 0, 0.5)'
       this.saveToStorage()
       this.projectLoaded = true
       console.log('New project created and stored')
@@ -223,5 +234,11 @@ export default () => ({
 
       console.log('Pasted sprite', this.copySprite)
     }
+  },
+
+  switchTransparent() {
+    this.$store.transparent = !this.$store.transparent
+    this.saveToStorage()
+    window.location.reload()
   },
 })

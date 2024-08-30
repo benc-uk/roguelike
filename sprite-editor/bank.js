@@ -1,6 +1,7 @@
 export default () => ({
   spriteImages: [],
   activeSprite: null,
+  transparent: false,
 
   init() {
     console.log('Bank init')
@@ -9,6 +10,9 @@ export default () => ({
     for (const s of this.$store.sprites.sprites) {
       this.spriteImages.push(s.toImageSrc(this.$store.pal.colours))
     }
+
+    this.transparent = this.$store.transparent
+    this.$refs.bankBg.style.backgroundColor = this.transparent ? 'rgba(0, 0, 0, 0)' : 'black'
 
     window.addEventListener('palette', this.paletteUpdated.bind(this))
   },

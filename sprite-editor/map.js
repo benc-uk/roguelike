@@ -1,29 +1,32 @@
-const blackPixelImg =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAABNJREFUCB1jZGBg+A/EDEwgAgQADigBA//q6GsAAAAASUVORK5CYII%3D'
+const transparentPixelImg =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+
+export const WIDTH = 14
+export const HEIGHT = 8
 
 export default () => ({
   map: [],
   mapData: [],
-  width: 12,
-  height: 6,
 
   init() {
-    console.log('Scratch init')
+    console.log('Map init')
 
-    this.$refs.scratchGrid.style.gridTemplateColumns = `repeat(${this.width}, fit-content(100%))`
-    let total = this.width * this.height
+    // This is important hack to set the grid columns to the correct width
+    this.$refs.mapGrid.style.gridTemplateColumns = `repeat(${WIDTH}, fit-content(100%))`
     this.mapData = this.$store.map
 
-    // Create a new map from the scratch data
+    this.$refs.mapBg.style.backgroundColor = this.$store.transparent ? 'rgba(0, 0, 0, 0)' : 'black'
+
+    // Create a new map with images, from the raw mapdata
     this.map = []
-    for (let i = 0; i < total; i++) {
-      let image = blackPixelImg
+    for (let i = 0; i < this.mapData.length; i++) {
+      let image = transparentPixelImg
       if (this.mapData[i] !== -1) {
         image = this.$store.sprites.get(this.mapData[i]).toImageSrc(this.$store.pal.colours)
       }
 
       this.map.push({
-        index: this.mapData[i] || -1,
+        index: this.mapData[i],
         image,
       })
     }
@@ -53,12 +56,19 @@ export default () => ({
 
   clearCell(index) {
     this.map[index].index = -1
-    this.map[index].image = blackPixelImg
+    this.map[index].image = transparentPixelImg
   },
 
   updateStore() {
-    // scratch data is stored in the store
     const mapData = this.map.map((cell) => cell.index)
     this.$store.map = mapData
+  },
+
+  clearMap() {
+    for (let i = 0; i < this.map.length; i++) {
+      this.map[i].index = -1
+      this.map[i].image = transparentPixelImg
+      this.$store.map[i] = -1
+    }
   },
 })

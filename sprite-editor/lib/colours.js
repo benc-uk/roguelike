@@ -6,3 +6,7 @@ export function randomHexColor() {
   }
   return color
 }
+
+export function isHexColor(str) {
+  return /^#[0-9A-F]{6}$/i.test(str)
+}
