@@ -7,7 +7,9 @@
   <title>Sprite Editor</title>
   <script type="module" src="main.js"></script>
   <link rel="shortcut icon" href="favicon.png" type="image/png" />
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/siimple-icons/siimple-icons.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
 </head>
 
 <body x-data="app" x-effect="saveToStorage()">
@@ -62,9 +64,14 @@
               <template x-if="!bulkEdit">
                 <div class="palette">
                   <template x-for="(colour, index) in $store.pal.colours" :key="index">
-                    <input type="color" :value="colour" @change="editColour($event, index)"
-                      @click="$store.pal.select(index)" @contextmenu="selectColour($event, index)"
-                      :class="index == $store.pal.selected() ? 'selected' : ''" />
+                    <button :data-jscolor="`{
+                      showOnClick: false, preset:'dark large', value:'${colour}',
+                      onChange: function() {
+                        this.targetElement.dispatchEvent(new CustomEvent('col-change', {detail: {colour: this.toHEXString()}}))
+                      }}`" @click="$store.pal.select(index)" @contextmenu.prevent="event.target.jscolor.show()"
+                      @col-change="colourUpdated(event.detail.colour, index)"
+                      :class="index == $store.pal.selected() ? 'selected-thick' : ''" class="colour-but">
+                    </button>
                   </template>
                 </div>
               </template>

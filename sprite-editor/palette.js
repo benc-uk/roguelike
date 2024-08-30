@@ -15,28 +15,21 @@ export default () => ({
     this.bulkEdit = false
   },
 
-  editColour(e, i) {
-    this.$store.pal.colours[i] = e.target.value
-    this.$store.pal.select(i)
-
+  colourUpdated(colour, i) {
+    this.$store.pal.colours[i] = colour
     this.$dispatch('palette', {})
-  },
-
-  selectColour(e, i) {
-    e.preventDefault()
-    this.$store.pal.select(i)
   },
 
   bulkSave() {
     this.bulkEdit = false
 
-    const colours = this.bulkColours.split('\n')
+    const colourStrings = this.bulkColours.split('\n')
     for (let i = 0; i < this.$store.pal.colours.length; i++) {
-      if (!colours[i]) {
+      if (!colourStrings[i]) {
         continue
       }
 
-      let colour = colours[i].trim()
+      let colour = colourStrings[i].trim()
       if (colour[0] !== '#') {
         colour = '#' + colour
       }
@@ -45,36 +38,27 @@ export default () => ({
         colour = '#000000'
       }
 
-      // Add the # back to the colour!
       this.$store.pal.colours[i] = colour
     }
 
+    // Hideous hack to restore the colour picker on each button
+    this.$nextTick(() => {
+      const btns = document.querySelectorAll('.colour-but')
+      for (let i = 0; i < btns.length; i++) {
+        const btn = btns[i]
+        if (!btn.jscolor) {
+          new JSColor(btn, {
+            showOnClick: false,
+            preset: 'dark large',
+            value: this.$store.pal.colours[i],
+            onChange: function () {
+              this.targetElement.dispatchEvent(new CustomEvent('col-change', { detail: { colour: this.toHEXString() } }))
+            },
+          })
+        }
+      }
+    })
+
     this.$dispatch('palette', {})
-  },
-
-  createColourPicker(e) {
-    console.log('Create colour picker', this.$store.pal.selected())
-
-    // Create a colour picker
-    const input = document.createElement('input')
-    input.type = 'color'
-    // input.value = this.$store.pal.selected()
-    input.style.position = 'absolute'
-    input.style.left = e.clientX + 'px'
-    input.style.top = e.clientY + 'px'
-    input.style.zIndex = 1000
-
-    document.body.appendChild(input)
-
-    input.addEventListener('input', (e) => {
-      this.$store.pal.colours[this.$store.pal.selected()] = e.target.value
-      this.$dispatch('palette', {})
-    })
-
-    input.addEventListener('change', () => {
-      document.body.removeChild(input)
-    })
-
-    input.click()
   },
 })
