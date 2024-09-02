@@ -37,6 +37,7 @@ jobs:
         with:
           version: "v1.58"
           args: -E gofmt
+          skip-cache: true
 
       - name: Check build works
         run: make build-bin
