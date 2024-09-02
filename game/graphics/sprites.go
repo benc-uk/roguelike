@@ -2,10 +2,11 @@ package graphics
 
 import (
 	"dungeon-run/game/geom"
-	_ "embed"
+	"dungeon-run/game/utils"
 	"errors"
 	"image"
 	"log"
+	"os"
 	"path"
 
 	"encoding/json"
@@ -14,11 +15,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
-
-// HACK: Temp fix for not being able to load the JSON file from WASM
-//
-//go:embed dungeon.json
-var dungeonJSON []byte
 
 type Sprite struct {
 	name  string
@@ -52,16 +48,27 @@ func NewSprite(img *ebiten.Image, name string) *Sprite {
 }
 
 func NewSpriteBank(metaFile string) (*SpriteBank, error) {
-	// Read the metaFile from disk
-	// data, err := os.ReadFile(metaFile)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	data := dungeonJSON
+	var data []byte
+	var err error
+
+	// check if we're running in WASM, if so fetch the sprite metadata using HTTP
+	if utils.IsWASM() {
+		log.Println("Running in WASM, fetching sprite metadata using HTTP")
+		data, err = utils.FetchURL("/" + metaFile)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Read the metaFile using regular file I/O
+		data, err = os.ReadFile(metaFile)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	// Parse the JSON data into a SpriteMetaFile struct
 	var meta SpriteMetaFile
-	err := json.Unmarshal(data, &meta)
+	err = json.Unmarshal(data, &meta)
 	if err != nil {
 		return nil, err
 	}

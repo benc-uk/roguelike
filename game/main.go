@@ -9,7 +9,6 @@ import (
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 var sb *graphics.SpriteBank
@@ -24,9 +23,8 @@ const (
 )
 
 func init() {
-	_, _, _ = ebitenutil.NewImageFromFile("assets/sprites/dungeon.png")
 	var err error
-	sb, err = graphics.NewSpriteBank("assets/sprites/dungeon.json")
+	sb, err = graphics.NewSpriteBank("assets/sprites/sprites_new.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,11 +49,11 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// block := sb.Sprite("Block").Image()
 	// rock := sb.Sprite("Rock").Image()
-	rock, err := sb.Sprite("Rock")
+	rock, err := sb.Sprite("Wall 1")
 	if err != nil {
 		log.Fatal(err)
 	}
-	dirt, err := sb.Sprite("Dirt")
+	dirt, err := sb.Sprite("Rat")
 	if err != nil {
 		log.Fatal(err)
 	}

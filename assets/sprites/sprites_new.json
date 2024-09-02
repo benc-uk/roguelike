@@ -1,45 +1,45 @@
 {
   "size": 12,
   "count": 128,
-  "source": "./dungeon.png",
+  "source": "./sprites_new.png",
   "sprites": [
     {
-      "name": "Block",
+      "name": "Wall 1",
       "x": 0,
       "y": 0
     },
     {
-      "name": "Rock",
+      "name": "Door",
       "x": 12,
       "y": 0
     },
     {
-      "name": "Dude",
+      "name": "Rat",
       "x": 24,
       "y": 0
     },
     {
-      "name": "Dirt",
+      "name": "Grate",
       "x": 36,
       "y": 0
     },
     {
-      "name": "Sprite 4",
+      "name": "Roots",
       "x": 48,
       "y": 0
     },
     {
-      "name": "Sprite 5",
+      "name": "Dirt 1",
       "x": 60,
       "y": 0
     },
     {
-      "name": "Sprite 6",
+      "name": "Slime",
       "x": 72,
       "y": 0
     },
     {
-      "name": "Sprite 7",
+      "name": "Minotaur",
       "x": 84,
       "y": 0
     },
@@ -59,22 +59,22 @@
       "y": 12
     },
     {
-      "name": "Sprite 11",
+      "name": "Sprite 9",
       "x": 36,
       "y": 12
     },
     {
-      "name": "Sprite 12",
+      "name": "Slime",
       "x": 48,
       "y": 12
     },
     {
-      "name": "Sprite 13",
+      "name": "Slime",
       "x": 60,
       "y": 12
     },
     {
-      "name": "Sprite 14",
+      "name": "Slime",
       "x": 72,
       "y": 12
     },
@@ -94,7 +94,7 @@
       "y": 24
     },
     {
-      "name": "Sprite 18",
+      "name": "Skeleton",
       "x": 24,
       "y": 24
     },
@@ -104,7 +104,7 @@
       "y": 24
     },
     {
-      "name": "Sprite 20",
+      "name": "Slime",
       "x": 48,
       "y": 24
     },
