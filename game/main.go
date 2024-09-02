@@ -37,7 +37,6 @@ func init() {
 		color.RGBA{26, 37, 255, 255},
 		color.RGBA{128, 128, 128, 255},
 	}
-
 }
 
 type Game struct{}

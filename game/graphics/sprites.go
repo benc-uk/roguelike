@@ -54,7 +54,7 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 	// check if we're running in WASM, if so fetch the sprite metadata using HTTP
 	if utils.IsWASM() {
 		log.Println("Running in WASM, fetching sprite metadata using HTTP")
-		data, err = utils.FetchURL("/" + metaFile)
+		data, err = utils.FetchURL("/wasm-dungeon/" + metaFile)
 		if err != nil {
 			return nil, err
 		}
