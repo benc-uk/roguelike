@@ -32,7 +32,7 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: 1.58
+          version: "v1.58"
           args: -E gofmt
 
       - name: Install dependencies
