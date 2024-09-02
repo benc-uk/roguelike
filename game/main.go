@@ -11,9 +11,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// These are injected by the build system
+var basePath string = "./"
+var version string = "0.0.1-alpha_001"
+
 var sb *graphics.SpriteBank
 var palette color.Palette
-var basePath string = "./"
 
 const (
 	sz        = 12
@@ -24,6 +27,8 @@ const (
 )
 
 func init() {
+	log.Printf("Dungeon Run v%s is starting...", version)
+
 	var err error
 	sb, err = graphics.NewSpriteBank(basePath + "assets/sprites/sprites_new.json")
 	if err != nil {
