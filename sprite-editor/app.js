@@ -102,7 +102,7 @@ export default () => ({
         this.$store.map.push(-1)
       }
 
-      this.transparent = 'rgba(0, 0, 0, 0.5)'
+      this.transparent = false
       this.saveToStorage()
       this.projectLoaded = true
       console.log('New project created and stored')
@@ -188,11 +188,21 @@ export default () => ({
           const sprite = this.$store.sprites.sprites[i]
           sprite.drawOnCanvas(ctx, x * this.size, y * this.size, this.$store.pal.colours)
 
+          // Palette index for monochrome sprites, -1 for multi-colour
+          let paletteIndex = null
+          const colours = sprite.collectColours()
+
+          // Check monochrome sprite
+          if (colours.length === 1) {
+            paletteIndex = colours[0]
+          }
+
           // Add sprite meta data
           meta.sprites.push({
             name: sprite.name,
             x: x * this.size,
             y: y * this.size,
+            paletteIndex,
           })
 
           i++

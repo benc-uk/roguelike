@@ -8,7 +8,7 @@ export class Sprite {
       this.data[y] = []
       for (let x = 0; x < size; x++) {
         // random data
-        this.data[y][x] = null //Math.floor(Math.random() * 16)
+        this.data[y][x] = null
       }
     }
   }
@@ -51,5 +51,22 @@ export class Sprite {
         }
       }
     }
+  }
+
+  collectColours() {
+    const colours = []
+
+    for (let y = 0; y < this.size; y++) {
+      for (let x = 0; x < this.size; x++) {
+        const colour = this.data[y][x]
+        if (colour === -1 || colour === null) continue
+
+        if (!colours.includes(colour)) {
+          colours.push(colour)
+        }
+      }
+    }
+
+    return colours
   }
 }

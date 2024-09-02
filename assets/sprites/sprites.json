@@ -1,0 +1,775 @@
+{
+  "size": 12,
+  "count": 128,
+  "source": "./sprites.png",
+  "sprites": [
+    {
+      "name": "Wall",
+      "x": 0,
+      "y": 0,
+      "paletteIndex": 0
+    },
+    {
+      "name": "Door",
+      "x": 12,
+      "y": 0,
+      "paletteIndex": 5
+    },
+    {
+      "name": "Rat",
+      "x": 24,
+      "y": 0,
+      "paletteIndex": 4
+    },
+    {
+      "name": "Grate",
+      "x": 36,
+      "y": 0,
+      "paletteIndex": 4
+    },
+    {
+      "name": "Roots",
+      "x": 48,
+      "y": 0,
+      "paletteIndex": 3
+    },
+    {
+      "name": "Dirt 1",
+      "x": 60,
+      "y": 0,
+      "paletteIndex": 3
+    },
+    {
+      "name": "Slime",
+      "x": 72,
+      "y": 0,
+      "paletteIndex": 7
+    },
+    {
+      "name": "Minotaur",
+      "x": 84,
+      "y": 0,
+      "paletteIndex": 8
+    },
+    {
+      "name": "Bricks",
+      "x": 0,
+      "y": 12,
+      "paletteIndex": 1
+    },
+    {
+      "name": "Potion",
+      "x": 12,
+      "y": 12,
+      "paletteIndex": 9
+    },
+    {
+      "name": "Meat",
+      "x": 24,
+      "y": 12,
+      "paletteIndex": 11
+    },
+    {
+      "name": "Sword",
+      "x": 36,
+      "y": 12,
+      "paletteIndex": 14
+    },
+    {
+      "name": "Shield",
+      "x": 48,
+      "y": 12,
+      "paletteIndex": 5
+    },
+    {
+      "name": "Goblin",
+      "x": 60,
+      "y": 12,
+      "paletteIndex": 6
+    },
+    {
+      "name": "Ghost",
+      "x": 72,
+      "y": 12,
+      "paletteIndex": 1
+    },
+    {
+      "name": "Barrel",
+      "x": 84,
+      "y": 12,
+      "paletteIndex": 4
+    },
+    {
+      "name": "Warrior",
+      "x": 0,
+      "y": 24,
+      "paletteIndex": 10
+    },
+    {
+      "name": "Book",
+      "x": 12,
+      "y": 24,
+      "paletteIndex": 12
+    },
+    {
+      "name": "Skeleton",
+      "x": 24,
+      "y": 24,
+      "paletteIndex": 13
+    },
+    {
+      "name": "Sprite 19",
+      "x": 36,
+      "y": 24,
+      "paletteIndex": null
+    },
+    {
+      "name": "Not Slime",
+      "x": 48,
+      "y": 24,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 21",
+      "x": 60,
+      "y": 24,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 22",
+      "x": 72,
+      "y": 24,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 23",
+      "x": 84,
+      "y": 24,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 24",
+      "x": 0,
+      "y": 36,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 25",
+      "x": 12,
+      "y": 36,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 26",
+      "x": 24,
+      "y": 36,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 27",
+      "x": 36,
+      "y": 36,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 28",
+      "x": 48,
+      "y": 36,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 29",
+      "x": 60,
+      "y": 36,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 30",
+      "x": 72,
+      "y": 36,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 31",
+      "x": 84,
+      "y": 36,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 32",
+      "x": 0,
+      "y": 48,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 33",
+      "x": 12,
+      "y": 48,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 34",
+      "x": 24,
+      "y": 48,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 35",
+      "x": 36,
+      "y": 48,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 36",
+      "x": 48,
+      "y": 48,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 37",
+      "x": 60,
+      "y": 48,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 38",
+      "x": 72,
+      "y": 48,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 39",
+      "x": 84,
+      "y": 48,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 40",
+      "x": 0,
+      "y": 60,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 41",
+      "x": 12,
+      "y": 60,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 42",
+      "x": 24,
+      "y": 60,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 43",
+      "x": 36,
+      "y": 60,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 44",
+      "x": 48,
+      "y": 60,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 45",
+      "x": 60,
+      "y": 60,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 46",
+      "x": 72,
+      "y": 60,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 47",
+      "x": 84,
+      "y": 60,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 48",
+      "x": 0,
+      "y": 72,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 49",
+      "x": 12,
+      "y": 72,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 50",
+      "x": 24,
+      "y": 72,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 51",
+      "x": 36,
+      "y": 72,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 52",
+      "x": 48,
+      "y": 72,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 53",
+      "x": 60,
+      "y": 72,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 54",
+      "x": 72,
+      "y": 72,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 55",
+      "x": 84,
+      "y": 72,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 56",
+      "x": 0,
+      "y": 84,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 57",
+      "x": 12,
+      "y": 84,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 58",
+      "x": 24,
+      "y": 84,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 59",
+      "x": 36,
+      "y": 84,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 60",
+      "x": 48,
+      "y": 84,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 61",
+      "x": 60,
+      "y": 84,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 62",
+      "x": 72,
+      "y": 84,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 63",
+      "x": 84,
+      "y": 84,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 64",
+      "x": 0,
+      "y": 96,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 65",
+      "x": 12,
+      "y": 96,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 66",
+      "x": 24,
+      "y": 96,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 67",
+      "x": 36,
+      "y": 96,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 68",
+      "x": 48,
+      "y": 96,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 69",
+      "x": 60,
+      "y": 96,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 70",
+      "x": 72,
+      "y": 96,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 71",
+      "x": 84,
+      "y": 96,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 72",
+      "x": 0,
+      "y": 108,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 73",
+      "x": 12,
+      "y": 108,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 74",
+      "x": 24,
+      "y": 108,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 75",
+      "x": 36,
+      "y": 108,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 76",
+      "x": 48,
+      "y": 108,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 77",
+      "x": 60,
+      "y": 108,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 78",
+      "x": 72,
+      "y": 108,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 79",
+      "x": 84,
+      "y": 108,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 80",
+      "x": 0,
+      "y": 120,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 81",
+      "x": 12,
+      "y": 120,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 82",
+      "x": 24,
+      "y": 120,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 83",
+      "x": 36,
+      "y": 120,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 84",
+      "x": 48,
+      "y": 120,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 85",
+      "x": 60,
+      "y": 120,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 86",
+      "x": 72,
+      "y": 120,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 87",
+      "x": 84,
+      "y": 120,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 88",
+      "x": 0,
+      "y": 132,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 89",
+      "x": 12,
+      "y": 132,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 90",
+      "x": 24,
+      "y": 132,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 91",
+      "x": 36,
+      "y": 132,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 92",
+      "x": 48,
+      "y": 132,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 93",
+      "x": 60,
+      "y": 132,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 94",
+      "x": 72,
+      "y": 132,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 95",
+      "x": 84,
+      "y": 132,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 96",
+      "x": 0,
+      "y": 144,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 97",
+      "x": 12,
+      "y": 144,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 98",
+      "x": 24,
+      "y": 144,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 99",
+      "x": 36,
+      "y": 144,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 100",
+      "x": 48,
+      "y": 144,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 101",
+      "x": 60,
+      "y": 144,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 102",
+      "x": 72,
+      "y": 144,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 103",
+      "x": 84,
+      "y": 144,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 104",
+      "x": 0,
+      "y": 156,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 105",
+      "x": 12,
+      "y": 156,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 106",
+      "x": 24,
+      "y": 156,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 107",
+      "x": 36,
+      "y": 156,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 108",
+      "x": 48,
+      "y": 156,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 109",
+      "x": 60,
+      "y": 156,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 110",
+      "x": 72,
+      "y": 156,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 111",
+      "x": 84,
+      "y": 156,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 112",
+      "x": 0,
+      "y": 168,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 113",
+      "x": 12,
+      "y": 168,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 114",
+      "x": 24,
+      "y": 168,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 115",
+      "x": 36,
+      "y": 168,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 116",
+      "x": 48,
+      "y": 168,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 117",
+      "x": 60,
+      "y": 168,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 118",
+      "x": 72,
+      "y": 168,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 119",
+      "x": 84,
+      "y": 168,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 120",
+      "x": 0,
+      "y": 180,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 121",
+      "x": 12,
+      "y": 180,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 122",
+      "x": 24,
+      "y": 180,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 123",
+      "x": 36,
+      "y": 180,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 124",
+      "x": 48,
+      "y": 180,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 125",
+      "x": 60,
+      "y": 180,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 126",
+      "x": 72,
+      "y": 180,
+      "paletteIndex": null
+    },
+    {
+      "name": "Sprite 127",
+      "x": 84,
+      "y": 180,
+      "paletteIndex": null
+    }
+  ]
+}

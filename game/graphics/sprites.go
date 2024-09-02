@@ -6,7 +6,6 @@ import (
 	"errors"
 	"image"
 	"log"
-	"os"
 	"path"
 
 	"encoding/json"
@@ -47,24 +46,10 @@ func NewSprite(img *ebiten.Image, name string) *Sprite {
 	}
 }
 
-func NewSpriteBank(metaFile string) (*SpriteBank, error) {
-	var data []byte
-	var err error
-	log.Printf("Creating sprite bank from: %s", metaFile)
-
-	// check if we're running in WASM, if so fetch the sprite metadata using HTTP
-	if utils.IsWASM() {
-		log.Println("Running in WASM, fetching sprite metadata using HTTP")
-		data, err = utils.FetchURL(metaFile)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		// Read the metaFile using regular file I/O
-		data, err = os.ReadFile(metaFile)
-		if err != nil {
-			return nil, err
-		}
+func NewSpriteBank(metaFile string, whiteOut bool) (*SpriteBank, error) {
+	data, err := utils.ReadFile(metaFile)
+	if err != nil {
+		return nil, err
 	}
 
 	// Parse the JSON data into a SpriteMetaFile struct
@@ -96,8 +81,21 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 		// Sub image inside the sprite sheet where the sprite is located
 		spriteImg := sheetImg.SubImage(image.Rect(entry.Pos.X, entry.Pos.Y, entry.Pos.X+sz, entry.Pos.Y+sz)).(*ebiten.Image)
 
-		// TODO: We make a copy here just in case, it might be better to just use the subimage directly
-		sprite := NewSprite(ebiten.NewImageFromImage(spriteImg), entry.Name)
+		// Logic to white out the sprite or not
+		var newImg *ebiten.Image
+		if whiteOut {
+			newImg = ebiten.NewImage(sz, sz)
+			op := &ebiten.DrawImageOptions{}
+			op.ColorScale.SetR(255)
+			op.ColorScale.SetG(255)
+			op.ColorScale.SetB(255)
+			newImg.DrawImage(spriteImg, op)
+		} else {
+			// Clone the image if we don't want to white out the sprite
+			newImg = ebiten.NewImageFromImage(spriteImg)
+		}
+
+		sprite := NewSprite(newImg, entry.Name)
 		spriteBank.AddSprite(sprite)
 	}
 

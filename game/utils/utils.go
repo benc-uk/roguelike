@@ -2,23 +2,16 @@ package utils
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"os"
+	"runtime"
 )
 
 func IsWASM() bool {
-	host, err := os.Hostname()
-	if err != nil {
-		return false
-	}
-
-	return host == "js"
+	return runtime.GOARCH == "wasm"
 }
 
 func FetchURL(url string) ([]byte, error) {
-	log.Println("Fetching URL:", url)
-
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -31,4 +24,22 @@ func FetchURL(url string) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func ReadFile(filePath string) (bytes []byte, err error) {
+	var data []byte
+
+	if IsWASM() {
+		data, err = FetchURL(filePath)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		data, err = os.ReadFile(filePath)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return data, nil
 }

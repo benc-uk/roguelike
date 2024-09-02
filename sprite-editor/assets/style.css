@@ -116,6 +116,11 @@ button:hover {
   color: rgb(0, 0, 0);
 }
 
+button.toggle {
+  background-color: rgb(214, 214, 214);
+  color: rgb(0, 0, 0);
+}
+
 .map {
   display: grid;
   /* columns is updated dynamically by the component */
