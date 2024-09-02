@@ -158,6 +158,7 @@ export default () => ({
   },
 
   exportAllSprites() {
+    const exportName = 'sprites'
     console.log('Exporting sprite sheet')
 
     // Create a big canvas to draw all sprites on
@@ -174,6 +175,7 @@ export default () => ({
     const meta = {
       size: this.size,
       count: spriteCount,
+      source: `./${exportName}.png`,
       sprites: [],
     }
 
@@ -201,14 +203,15 @@ export default () => ({
     // Download image
     const imageA = document.createElement('a')
     imageA.href = canvas.toDataURL()
-    imageA.download = 'sprites.png'
+    imageA.download = `${exportName}.png`
     imageA.click()
 
     // Download meta data
-    const metaBlob = new Blob([JSON.stringify(meta)], { type: 'application/json' })
+    const content = JSON.stringify(meta, null, 2)
+    const metaBlob = new Blob([content], { type: 'application/json' })
     const metaA = document.createElement('a')
     metaA.href = URL.createObjectURL(metaBlob)
-    metaA.download = 'sprites.json'
+    metaA.download = `${exportName}.json`
     metaA.click()
   },
 

@@ -1,0 +1,27 @@
+{
+  "size": 12,
+  "count": 128,
+  "source": "./dungeon.png",
+  "sprites": [
+    {
+      "name": "Block",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "name": "Rock",
+      "x": 12,
+      "y": 0
+    },
+    {
+      "name": "Dude",
+      "x": 24,
+      "y": 0
+    },
+    {
+      "name": "Dirt",
+      "x": 36,
+      "y": 0
+    }
+  ]
+}

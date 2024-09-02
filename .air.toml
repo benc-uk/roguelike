@@ -4,9 +4,9 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 bin = "./tmp/main"
-cmd = "go build -o ./tmp/main ."
+cmd = "go build -o ./tmp/main ./game"
 delay = 1000
-exclude_dir = ["assets", "web", "bin", ".vite"]
+exclude_dir = ["assets", "web", "bin", ".vite", "sprite-editor", "site", "etc"]
 exclude_file = []
 kill_delay = "0s"
 log = "build-errors.log"

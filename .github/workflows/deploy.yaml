@@ -35,8 +35,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
 
-      - name: Build site
-        run: make build-site
+      - name: Build and bundle site
+        run: make site
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
