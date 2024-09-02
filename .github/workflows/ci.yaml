@@ -17,7 +17,7 @@ permissions:
   checks: write
 
 jobs:
-  build:
+  lint-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,14 +29,14 @@ jobs:
         with:
           go-version: "^1.22.0"
 
+      - name: Install dependencies
+        run: go mod download
+
       - name: Lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: "v1.58"
           args: -E gofmt
-
-      - name: Install dependencies
-        run: go mod download
 
       - name: Check build works
         run: make build-bin
