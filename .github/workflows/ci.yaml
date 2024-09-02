@@ -30,7 +30,9 @@ jobs:
           go-version: "^1.22.0"
 
       - name: Install dependencies
-        run: go mod download
+        run: |
+          go mod download
+          make build-bin
 
       - name: Lint
         uses: golangci/golangci-lint-action@v6
@@ -38,6 +40,4 @@ jobs:
           version: "v1.60"
           args: -E gofmt
           skip-cache: true
-
-      - name: Check build works
-        run: make build-bin
+          skip-save-cache:
