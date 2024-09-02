@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           go mod download
-          make build-bin
+          make build-wasm
 
       - name: Lint
         uses: golangci/golangci-lint-action@v6
