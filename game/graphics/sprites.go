@@ -50,11 +50,12 @@ func NewSprite(img *ebiten.Image, name string) *Sprite {
 func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 	var data []byte
 	var err error
+	log.Printf("Creating sprite bank from: %s", metaFile)
 
 	// check if we're running in WASM, if so fetch the sprite metadata using HTTP
 	if utils.IsWASM() {
 		log.Println("Running in WASM, fetching sprite metadata using HTTP")
-		data, err = utils.FetchURL("/wasm-dungeon/" + metaFile)
+		data, err = utils.FetchURL(metaFile)
 		if err != nil {
 			return nil, err
 		}
@@ -73,8 +74,6 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 		return nil, err
 	}
 
-	log.Printf("Creating sprite bank with %d sprites from %s\n", meta.Count, meta.Source)
-
 	// Create a new SpriteBank and populate it with sprites
 	spriteBank := &SpriteBank{
 		sprites: make(map[string]*Sprite),
@@ -83,7 +82,11 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 
 	// Load the source image file
 	metaDir := path.Dir(metaFile)
-	sheetImg, _, err := ebitenutil.NewImageFromFile(path.Join(metaDir, meta.Source))
+	imgPath := path.Join(metaDir, meta.Source)
+
+	log.Printf("Loading sprite sheet from: %s", imgPath)
+
+	sheetImg, _, err := ebitenutil.NewImageFromFile(imgPath)
 	if err != nil {
 		return nil, err
 	}

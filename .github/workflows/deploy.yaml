@@ -37,6 +37,9 @@ jobs:
 
       - name: Build and bundle site
         run: make site
+        env:
+          GAME_BASE_PATH: wasm-dungeon/
+          EDITOR_DEPLOY_BASE: wasm-dungeon/sprite-editor/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

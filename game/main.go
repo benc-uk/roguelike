@@ -13,6 +13,7 @@ import (
 
 var sb *graphics.SpriteBank
 var palette color.Palette
+var basePath string = "./"
 
 const (
 	sz        = 12
@@ -24,7 +25,7 @@ const (
 
 func init() {
 	var err error
-	sb, err = graphics.NewSpriteBank("assets/sprites/sprites_new.json")
+	sb, err = graphics.NewSpriteBank(basePath + "assets/sprites/sprites_new.json")
 	if err != nil {
 		log.Fatal(err)
 	}

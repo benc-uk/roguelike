@@ -1,4 +1,5 @@
-EDITOR_DEPLOY_BASE ?= wasm-dungeon/sprite-editor/
+EDITOR_DEPLOY_BASE ?= /sprite-editor/
+GAME_BASE_PATH ?= ./
 .DEFAULT_GOAL := help
 
 help: ## This help message
@@ -9,7 +10,7 @@ build-bin: ## Build binaries for linux and windows
 	env GOOS=windows GOARCH=amd64 go build -o bin/dungeon.exe dungeon-run/game
 
 build-wasm: ## Build as WASM for web
-	env GOOS=js GOARCH=wasm go build -o web/main.wasm dungeon-run/game
+	env GOOS=js GOARCH=wasm go build -o web/main.wasm -ldflags="-X 'main.basePath=$(GAME_BASE_PATH)'" dungeon-run/game
 	rm -rf web/assets
 	cp -r assets/ web/
 
