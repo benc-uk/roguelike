@@ -27,7 +27,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "^1.22.0"
+          go-version: "1.22.1"
+          cache: false
 
       - name: Install dependencies & build
         run: |
@@ -40,4 +41,3 @@ jobs:
           version: "v1.60"
           args: -E gofmt
           skip-cache: true
-          skip-save-cache:
