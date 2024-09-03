@@ -79,7 +79,7 @@ func NewSpriteBank(metaFile string, whiteOut bool) (*SpriteBank, error) {
 	sz := meta.Size
 	for _, entry := range meta.Sprites {
 		// Sub image inside the sprite sheet where the sprite is located
-		 spriteImg := sheetImg.SubImage(image.Rect(entry.Pos.X, entry.Pos.Y, entry.Pos.X+sz, entry.Pos.Y+sz)).(*ebiten.Image)
+		spriteImg := sheetImg.SubImage(image.Rect(entry.Pos.X, entry.Pos.Y, entry.Pos.X+sz, entry.Pos.Y+sz)).(*ebiten.Image)
 
 		// Logic to white out the sprite or not
 		var newImg *ebiten.Image

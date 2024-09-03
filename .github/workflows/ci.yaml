@@ -41,7 +41,6 @@ jobs:
         with:
           version: "v1.60"
           args: "-E gofmt"
-          skip-cache: true
 
       - name: Build
         run: make build-bin
