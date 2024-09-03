@@ -92,6 +92,7 @@ func NewSpriteBank(metaFile string, whiteOut bool) (*SpriteBank, error) {
 			newImg.DrawImage(spriteImg, op)
 		} else {
 			// Clone the image if we don't want to white out the sprite
+			// TODO: May not be needed
 			newImg = ebiten.NewImageFromImage(spriteImg)
 		}
 
