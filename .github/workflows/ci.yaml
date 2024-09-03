@@ -35,6 +35,12 @@ jobs:
       #     go mod download
       #     make build-wasm
       #     #golangci-lint --version
+      - name: Install dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install libasound2-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev
+          go mod download
 
       - name: Lint
         uses: golangci/golangci-lint-action@v6
