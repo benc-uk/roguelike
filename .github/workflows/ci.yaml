@@ -40,5 +40,5 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: "v1.60"
-          args: run -E gofmt
+          args: "-E gofmt"
           skip-cache: true
