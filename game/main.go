@@ -1,23 +1,28 @@
 package main
 
 import (
-	"dungeon-run/game/graphics"
+	"image"
 	"image/color"
 	_ "image/png"
 	"log"
-
-	"math/rand"
+	"roguelike/engine"
+	"roguelike/game/graphics"
+	"strconv"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_001"
-var cIndex = 0 // TODO: Remove this
-var fCount = 0 // TODO: Remove this
+var version string = "0.0.1-alpha_002"
+
+// These are not
+var windowIcon image.Image
 var bank *graphics.SpriteBank
 var palette color.Palette
+var game *engine.Game
 
 const (
 	sz           = 12        // Sprite & tile size
@@ -29,10 +34,10 @@ const (
 )
 
 func init() {
-	log.Printf("Dungeon Run v%s is starting...", version)
+	log.Printf("Generic Dungeon Game v%s is starting...", version)
 
 	var err error
-	bank, err = graphics.NewSpriteBank(basePath+"assets/sprites/sprites.json", true)
+	bank, err = graphics.NewSpriteBank(basePath + "assets/sprites/sprites.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,45 +47,73 @@ func init() {
 		log.Fatal(err)
 	}
 
-	palette, err = graphics.GetRGBPalette("c64")
+	palette, err = graphics.GetRGBPalette("default")
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	iconImg, _, err := ebitenutil.NewImageFromFile(basePath + "assets/icon.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	windowIcon = iconImg
 }
 
 type Game struct{}
 
 func (g *Game) Update() error {
-	fCount++
-	if fCount%10 == 0 {
-		cIndex = rand.Intn(len(palette))
-	}
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	s1, err := bank.Sprite("Wall")
+	wallSprite, err := bank.Sprite("Wall")
 	if err != nil {
 		log.Fatal(err)
 	}
-	s2, err := bank.Sprite("Slime")
+	playerSprite, err := bank.Sprite("Warrior")
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	gameMap := game.Map()
+	p := game.Player()
 
 	for x := 0; x < cols; x++ {
 		for y := 0; y < rows; y++ {
+			tile := gameMap.Tile(x, y)
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64(x*sz), float64(y*sz))
 
-			if x%2 == 0 && y%2 == 0 {
-				op.ColorScale.ScaleWithColor(palette[11])
-				screen.DrawImage(s1.Image(), op)
-			} else {
-				c := palette[cIndex]
-				op.ColorScale.ScaleWithColor(c)
+			// Player takes precedence
+			if p.X == x && p.Y == y {
+				playerSprite.Draw(screen, x*sz, y*sz, palette)
+				continue
+			}
 
-				screen.DrawImage(s2.Image(), op)
+			// Then walls & floors
+			appear := tile.GetAppearance()
+			if appear.Details == "wall" {
+				wallSprite.Draw(screen, x*sz, y*sz, palette)
+				continue
+			}
+
+			// Then items
+			itemSprite, _ := bank.Sprite(appear.Details)
+			if itemSprite != nil {
+				palIndex := itemSprite.PaletteIndex()
+
+				// Check for hints, which can override the palette index
+				if len(appear.Hints) > 0 {
+					for _, hint := range appear.Hints {
+						hintParts := strings.Split(hint, "::")
+						if len(hintParts) == 2 && hintParts[0] == "colour" {
+							palIndex, _ = strconv.Atoi(hintParts[1])
+							break
+						}
+					}
+				}
+
+				itemSprite.DrawWithColour(screen, x*sz, y*sz, palette, palIndex)
 			}
 		}
 	}
@@ -92,8 +125,15 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func main() {
 	ebiten.SetWindowSize(scrWidth*initialScale, scrHeight*initialScale)
-	ebiten.SetWindowTitle("Dungeon Run")
+	ebiten.SetWindowPosition(0, 0)
+	ebiten.SetWindowTitle("Generic Dungeon Game")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	ebiten.SetWindowIcon([]image.Image{windowIcon})
+
+	// TODO: This is a lot of placeholder for now
+	engine.LoadItemFactory()
+	game = engine.NewGame()
+
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}

@@ -1,59 +1,89 @@
 package graphics
 
 import (
-	"dungeon-run/game/geom"
-	"dungeon-run/game/utils"
 	"errors"
 	"image"
 	"log"
 	"path"
+	"roguelike/core"
 
 	"encoding/json"
+	"image/color"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
+// Represents a single named sprite image
 type Sprite struct {
-	name  string
-	image *ebiten.Image
-	size  geom.Size
+	name         string
+	image        *ebiten.Image
+	size         core.Size
+	paletteIndex int
 }
 
+// Getter for Sprite image
+func (s *Sprite) Image() *ebiten.Image {
+	return s.image
+}
+
+// Getter for Sprite size
+func (s *Sprite) Size() core.Size {
+	return s.size
+}
+
+// Getter for Sprite name
+func (s *Sprite) Name() string {
+	return s.name
+}
+
+// Getter for Sprite palette index
+func (s *Sprite) PaletteIndex() int {
+	return s.paletteIndex
+}
+
+func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, palette color.Palette) {
+	s.DrawWithColour(screen, x, y, palette, s.paletteIndex)
+}
+
+func (s *Sprite) DrawWithColour(screen *ebiten.Image, x int, y int, palette color.Palette, index int) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(x), float64(y))
+	op.ColorScale.ScaleWithColor(palette[index])
+	screen.DrawImage(s.image, op)
+}
+
+// ====================================================================================================================
+
+// Holds a collection of sprites, indexed by name/id
 type SpriteBank struct {
 	sprites map[string]*Sprite
 	size    int
 }
 
-type SpriteMetaFile struct {
+type spriteMetaFile struct {
 	Size    int
 	Count   int
 	Source  string
-	Sprites []SpriteMetaEntry
+	Sprites []spriteMetaEntry
 }
 
-type SpriteMetaEntry struct {
-	Name string
-	geom.Pos
+type spriteMetaEntry struct {
+	Name         string
+	PaletteIndex int
+	core.Pos
 }
 
-func NewSprite(img *ebiten.Image, name string) *Sprite {
-	return &Sprite{
-		image: img,
-		size:  geom.Size{Width: img.Bounds().Dx(), Height: img.Bounds().Dy()},
-		name:  name,
-	}
-}
-
-func NewSpriteBank(metaFile string, whiteOut bool) (*SpriteBank, error) {
-	data, err := utils.ReadFile(metaFile)
+// Create a new SpriteBank from a JSON meta file and a source image file
+func NewSpriteBank(metaFile string) (*SpriteBank, error) {
+	data, err := core.ReadFile(metaFile)
 	if err != nil {
 		return nil, err
 	}
 
 	// Parse the JSON data into a SpriteMetaFile struct
-	var meta SpriteMetaFile
+	var meta spriteMetaFile
 	err = json.Unmarshal(data, &meta)
 	if err != nil {
 		return nil, err
@@ -65,7 +95,7 @@ func NewSpriteBank(metaFile string, whiteOut bool) (*SpriteBank, error) {
 		size:    meta.Count,
 	}
 
-	// Load the source image file
+	// Load the source image file, relative to the meta file
 	metaDir := path.Dir(metaFile)
 	imgPath := path.Join(metaDir, meta.Source)
 
@@ -79,47 +109,37 @@ func NewSpriteBank(metaFile string, whiteOut bool) (*SpriteBank, error) {
 	sz := meta.Size
 	for _, entry := range meta.Sprites {
 		// Sub image inside the sprite sheet where the sprite is located
-		spriteImg := sheetImg.SubImage(image.Rect(entry.Pos.X, entry.Pos.Y, entry.Pos.X+sz, entry.Pos.Y+sz)).(*ebiten.Image)
+		subImage := sheetImg.SubImage(image.Rect(entry.Pos.X, entry.Pos.Y, entry.Pos.X+sz, entry.Pos.Y+sz)).(*ebiten.Image)
 
-		// Logic to white out the sprite or not
-		var newImg *ebiten.Image
-		if whiteOut {
-			newImg = ebiten.NewImage(sz, sz)
+		// Logic to white out the sprite or not, used for monochrome sprites
+		var spriteImg *ebiten.Image
+		if entry.PaletteIndex > -1 {
+			spriteImg = ebiten.NewImage(sz, sz)
 			op := &ebiten.DrawImageOptions{}
 			op.ColorScale.SetR(255)
 			op.ColorScale.SetG(255)
 			op.ColorScale.SetB(255)
-			newImg.DrawImage(spriteImg, op)
+			spriteImg.DrawImage(subImage, op)
 		} else {
-			// Clone the image if we don't want to white out the sprite
-			// TODO: May not be needed
-			newImg = ebiten.NewImageFromImage(spriteImg)
+			// HACK: Clone the image, may not be needed
+			spriteImg = ebiten.NewImageFromImage(subImage)
 		}
 
-		sprite := NewSprite(newImg, entry.Name)
-		spriteBank.AddSprite(sprite)
+		sprite := &Sprite{
+			image:        spriteImg,
+			size:         core.Size{Width: spriteImg.Bounds().Dx(), Height: spriteImg.Bounds().Dy()},
+			name:         entry.Name,
+			paletteIndex: entry.PaletteIndex,
+		}
+
+		spriteBank.sprites[sprite.name] = sprite
+		spriteBank.size++
 	}
 
 	return spriteBank, nil
 }
 
-func (s *Sprite) Image() *ebiten.Image {
-	return s.image
-}
-
-func (s *Sprite) Size() geom.Size {
-	return s.size
-}
-
-func (s *Sprite) Name() string {
-	return s.name
-}
-
-func (sb *SpriteBank) AddSprite(s *Sprite) {
-	sb.sprites[s.name] = s
-	sb.size++
-}
-
+// Get a sprite from the SpriteBank by name
 func (sb *SpriteBank) Sprite(name string) (*Sprite, error) {
 	sprite, ok := sb.sprites[name]
 	if !ok {

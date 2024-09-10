@@ -6,11 +6,11 @@ help: ## This help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 build-bin: ## Build binaries for linux and windows
-	env GOOS=linux GOARCH=amd64 go build -o bin/dungeon dungeon-run/game
-	env GOOS=windows GOARCH=amd64 go build -o bin/dungeon.exe dungeon-run/game
+	env GOOS=linux GOARCH=amd64 go build -o bin/dungeon roguelike/game
+	env GOOS=windows GOARCH=amd64 go build -o bin/dungeon.exe roguelike/game
 
 build-wasm: ## Build as WASM for web
-	env GOOS=js GOARCH=wasm go build -o web/main.wasm -ldflags="-X 'main.basePath=$(GAME_BASE_PATH)'" dungeon-run/game
+	env GOOS=js GOARCH=wasm go build -o web/main.wasm -ldflags="-X 'main.basePath=$(GAME_BASE_PATH)'" roguelike/game
 	rm -rf web/assets
 	cp -r assets/ web/
 
@@ -24,7 +24,10 @@ format: ## Format the code
 	gofmt -l -w .
 
 serve: build-wasm ## Serve the web app
-	npx vite --port 3000 ./web
+	npx vite
+
+watch-wasm: build-wasm ## Hot rebuild WASM binary in web directory
+	air -c .air-wasm.toml --build.bin "true"
 
 site: clean build-wasm editor-build ## Build/bundle the site for deployment
 	mkdir -p site/sprite-editor

@@ -1,0 +1,27 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+args_bin = []
+bin = ""
+cmd = "env GOOS=js GOARCH=wasm go build -o web/main.wasm roguelike/game"
+delay = 1000
+exclude_dir = ["assets", "web", "bin", ".vite", "sprite-editor", "site", "etc"]
+exclude_file = []
+kill_delay = "0s"
+log = "build-errors.log"
+poll = false
+rerun = false
+rerun_delay = 500
+
+[proxy]
+enabled = true
+proxy_port = 8080
+app_port = 4000
+
+[misc]
+clean_on_exit = true
+
+[screen]
+clear_on_rebuild = true
+keep_scroll = true

@@ -1,10 +1,10 @@
 package graphics
 
 import (
-	"dungeon-run/game/utils"
 	"encoding/json"
 	"errors"
 	"image/color"
+	"roguelike/core"
 	"strconv"
 )
 
@@ -17,7 +17,7 @@ type palette struct {
 
 // LoadPalettes loads the palettes from the JSON file, call this before using any other functions in this package
 func LoadPalettes(filename string) error {
-	data, err := utils.ReadFile(filename)
+	data, err := core.ReadFile(filename)
 	if err != nil {
 		return err
 	}

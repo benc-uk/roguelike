@@ -10,13 +10,13 @@
       "paletteIndex": 0
     },
     {
-      "name": "Door",
+      "name": "door",
       "x": 12,
       "y": 0,
       "paletteIndex": 5
     },
     {
-      "name": "Rat",
+      "name": "rat",
       "x": 24,
       "y": 0,
       "paletteIndex": 4
@@ -58,7 +58,7 @@
       "paletteIndex": 1
     },
     {
-      "name": "Potion",
+      "name": "potion",
       "x": 12,
       "y": 12,
       "paletteIndex": 9
@@ -70,7 +70,7 @@
       "paletteIndex": 11
     },
     {
-      "name": "Sword",
+      "name": "sword",
       "x": 36,
       "y": 12,
       "paletteIndex": 14
