@@ -5,6 +5,7 @@ import (
 	"image/color"
 	_ "image/png"
 	"log"
+	"roguelike/core"
 	"roguelike/engine"
 	"roguelike/game/graphics"
 	"strconv"
@@ -12,11 +13,12 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_002"
+var version string = "0.0.1-alpha_003"
 
 // These are not
 var windowIcon image.Image
@@ -62,6 +64,24 @@ func init() {
 type Game struct{}
 
 func (g *Game) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
+		move := engine.NewMoveAction(core.North)
+		move.Execute(game.Player(), game.Map())
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
+		move := engine.NewMoveAction(core.South)
+		move.Execute(game.Player(), game.Map())
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
+		move := engine.NewMoveAction(core.West)
+		move.Execute(game.Player(), game.Map())
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
+		move := engine.NewMoveAction(core.East)
+		move.Execute(game.Player(), game.Map())
+	}
+
+	game.UpdateFOV(*game.Player())
 	return nil
 }
 
@@ -81,19 +101,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for x := 0; x < cols; x++ {
 		for y := 0; y < rows; y++ {
 			tile := gameMap.Tile(x, y)
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(x*sz), float64(y*sz))
 
 			// Player takes precedence
 			if p.X == x && p.Y == y {
-				playerSprite.Draw(screen, x*sz, y*sz, palette)
+				playerSprite.Draw(screen, x*sz, y*sz, palette, false)
 				continue
 			}
 
 			// Then walls & floors
 			appear := tile.GetAppearance()
+
+			if appear.Details == "blank" {
+				continue
+			}
+
 			if appear.Details == "wall" {
-				wallSprite.Draw(screen, x*sz, y*sz, palette)
+				wallSprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
 				continue
 			}
 
@@ -113,7 +136,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					}
 				}
 
-				itemSprite.DrawWithColour(screen, x*sz, y*sz, palette, palIndex)
+				itemSprite.DrawWithColour(screen, x*sz, y*sz, palette, palIndex, !appear.InFOV)
 			}
 		}
 	}

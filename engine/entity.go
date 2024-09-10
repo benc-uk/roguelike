@@ -19,6 +19,7 @@ type entityBase struct {
 	desc          string
 	displayString string
 	blocksMove    bool
+	blocksLOS     bool // nolint
 	hints         []string
 }
 
@@ -152,16 +153,47 @@ func (el entityList) AllItems() []*Item {
 	return items
 }
 
+func (el entityList) AllCreatures() []*creature {
+	creatures := make([]*creature, 0)
+
+	for _, e := range el {
+		if e.Type() == entityTypeCreature {
+			c, ok := e.(*creature)
+			if !ok {
+				continue
+			}
+			creatures = append(creatures, c)
+		}
+	}
+
+	return creatures
+}
+
+func (el entityList) Last() *entity {
+	if len(el) == 0 {
+		return nil
+	}
+	return &el[len(el)-1]
+}
+
+func (el entityList) First() *entity {
+	if len(el) == 0 {
+		return nil
+	}
+
+	return &el[0]
+}
+
 func (el entityList) IsEmpty() bool {
 	return len(el) == 0
 }
 
 // ===== Creatures ======================================================================================================
 
-// type creature struct {
-// 	entityBase
-// }
+type creature struct {
+	entityBase
+}
 
-// func (m *creature) Type() entityType {
-// 	return entityTypeCreature
-// }
+func (m *creature) Type() entityType {
+	return entityTypeCreature
+}

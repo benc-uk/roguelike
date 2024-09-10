@@ -43,14 +43,17 @@ func (s *Sprite) PaletteIndex() int {
 	return s.paletteIndex
 }
 
-func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, palette color.Palette) {
-	s.DrawWithColour(screen, x, y, palette, s.paletteIndex)
+func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, palette color.Palette, dim bool) {
+	s.DrawWithColour(screen, x, y, palette, s.paletteIndex, dim)
 }
 
-func (s *Sprite) DrawWithColour(screen *ebiten.Image, x int, y int, palette color.Palette, index int) {
+func (s *Sprite) DrawWithColour(screen *ebiten.Image, x int, y int, palette color.Palette, index int, dim bool) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(x), float64(y))
 	op.ColorScale.ScaleWithColor(palette[index])
+	if dim {
+		op.ColorScale.Scale(0.3, 0.3, 0.3, 1)
+	}
 	screen.DrawImage(s.image, op)
 }
 

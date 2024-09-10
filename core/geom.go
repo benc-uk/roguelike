@@ -1,6 +1,9 @@
 package core
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type Size struct {
 	Width  int
@@ -10,6 +13,10 @@ type Size struct {
 type Pos struct {
 	X int
 	Y int
+}
+
+func (p Pos) String() string {
+	return fmt.Sprintf("(%d, %d)", p.X, p.Y)
 }
 
 type Direction int

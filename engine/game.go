@@ -1,6 +1,8 @@
 package engine
 
-import "roguelike/core"
+import (
+	"roguelike/core"
+)
 
 type GameState int // TileType is an integer representing the type of tile
 
@@ -23,6 +25,28 @@ func (g *Game) Map() *GameMap {
 
 func (g *Game) Player() *Player {
 	return g.player
+}
+
+func (g *Game) UpdateFOV(p Player) {
+	// Remove all previous FOV
+	for _, t := range g.gameMap.inFOV {
+		t.inFOV = false
+	}
+	g.gameMap.inFOV = nil
+
+	// TODO: Absolutely shit placeholder
+	// Update all tiles in radius around the player as seen and in FOV
+	for dx := -3; dx <= 3; dx++ {
+		for dy := -3; dy <= 3; dy++ {
+			x := p.Pos.X + dx
+			y := p.Pos.Y + dy
+			if x >= 0 && x < g.gameMap.width && y >= 0 && y < g.gameMap.height {
+				g.gameMap.tiles[x][y].seen = true
+				g.gameMap.tiles[x][y].inFOV = true
+				g.gameMap.inFOV = append(g.gameMap.inFOV, &g.gameMap.tiles[x][y])
+			}
+		}
+	}
 }
 
 // TODO: All a massive placeholder for now

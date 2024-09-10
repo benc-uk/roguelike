@@ -19,34 +19,36 @@ type tile struct {
 	core.Pos
 	Type       tileType
 	seen       bool
+	inFOV      bool
 	blocksMove bool
+	blocksLOS  bool // nolint
 	entities   entityList
 }
 
 type Appearance struct {
 	Details string
-	Seen    bool
 	Hints   []string
+	InFOV   bool
 }
 
 func newWall(x, y int) tile {
-	return tile{Pos: core.Pos{X: x, Y: y}, Type: tileTypeWall, blocksMove: false}
+	return tile{Pos: core.Pos{X: x, Y: y}, Type: tileTypeWall, blocksMove: true}
 }
 
 // nolint
 func newFloor(pos core.Pos) tile {
-	return tile{Pos: pos, Type: tileTypeFloor, blocksMove: true}
+	return tile{Pos: pos, Type: tileTypeFloor, blocksMove: false}
 }
 
 func (t *tile) makeFloor() {
 	t.Type = tileTypeFloor
-	t.blocksMove = true
+	t.blocksMove = false
 }
 
 // nolint
 func (t *tile) makeWall() {
 	t.Type = tileTypeWall
-	t.blocksMove = false
+	t.blocksMove = true
 }
 
 func (t *tile) Entities() entityList {
@@ -62,22 +64,37 @@ func (t *tile) placeItem(item *Item) {
 	item.Pos = &t.Pos
 }
 
+var unseenTileAppearance = Appearance{Details: "blank", Hints: nil}
+
 // GetAppearance returns the appearance of the tile as a string
 // to be used by the renderer and UI to display this tile
 func (t *tile) GetAppearance() Appearance {
+	if !t.seen {
+		return unseenTileAppearance
+	}
+
 	if t.Type == tileTypeWall {
-		return Appearance{Details: tileDispWall, Seen: t.seen, Hints: nil}
+		return Appearance{Details: "wall", Hints: nil, InFOV: t.inFOV}
 	}
 
-	allItems := t.entities.AllItems()
-	if len(allItems) > 0 {
-		last := allItems[len(allItems)-1]
-		a := last.Appearance()
-		a.Seen = t.seen
-		return a
+	// If there are entities on this tile, return the appearance of the last one
+	if !t.entities.IsEmpty() {
+		creatures := t.entities.AllCreatures()
+		if len(creatures) > 0 {
+			a := creatures[len(creatures)-1].Appearance()
+			a.InFOV = t.inFOV
+			return a
+		}
+
+		items := t.entities.AllItems()
+		if len(items) > 0 {
+			a := items[len(items)-1].Appearance()
+			a.InFOV = t.inFOV
+			return a
+		}
 	}
 
-	return Appearance{Details: tileDispFloor, Seen: t.seen, Hints: nil}
+	return Appearance{Details: "floor", Hints: nil, InFOV: t.inFOV}
 }
 
 // =====================================================================================================================
@@ -88,6 +105,7 @@ type GameMap struct {
 	tiles  [][]tile
 	width  int
 	height int
+	inFOV  []*tile
 }
 
 func (m *GameMap) Tile(x, y int) *tile {
@@ -99,6 +117,7 @@ func NewMap(width, height int) *GameMap {
 	m := &GameMap{
 		width:  width,
 		height: height,
+		inFOV:  make([]*tile, 0),
 	}
 
 	m.tiles = make([][]tile, width)
