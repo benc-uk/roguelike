@@ -65,19 +65,19 @@ func init() {
 type Game struct{}
 
 func (g *Game) Update() error {
-	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyUp) || inpututil.IsKeyJustPressed(ebiten.KeyW) {
 		move := engine.NewMoveAction(core.North)
 		move.Execute(game.Player(), game.Map())
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyDown) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
 		move := engine.NewMoveAction(core.South)
 		move.Execute(game.Player(), game.Map())
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
 		move := engine.NewMoveAction(core.West)
 		move.Execute(game.Player(), game.Map())
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
 		move := engine.NewMoveAction(core.East)
 		move.Execute(game.Player(), game.Map())
 	}
