@@ -64,17 +64,17 @@ func (t *tile) placeItem(item *Item) {
 	item.Pos = &t.Pos
 }
 
-var unseenTileAppearance = Appearance{Details: "blank", Hints: nil}
+var unseenTileAppearance = &Appearance{Details: "blank", Hints: nil}
 
 // GetAppearance returns the appearance of the tile as a string
 // to be used by the renderer and UI to display this tile
-func (t *tile) GetAppearance() Appearance {
+func (t *tile) GetAppearance() *Appearance {
 	if !t.seen {
-		return unseenTileAppearance
+		return nil
 	}
 
 	if t.Type == tileTypeWall {
-		return Appearance{Details: "wall", Hints: nil, InFOV: t.inFOV}
+		return &Appearance{Details: "wall", Hints: nil, InFOV: t.inFOV}
 	}
 
 	// If there are entities on this tile, return the appearance of the last one
@@ -83,18 +83,18 @@ func (t *tile) GetAppearance() Appearance {
 		if len(creatures) > 0 {
 			a := creatures[len(creatures)-1].Appearance()
 			a.InFOV = t.inFOV
-			return a
+			return &a
 		}
 
 		items := t.entities.AllItems()
 		if len(items) > 0 {
 			a := items[len(items)-1].Appearance()
 			a.InFOV = t.inFOV
-			return a
+			return &a
 		}
 	}
 
-	return Appearance{Details: "floor", Hints: nil, InFOV: t.inFOV}
+	return &Appearance{Details: "floor", Hints: nil, InFOV: t.inFOV}
 }
 
 // =====================================================================================================================
@@ -102,10 +102,10 @@ func (t *tile) GetAppearance() Appearance {
 // =====================================================================================================================
 
 type GameMap struct {
-	tiles  [][]tile
-	width  int
-	height int
-	inFOV  []*tile
+	tiles   [][]tile // 2D array of tiles
+	width   int      // Width of the map
+	height  int      // Height of the map
+	fovList []*tile  // List of all tiles in the FOV
 }
 
 func (m *GameMap) Tile(x, y int) *tile {
@@ -115,9 +115,9 @@ func (m *GameMap) Tile(x, y int) *tile {
 // TODO: Placeholder for now
 func NewMap(width, height int) *GameMap {
 	m := &GameMap{
-		width:  width,
-		height: height,
-		inFOV:  make([]*tile, 0),
+		width:   width,
+		height:  height,
+		fovList: make([]*tile, 0),
 	}
 
 	m.tiles = make([][]tile, width)
@@ -137,4 +137,25 @@ func (m *GameMap) makeRectRoom(x, y, w, h int) {
 			m.tiles[i][j].makeFloor()
 		}
 	}
+}
+
+func (m *GameMap) CountWalls(t tile) int {
+	wallCount := 0
+	for _, n := range m.Neighbours(t) {
+		if n.Type == tileTypeWall {
+			wallCount++
+		}
+	}
+	return wallCount
+}
+
+func (m *GameMap) Neighbours(t tile) []tile {
+	neighbours := make([]tile, 0, 8)
+	// Get all 8 neighbours
+	for _, n := range t.Pos.NeighboursWithDiagonals() {
+		if n.InBounds(m.width, m.height) {
+			neighbours = append(neighbours, m.tiles[n.X][n.Y])
+		}
+	}
+	return neighbours
 }

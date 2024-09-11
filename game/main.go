@@ -14,6 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // These are injected by the build system
@@ -86,11 +87,15 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	wallSprite, err := bank.Sprite("Wall")
+	wallSprite, err := bank.Sprite("wall")
 	if err != nil {
 		log.Fatal(err)
 	}
-	playerSprite, err := bank.Sprite("Warrior")
+	dirtSprite, err := bank.Sprite("dirt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	playerSprite, err := bank.Sprite("warrior")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,21 +107,34 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		for y := 0; y < rows; y++ {
 			tile := gameMap.Tile(x, y)
 
-			// Player takes precedence
-			if p.X == x && p.Y == y {
-				playerSprite.Draw(screen, x*sz, y*sz, palette, false)
-				continue
-			}
-
 			// Then walls & floors
 			appear := tile.GetAppearance()
 
-			if appear.Details == "blank" {
+			// Unseen areas are blank/not drawn
+			if appear == nil {
 				continue
 			}
 
+			// Walls are special
 			if appear.Details == "wall" {
-				wallSprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
+				wallCount := gameMap.CountWalls(*tile)
+				sprite := wallSprite
+				if wallCount > 6 || tile.Pos.X == 0 || tile.Pos.Y == 0 {
+					sprite = dirtSprite
+				}
+				sprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
+				continue
+			}
+
+			if !appear.InFOV {
+				vector.DrawFilledRect(screen, float32(x*sz), float32(y*sz), float32(sz), float32(sz), color.RGBA{15, 15, 15, 255}, false)
+			} else {
+				vector.DrawFilledRect(screen, float32(x*sz), float32(y*sz), float32(sz), float32(sz), color.RGBA{30, 30, 30, 255}, false)
+			}
+
+			// Player takes precedence
+			if p.X == x && p.Y == y {
+				playerSprite.Draw(screen, x*sz, y*sz, palette, false)
 				continue
 			}
 
@@ -138,6 +156,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 				itemSprite.DrawWithColour(screen, x*sz, y*sz, palette, palIndex, !appear.InFOV)
 			}
+
 		}
 	}
 }

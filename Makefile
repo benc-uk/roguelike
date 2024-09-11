@@ -9,7 +9,9 @@ build-bin: ## Build binaries for linux and windows
 	env GOOS=linux GOARCH=amd64 go build -o bin/dungeon roguelike/game
 	env GOOS=windows GOARCH=amd64 go build -o bin/dungeon.exe roguelike/game
 
-build-wasm: ## Build as WASM for web
+build: build-wasm ## Build as WASM for web, and copy assets
+
+build-wasm: ## Build as WASM for web, and copy assets
 	env GOOS=js GOARCH=wasm go build -o web/main.wasm -ldflags="-X 'main.basePath=$(GAME_BASE_PATH)'" roguelike/game
 	rm -rf web/assets
 	cp -r assets/ web/
@@ -42,3 +44,4 @@ editor-build: ## Bundle the sprite editor web app
 
 clean: ## Clean up
 	rm -rf bin/ web/main.wasm site/ sprite-editor/dist/ web/assets site/
+	find . -name ".vite" -type d -exec rm -rf {} \; || true

@@ -4,7 +4,7 @@
   "source": "./sprites.png",
   "sprites": [
     {
-      "name": "Wall",
+      "name": "wall",
       "x": 0,
       "y": 0,
       "paletteIndex": 0
@@ -28,13 +28,13 @@
       "paletteIndex": 4
     },
     {
-      "name": "Roots",
+      "name": "roots",
       "x": 48,
       "y": 0,
       "paletteIndex": 3
     },
     {
-      "name": "Dirt 1",
+      "name": "dirt",
       "x": 60,
       "y": 0,
       "paletteIndex": 3
@@ -76,7 +76,7 @@
       "paletteIndex": 14
     },
     {
-      "name": "Shield",
+      "name": "shield",
       "x": 48,
       "y": 12,
       "paletteIndex": 5
@@ -100,7 +100,7 @@
       "paletteIndex": 4
     },
     {
-      "name": "Warrior",
+      "name": "warrior",
       "x": 0,
       "y": 24,
       "paletteIndex": 10

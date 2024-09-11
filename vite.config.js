@@ -1,3 +1,4 @@
+// Hacky plugin to force full reload when files change, as HMR will not work with WASM
 const fullReloadAlways = {
   name: "full-reload",
   handleHotUpdate({ server }) {

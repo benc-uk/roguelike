@@ -29,10 +29,10 @@ func (g *Game) Player() *Player {
 
 func (g *Game) UpdateFOV(p Player) {
 	// Remove all previous FOV
-	for _, t := range g.gameMap.inFOV {
+	for _, t := range g.gameMap.fovList {
 		t.inFOV = false
 	}
-	g.gameMap.inFOV = nil
+	g.gameMap.fovList = nil
 
 	// TODO: Absolutely shit placeholder
 	// Update all tiles in radius around the player as seen and in FOV
@@ -43,7 +43,7 @@ func (g *Game) UpdateFOV(p Player) {
 			if x >= 0 && x < g.gameMap.width && y >= 0 && y < g.gameMap.height {
 				g.gameMap.tiles[x][y].seen = true
 				g.gameMap.tiles[x][y].inFOV = true
-				g.gameMap.inFOV = append(g.gameMap.inFOV, &g.gameMap.tiles[x][y])
+				g.gameMap.fovList = append(g.gameMap.fovList, &g.gameMap.tiles[x][y])
 			}
 		}
 	}
