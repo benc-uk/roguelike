@@ -89,7 +89,7 @@ func (p Pos) IsNeighbour(p2 Pos) bool {
 	return p.Distance(p2) == 1
 }
 
-func (p Pos) Neighbours() []Pos {
+func (p Pos) NeighboursCardinal() []Pos {
 	return []Pos{
 		{p.X - 1, p.Y},
 		{p.X + 1, p.Y},
@@ -98,7 +98,7 @@ func (p Pos) Neighbours() []Pos {
 	}
 }
 
-func (p Pos) NeighboursWithDiagonals() []Pos {
+func (p Pos) NeighboursAll() []Pos {
 	return []Pos{
 		{p.X - 1, p.Y},
 		{p.X + 1, p.Y},

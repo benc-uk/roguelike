@@ -139,7 +139,7 @@ func (m *GameMap) makeRectRoom(x, y, w, h int) {
 
 func (m *GameMap) CountWalls(t tile) int {
 	wallCount := 0
-	for _, n := range m.Neighbours(t) {
+	for _, n := range m.Neighbours(t, true) {
 		if n.Type == tileTypeWall {
 			wallCount++
 		}
@@ -147,10 +147,16 @@ func (m *GameMap) CountWalls(t tile) int {
 	return wallCount
 }
 
-func (m *GameMap) Neighbours(t tile) []tile {
+func (m *GameMap) Neighbours(t tile, includeDiagonals bool) []tile {
 	neighbours := make([]tile, 0, 8)
+	fn := t.Pos.NeighboursCardinal
+
+	if includeDiagonals {
+		fn = t.Pos.NeighboursAll
+	}
+
 	// Get all 8 neighbours
-	for _, n := range t.Pos.NeighboursWithDiagonals() {
+	for _, n := range fn() {
 		if n.InBounds(m.width, m.height) {
 			neighbours = append(neighbours, m.tiles[n.X][n.Y])
 		}
