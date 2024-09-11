@@ -91,10 +91,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dirtSprite, err := bank.Sprite("dirt")
-	if err != nil {
-		log.Fatal(err)
-	}
+	// dirtSprite, err := bank.Sprite("dirt")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// rootsSprite, err := bank.Sprite("roots")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	playerSprite, err := bank.Sprite("warrior")
 	if err != nil {
 		log.Fatal(err)
@@ -106,36 +110,37 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for x := 0; x < cols; x++ {
 		for y := 0; y < rows; y++ {
 			tile := gameMap.Tile(x, y)
-
-			// Then walls & floors
-			appear := tile.GetAppearance()
+			appear := tile.GetAppearance(gameMap)
 
 			// Unseen areas are blank/not drawn
 			if appear == nil {
 				continue
 			}
 
-			// Walls are special
 			if appear.Details == "wall" {
-				wallCount := gameMap.CountWalls(*tile)
-				sprite := wallSprite
-				if wallCount > 6 || tile.Pos.X == 0 || tile.Pos.Y == 0 {
-					sprite = dirtSprite
-				}
-				if wallCount == 7 {
-					sprite = wallSprite
-				}
-				sprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
+				wallSprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
 				continue
 			}
 
+			// if appear.Details == "wall_deep" {
+			// 	r := rand.New(rand.NewSource(int64(x * y)))
+			// 	// 50% chance of drawing a root or a dirt tile
+			// 	if r.Intn(2) == 0 {
+			// 		rootsSprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
+			// 	} else {
+			// 		dirtSprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
+			// 	}
+			// 	continue
+			// }
+
+			// Floors are drawn first
 			if !appear.InFOV {
 				vector.DrawFilledRect(screen, float32(x*sz), float32(y*sz), float32(sz), float32(sz), color.RGBA{15, 15, 15, 255}, false)
 			} else {
 				vector.DrawFilledRect(screen, float32(x*sz), float32(y*sz), float32(sz), float32(sz), color.RGBA{30, 30, 30, 255}, false)
 			}
 
-			// Player takes precedence
+			// Player after floors
 			if p.X == x && p.Y == y {
 				playerSprite.Draw(screen, x*sz, y*sz, palette, false)
 				continue

@@ -32,23 +32,25 @@ type Appearance struct {
 }
 
 func newWall(x, y int) tile {
-	return tile{Pos: core.Pos{X: x, Y: y}, Type: tileTypeWall, blocksMove: true}
+	return tile{Pos: core.Pos{X: x, Y: y}, Type: tileTypeWall, blocksMove: true, blocksLOS: true}
 }
 
 // nolint
 func newFloor(pos core.Pos) tile {
-	return tile{Pos: pos, Type: tileTypeFloor, blocksMove: false}
+	return tile{Pos: pos, Type: tileTypeFloor, blocksMove: false, blocksLOS: false}
 }
 
 func (t *tile) makeFloor() {
 	t.Type = tileTypeFloor
 	t.blocksMove = false
+	t.blocksLOS = false
 }
 
 // nolint
 func (t *tile) makeWall() {
 	t.Type = tileTypeWall
 	t.blocksMove = true
+	t.blocksLOS = true
 }
 
 func (t *tile) Entities() entityList {
@@ -66,7 +68,7 @@ func (t *tile) placeItem(item *Item) {
 
 // GetAppearance returns the appearance of the tile as a string
 // to be used by the renderer and UI to display this tile
-func (t *tile) GetAppearance() *Appearance {
+func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
 	if !t.seen {
 		return nil
 	}
