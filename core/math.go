@@ -41,3 +41,10 @@ func MaxFloat64(x, y float64) float64 {
 	}
 	return y
 }
+
+func Abs[T int | float64 | float32](x T) T {
+	if x < 0 {
+		return -x
+	}
+	return x
+}

@@ -6,6 +6,7 @@ package core
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 )
 
@@ -78,7 +79,7 @@ func (p Pos) Sub(p2 Pos) Pos {
 }
 
 func (p Pos) Distance(p2 Pos) int {
-	return AbsInt(p.X-p2.X) + AbsInt(p.Y-p2.Y)
+	return int(math.Abs(float64(p.X-p2.X)) + math.Abs(float64(p.Y-p2.Y)))
 }
 
 func (p Pos) InBounds(width, height int) bool {
@@ -109,6 +110,49 @@ func (p Pos) NeighboursAll() []Pos {
 		{p.X - 1, p.Y + 1},
 		{p.X + 1, p.Y + 1},
 	}
+}
+
+func (p Pos) RayCastTo(p2 Pos, maxDist int) []Pos {
+	// Bresenham's line algorithm
+	x0, y0 := p.X, p.Y
+	x1, y1 := p2.X, p2.Y
+	dx := AbsInt(x1 - x0)
+	dy := AbsInt(y1 - y0)
+	sx := 1
+	sy := 1
+	if x0 > x1 {
+		sx = -1
+	}
+	if y0 > y1 {
+		sy = -1
+	}
+
+	err := dx - dy
+	var points []Pos
+
+	for {
+		dist := p.Distance(Pos{x0, y0})
+		if maxDist > 0 && dist >= maxDist {
+			break
+		}
+
+		points = append(points, Pos{x0, y0})
+		if x0 == x1 && y0 == y1 {
+			break
+		}
+		e2 := 2 * err
+		if e2 > -dy {
+			err -= dy
+			x0 += sx
+		}
+		if e2 < dx {
+			err += dx
+			y0 += sy
+		}
+
+	}
+
+	return points
 }
 
 // ===== Directions =====

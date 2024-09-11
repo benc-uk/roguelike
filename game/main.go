@@ -29,8 +29,8 @@ var game *engine.Game
 
 const (
 	sz           = 12        // Sprite & tile size
-	rows         = 12        // Rows of sprites/tiles on screen
-	cols         = 16        // Columns of sprites/tiles on screen
+	rows         = 16        // Rows of sprites/tiles on screen
+	cols         = 20        // Columns of sprites/tiles on screen
 	scrWidth     = cols * sz // Screen width in pixels
 	scrHeight    = rows * sz // Screen height in pixels
 	initialScale = 5         // Initial scale of the window
@@ -82,7 +82,31 @@ func (g *Game) Update() error {
 		move.Execute(game.Player(), game.Map())
 	}
 
-	game.UpdateFOV(*game.Player())
+	// touch controls
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		x, y := ebiten.CursorPosition()
+		// click on left side of screen
+		if x < scrWidth/4 {
+			move := engine.NewMoveAction(core.West)
+			move.Execute(game.Player(), game.Map())
+		}
+		if x > scrWidth*3/4 {
+			move := engine.NewMoveAction(core.East)
+			move.Execute(game.Player(), game.Map())
+		}
+
+		// click on top side of screen
+		if y < scrHeight/4 {
+			move := engine.NewMoveAction(core.North)
+			move.Execute(game.Player(), game.Map())
+		}
+		if y > scrHeight*3/4 {
+			move := engine.NewMoveAction(core.South)
+			move.Execute(game.Player(), game.Map())
+		}
+	}
+
+	game.UpdateFOV(*game.Player(), 6)
 	return nil
 }
 
@@ -91,14 +115,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// dirtSprite, err := bank.Sprite("dirt")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// rootsSprite, err := bank.Sprite("roots")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 	playerSprite, err := bank.Sprite("warrior")
 	if err != nil {
 		log.Fatal(err)
@@ -121,17 +137,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				wallSprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
 				continue
 			}
-
-			// if appear.Details == "wall_deep" {
-			// 	r := rand.New(rand.NewSource(int64(x * y)))
-			// 	// 50% chance of drawing a root or a dirt tile
-			// 	if r.Intn(2) == 0 {
-			// 		rootsSprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
-			// 	} else {
-			// 		dirtSprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
-			// 	}
-			// 	continue
-			// }
 
 			// Floors are drawn first
 			if !appear.InFOV {

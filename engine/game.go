@@ -27,71 +27,39 @@ func (g *Game) Player() *Player {
 	return g.player
 }
 
-func (g *Game) UpdateFOV(p Player) {
+func (g *Game) UpdateFOV(p Player, dist int) {
 	// Remove all previous FOV
 	for _, t := range g.gameMap.fovList {
 		t.inFOV = false
 	}
 	g.gameMap.fovList = nil
 
-	// cast rays from center of player to edges of a 7x7 square centered on the player
-	// if the ray hits a wall stop and otherwise the tile is inFov and seen
-	for x := p.X - 3; x < p.X+4; x++ {
-		for y := p.Y - 3; y < p.Y+4; y++ {
+	// Cast rays from center of player to edges of a square centred on the player
+	// - if the ray hits a wall stop and otherwise the tile is inFov and seen
+	fovRange := dist
+	for x := p.X - fovRange; x < p.X+fovRange+1; x++ {
+		for y := p.Y - fovRange; y < p.Y+fovRange+1; y++ {
 			if x < 0 || x >= g.gameMap.width || y < 0 || y >= g.gameMap.height {
 				continue
 			}
-			if castRay(g.gameMap, p.X, p.Y, x, y) {
-				g.gameMap.tiles[x][y].inFOV = true
-				g.gameMap.tiles[x][y].seen = true
-				g.gameMap.fovList = append(g.gameMap.fovList, &g.gameMap.tiles[x][y])
+
+			// Step along the ray from the player to the edge of the square, stopping if we hit a wall
+			//lint:ignore S1031
+			points := p.Pos.RayCastTo(core.Pos{x, y}, fovRange)
+			for _, t := range points {
+				tile := &g.gameMap.tiles[t.X][t.Y]
+
+				tile.inFOV = true
+				tile.seen = true
+				g.gameMap.fovList = append(g.gameMap.fovList, tile)
+
+				// When tile blocks LOS, stop but after marking it as seen
+				if tile.blocksLOS {
+					break
+				}
 			}
 		}
 	}
-}
-
-func castRay(gameMap *GameMap, x0, y0, x1, y1 int) bool {
-	dx := abs(x1 - x0)
-	dy := abs(y1 - y0)
-	sx := -1
-	sy := -1
-	if x0 < x1 {
-		sx = 1
-	}
-	if y0 < y1 {
-		sy = 1
-	}
-	err := dx - dy
-
-	leave := 1
-	for {
-		if leave == 0 {
-			return false
-		}
-		if gameMap.tiles[x0][y0].blocksLOS {
-			leave = 0
-		}
-		if x0 == x1 && y0 == y1 {
-			break
-		}
-		e2 := 2 * err
-		if e2 > -dy {
-			err -= dy
-			x0 += sx
-		}
-		if e2 < dx {
-			err += dx
-			y0 += sy
-		}
-	}
-	return true
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
 }
 
 // TODO: All a massive placeholder for now
@@ -118,8 +86,11 @@ func NewGame() *Game {
 	g.gameMap.tiles[14][7].placeItem(rat)
 
 	g.gameMap.makeRectRoom(2, 2, 5, 5)
-	g.gameMap.makeRectRoom(10, 4, 6, 5)
+	g.gameMap.makeRectRoom(10, 4, 7, 8)
 	g.gameMap.makeRectRoom(7, 5, 3, 1)
+
+	g.gameMap.tiles[13][8].makeWall()
+	g.gameMap.tiles[13][9].makeWall()
 
 	return g
 }
