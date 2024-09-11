@@ -64,8 +64,6 @@ func (t *tile) placeItem(item *Item) {
 	item.Pos = &t.Pos
 }
 
-var unseenTileAppearance = &Appearance{Details: "blank", Hints: nil}
-
 // GetAppearance returns the appearance of the tile as a string
 // to be used by the renderer and UI to display this tile
 func (t *tile) GetAppearance() *Appearance {
