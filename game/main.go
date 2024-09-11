@@ -122,6 +122,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				if wallCount > 6 || tile.Pos.X == 0 || tile.Pos.Y == 0 {
 					sprite = dirtSprite
 				}
+				if wallCount == 7 {
+					sprite = wallSprite
+				}
 				sprite.Draw(screen, x*sz, y*sz, palette, !appear.InFOV)
 				continue
 			}
