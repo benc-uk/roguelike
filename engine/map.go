@@ -21,13 +21,13 @@ type tile struct {
 	seen       bool
 	inFOV      bool
 	blocksMove bool
-	blocksLOS  bool // nolint
+	blocksLOS  bool
 	entities   entityList
 }
 
 type Appearance struct {
-	Details string
-	Hints   []string
+	Graphic string
+	Colour  string
 	InFOV   bool
 }
 
@@ -46,7 +46,6 @@ func (t *tile) makeFloor() {
 	t.blocksLOS = false
 }
 
-// nolint
 func (t *tile) makeWall() {
 	t.Type = tileTypeWall
 	t.blocksMove = true
@@ -74,11 +73,12 @@ func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
 	}
 
 	if t.Type == tileTypeWall {
-		return &Appearance{Details: "wall", Hints: nil, InFOV: t.inFOV}
+		return &Appearance{Graphic: "wall", InFOV: t.inFOV}
 	}
 
 	// If there are entities on this tile, return the appearance of the last one
 	if !t.entities.IsEmpty() {
+		// Creatures take precedence over items, and will be displayed first
 		creatures := t.entities.AllCreatures()
 		if len(creatures) > 0 {
 			a := creatures[len(creatures)-1].Appearance()
@@ -94,7 +94,25 @@ func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
 		}
 	}
 
-	return &Appearance{Details: "floor", Hints: nil, InFOV: t.inFOV}
+	return &Appearance{Graphic: "floor", InFOV: t.inFOV}
+}
+
+func (t *tile) BlocksMove() bool {
+	for _, e := range t.entities {
+		if e.BlocksMove() {
+			return true
+		}
+	}
+	return t.blocksMove
+}
+
+func (t *tile) BlocksLOS() bool {
+	for _, e := range t.entities {
+		if e.BlocksLOS() {
+			return true
+		}
+	}
+	return t.blocksLOS
 }
 
 // =====================================================================================================================
@@ -110,6 +128,14 @@ type GameMap struct {
 
 func (m *GameMap) Tile(x, y int) *tile {
 	return &m.tiles[x][y]
+}
+
+func (m *GameMap) Size() core.Size {
+	return core.Size{Width: m.width, Height: m.height}
+}
+
+func (m *GameMap) Rect() core.Rect {
+	return core.NewRect(0, 0, m.width, m.height)
 }
 
 // TODO: Placeholder for now
@@ -139,30 +165,11 @@ func (m *GameMap) makeRectRoom(x, y, w, h int) {
 	}
 }
 
-// func (m *GameMap) countWalls(t tile) int {
-// 	wallCount := 0
-// 	for _, n := range m.neighbours(t, true) {
-// 		if n.Type == tileTypeWall {
-// 			wallCount++
-// 		}
-// 	}
-// 	return wallCount
-// }
-
-// func (m *GameMap) neighbours(t tile, includeDiagonals bool) []tile {
-// 	neighbours := make([]tile, 0, 8)
-// 	fn := t.Pos.NeighboursCardinal
-
-// 	if includeDiagonals {
-// 		fn = t.Pos.NeighboursAll
-// 	}
-
-// 	// Get all 8 neighbours
-// 	for _, n := range fn() {
-// 		if n.InBounds(m.width, m.height) {
-// 			neighbours = append(neighbours, m.tiles[n.X][n.Y])
-// 		}
-// 	}
-
-// 	return neighbours
-// }
+// nolint
+func (m *GameMap) seeAll() {
+	for x := 0; x < m.width; x++ {
+		for y := 0; y < m.height; y++ {
+			m.tiles[x][y].seen = true
+		}
+	}
+}

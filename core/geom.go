@@ -78,8 +78,17 @@ func (p Pos) Sub(p2 Pos) Pos {
 	return Pos{p.X - p2.X, p.Y - p2.Y}
 }
 
-func (p Pos) Distance(p2 Pos) int {
-	return int(math.Abs(float64(p.X-p2.X)) + math.Abs(float64(p.Y-p2.Y)))
+func (p Pos) Distance(p2 Pos) float64 {
+	// TODO: Probably could be optimized
+	d := math.Sqrt(float64((p.X-p2.X)*(p.X-p2.X) + (p.Y-p2.Y)*(p.Y-p2.Y)))
+	return d
+}
+
+// distance between points a and b.
+func DistanceF(xa, ya, xb, yb int) float64 {
+	x := math.Abs(float64(xa - xb))
+	y := math.Abs(float64(ya - yb))
+	return math.Sqrt(x*x + y*y)
 }
 
 func (p Pos) InBounds(width, height int) bool {
@@ -112,7 +121,7 @@ func (p Pos) NeighboursAll() []Pos {
 	}
 }
 
-func (p Pos) RayCastTo(p2 Pos, maxDist int) []Pos {
+func (p Pos) RayCastTo(p2 Pos, maxDist float64) []Pos {
 	// Bresenham's line algorithm
 	x0, y0 := p.X, p.Y
 	x1, y1 := p2.X, p2.Y
@@ -129,13 +138,9 @@ func (p Pos) RayCastTo(p2 Pos, maxDist int) []Pos {
 
 	err := dx - dy
 	var points []Pos
+	dist := 0.0
 
 	for {
-		dist := p.Distance(Pos{x0, y0})
-		if maxDist > 0 && dist >= maxDist {
-			break
-		}
-
 		points = append(points, Pos{x0, y0})
 		if x0 == x1 && y0 == y1 {
 			break
@@ -150,6 +155,10 @@ func (p Pos) RayCastTo(p2 Pos, maxDist int) []Pos {
 			y0 += sy
 		}
 
+		dist = p.Distance(Pos{x0, y0})
+		if dist > maxDist {
+			break
+		}
 	}
 
 	return points

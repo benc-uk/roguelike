@@ -1,7 +1,6 @@
 package graphics
 
 import (
-	"errors"
 	"image"
 	"log"
 	"path"
@@ -17,7 +16,7 @@ import (
 
 // Represents a single named sprite image
 type Sprite struct {
-	name         string
+	id           string
 	image        *ebiten.Image
 	size         core.Size
 	paletteIndex int
@@ -34,8 +33,8 @@ func (s *Sprite) Size() core.Size {
 }
 
 // Getter for Sprite name
-func (s *Sprite) Name() string {
-	return s.name
+func (s *Sprite) Id() string {
+	return s.id
 }
 
 // Getter for Sprite palette index
@@ -43,16 +42,16 @@ func (s *Sprite) PaletteIndex() int {
 	return s.paletteIndex
 }
 
-func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, palette color.Palette, dim bool) {
-	s.DrawWithColour(screen, x, y, palette, s.paletteIndex, dim)
-}
+func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool) {
+	if s == nil {
+		return
+	}
 
-func (s *Sprite) DrawWithColour(screen *ebiten.Image, x int, y int, palette color.Palette, index int, dim bool) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(x), float64(y))
-	op.ColorScale.ScaleWithColor(palette[index])
-	if dim {
-		op.ColorScale.Scale(0.3, 0.3, 0.3, 1)
+	op.ColorScale.ScaleWithColor(colour)
+	if !inFOV {
+		op.ColorScale.ScaleAlpha(0.3)
 	}
 	screen.DrawImage(s.image, op)
 }
@@ -73,7 +72,7 @@ type spriteMetaFile struct {
 }
 
 type spriteMetaEntry struct {
-	Name         string
+	Id           string
 	PaletteIndex int
 	core.Pos
 }
@@ -131,25 +130,25 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 		sprite := &Sprite{
 			image:        spriteImg,
 			size:         core.Size{Width: spriteImg.Bounds().Dx(), Height: spriteImg.Bounds().Dy()},
-			name:         entry.Name,
+			id:           entry.Id,
 			paletteIndex: entry.PaletteIndex,
 		}
 
-		spriteBank.sprites[sprite.name] = sprite
+		spriteBank.sprites[sprite.id] = sprite
 		spriteBank.size++
 	}
 
 	return spriteBank, nil
 }
 
-// Get a sprite from the SpriteBank by name
-func (sb *SpriteBank) Sprite(name string) (*Sprite, error) {
+// Get a sprite from the SpriteBank by name, can return nil
+func (sb *SpriteBank) Sprite(name string) *Sprite {
 	sprite, ok := sb.sprites[name]
 	if !ok {
-		return nil, errors.New("sprite " + name + " not found")
+		return nil
 	}
 
-	return sprite, nil
+	return sprite
 }
 
 func (sb *SpriteBank) Capacity() int {

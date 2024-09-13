@@ -32,7 +32,7 @@ export default () => ({
 
         const loadSprites = []
         for (const s of proj.sprites) {
-          const sprite = new Sprite(s.name, s.size)
+          const sprite = new Sprite(s.id, s.size)
           sprite.loadData(s.data)
           loadSprites.push(sprite)
         }
@@ -188,21 +188,23 @@ export default () => ({
           const sprite = this.$store.sprites.sprites[i]
           sprite.drawOnCanvas(ctx, x * this.size, y * this.size, this.$store.pal.colours)
 
-          // Palette index for monochrome sprites, -1 for multi-colour
-          let paletteIndex = null
-          const colours = sprite.collectColours()
+          // // Palette index for monochrome sprites, -1 for multi-colour
+          // let paletteIndex = null
+          // const colours = sprite.collectColours()
 
-          // Check monochrome sprite
-          if (colours.length === 1) {
-            paletteIndex = colours[0]
-          }
+          // // Check monochrome sprite
+          // if (colours.length === 1) {
+          //   paletteIndex = colours[0]
+          // }
+
+          let id = sprite.id.replaceAll(' ', '_')
+          id = id.toLowerCase()
 
           // Add sprite meta data
           meta.sprites.push({
-            name: sprite.name,
+            id,
             x: x * this.size,
             y: y * this.size,
-            paletteIndex,
           })
 
           i++
@@ -243,7 +245,7 @@ export default () => ({
         }
       }
       this.$store.sprites.selected().loadData(data)
-      this.$store.sprites.selected().name = this.copySprite.name
+      this.$store.sprites.selected().id = this.copySprite.id
 
       console.log('Pasted sprite', this.copySprite)
     }

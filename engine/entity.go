@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"log"
 	"roguelike/core"
 )
 
@@ -16,32 +15,44 @@ const (
 type entityBase struct {
 	id string
 	*core.Pos
-	desc          string
-	displayString string
-	blocksMove    bool
-	blocksLOS     bool // nolint
-	hints         []string
+	blocksMove bool
+	blocksLOS  bool // nolint
+
+	desc string
+
+	graphicId string
+	colour    string
 }
 
 type entity interface {
 	Id() string
 	Description() string
 	Type() entityType
+	BlocksLOS() bool
+	BlocksMove() bool
 }
 
-func (i *entityBase) Id() string {
-	return i.id
+func (e *entityBase) Id() string {
+	return e.id
 }
 
-func (i *entityBase) Description() string {
-	return i.desc
+func (e *entityBase) Description() string {
+	return e.desc
 }
 
-func (i *entityBase) Appearance() Appearance {
+func (e *entityBase) Appearance() Appearance {
 	return Appearance{
-		Details: i.displayString,
-		Hints:   i.hints,
+		Graphic: e.graphicId,
+		Colour:  e.colour,
 	}
+}
+
+func (e *entityBase) BlocksLOS() bool {
+	return e.blocksLOS
+}
+
+func (e *entityBase) BlocksMove() bool {
+	return e.blocksMove
 }
 
 // ===== Items ========================================================================================================
@@ -49,88 +60,43 @@ func (i *entityBase) Appearance() Appearance {
 type Item struct {
 	entityBase
 	consumable bool
+	equippable bool //nolint
 }
 
 func (i *Item) Type() entityType {
 	return entityTypeItem
 }
 
-type itemFactoryType map[string](func() *Item)
+type itemFactoryDB map[string](func() *Item)
 
-var itemFactory itemFactoryType
+var itemFactory itemFactoryDB
 
-// TODO: This is placeholder code
-func LoadItemFactory() {
-	itemFactory = make(map[string](func() *Item))
-
-	itemFactory["sword"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:            "sword",
-				desc:          "A rusty sword",
-				displayString: "sword",
-			},
-			consumable: false,
-		}
-	}
-
-	itemFactory["potion"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:            "potion",
-				desc:          "A refreshing looking blue potion",
-				displayString: "potion",
-			},
-			consumable: true,
-		}
-	}
-
-	itemFactory["potion_poison"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:            "potion_poison",
-				desc:          "A bubbling pink potion",
-				displayString: "potion",
-				hints:         []string{"colour::11"},
-			},
-			consumable: true,
-		}
-	}
-
-	itemFactory["door"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:            "door",
-				desc:          "A sturdy wooden door",
-				displayString: "door",
-				blocksMove:    true,
-			},
-			consumable: false,
-		}
-	}
-
-	itemFactory["rat"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:            "rat",
-				desc:          "A small, scurrying rat",
-				displayString: "rat",
-				blocksMove:    true,
-			},
-			consumable: false,
-		}
-	}
-}
-
-func (factory itemFactoryType) CreateItem(id string) *Item {
+func (factory itemFactoryDB) CreateItem(id string) *Item {
 	factoryFunc, ok := factory[id]
 	if !ok {
-		log.Printf("ItemFactory: Item with id %s not found", id)
 		return nil
 	}
 
 	// Create the item
 	return factoryFunc()
+}
+
+// ===== Furniture ========================================================================================================
+
+type Furniture struct {
+	entityBase
+}
+
+func (f *Furniture) Type() entityType {
+	return entityTypeFurniture
+}
+
+func (f *Furniture) BlocksLOS() bool {
+	return true
+}
+
+func (f *Furniture) BlocksMove() bool {
+	return true
 }
 
 // ===== Lists ========================================================================================================

@@ -1,18 +1,20 @@
 package graphics
 
 import (
-	"encoding/json"
 	"errors"
 	"image/color"
+	"log"
 	"roguelike/core"
 	"strconv"
+
+	"gopkg.in/yaml.v3"
 )
 
 var palettes map[string]palette
 
 type palette struct {
-	Name    string
-	Colours []string
+	Name    string   `yaml:"name"`
+	Colours []string `yaml:"colours"`
 }
 
 // LoadPalettes loads the palettes from the JSON file, call this before using any other functions in this package
@@ -22,7 +24,7 @@ func LoadPalettes(filename string) error {
 		return err
 	}
 
-	err = json.Unmarshal(data, &palettes)
+	err = yaml.Unmarshal(data, &palettes)
 	if err != nil {
 		return err
 	}
@@ -49,6 +51,7 @@ func GetRGBPalette(id string) (color.Palette, error) {
 	if !ok {
 		return nil, errors.New("palette with id " + id + " not found")
 	}
+	log.Printf("Loaded palette '%s' with %d colours", pal.Name, len(pal.Colours))
 
 	var p color.Palette = make(color.Palette, len(pal.Colours))
 	for i, c := range pal.Colours {

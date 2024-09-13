@@ -1,6 +1,6 @@
 export class Sprite {
-  constructor(name, size = 16) {
-    this.name = name ? name : `Sprite ${Math.random().toString(36).substring(7)}`
+  constructor(id, size = 16) {
+    this.id = id ? id : `sprite_${Math.random().toString(36).substring(7)}`
     this.data = []
     this.size = size
 

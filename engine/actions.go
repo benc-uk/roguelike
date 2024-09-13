@@ -22,7 +22,7 @@ func (a *MoveAction) Execute(p *Player, m *GameMap) bool {
 	}
 
 	tile := m.tiles[newPos.X][newPos.Y]
-	if tile.blocksMove {
+	if tile.BlocksMove() {
 		return false
 	}
 
