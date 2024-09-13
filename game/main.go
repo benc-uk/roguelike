@@ -141,6 +141,9 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	// fill the screen with white
+	screen.Fill(color.Black)
+
 	gameMap := game.Map()
 	p := game.Player()
 	wallPalIndex := 0

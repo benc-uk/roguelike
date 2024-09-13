@@ -14,10 +14,14 @@ Deployed versions to try out:
 - [🕹️ Game](http://code.benco.io/roguelike/)
 - [📝 Sprite Editor](http://code.benco.io/roguelike/sprite-editor)
 
+## Screens
+
+![screenshot](.etc/Screenshot_2024-09-13_113518.png)
+
 ## Sprite Editor
 
 A separate sprite editor has been developed to aid with creating sprites
 
 [Sprite Editor](./sprite-editor/readme.md)
 
-![alt text](etc/Screenshot2024-09-02153104.png)
+![alt text](.etc/Screenshot2024-09-02153104.png)
