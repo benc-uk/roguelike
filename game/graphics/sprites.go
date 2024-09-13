@@ -60,8 +60,9 @@ func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, in
 
 // Holds a collection of sprites, indexed by name/id
 type SpriteBank struct {
-	sprites map[string]*Sprite
-	size    int
+	sprites  map[string]*Sprite
+	capacity int
+	size     int
 }
 
 type spriteMetaFile struct {
@@ -93,8 +94,9 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 
 	// Create a new SpriteBank and populate it with sprites
 	spriteBank := &SpriteBank{
-		sprites: make(map[string]*Sprite),
-		size:    meta.Count,
+		sprites:  make(map[string]*Sprite),
+		capacity: meta.Count,
+		size:     meta.Size,
 	}
 
 	// Load the source image file, relative to the meta file
@@ -135,7 +137,7 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 		}
 
 		spriteBank.sprites[sprite.id] = sprite
-		spriteBank.size++
+		spriteBank.capacity++
 	}
 
 	return spriteBank, nil
@@ -152,5 +154,9 @@ func (sb *SpriteBank) Sprite(name string) *Sprite {
 }
 
 func (sb *SpriteBank) Capacity() int {
+	return sb.capacity
+}
+
+func (sb *SpriteBank) Size() int {
 	return sb.size
 }
