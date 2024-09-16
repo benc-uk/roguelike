@@ -29,7 +29,7 @@ func handleTaps(taps []tap, touches map[ebiten.TouchID]*touch) []tap {
 		if inpututil.IsTouchJustReleased(id) {
 
 			// If this one has not been touched long (30 frames can be assumed to be 500ms), or moved far, then it's a tap.
-			dist := core.Pos{t.originX, t.originY}.Distance(core.Pos{t.currX, t.currY})
+			dist := core.Pos{t.originX, t.originY}.Distance(core.Pos{t.currX, t.currY}) //nolint
 			if !t.wasPinch && !t.isPan && (t.duration <= 30 || dist < 2) {
 				taps = append(taps, tap{
 					X: t.currX,
