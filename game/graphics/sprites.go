@@ -22,26 +22,6 @@ type Sprite struct {
 	paletteIndex int
 }
 
-// Getter for Sprite image
-func (s *Sprite) Image() *ebiten.Image {
-	return s.image
-}
-
-// Getter for Sprite size
-func (s *Sprite) Size() core.Size {
-	return s.size
-}
-
-// Getter for Sprite name
-func (s *Sprite) Id() string {
-	return s.id
-}
-
-// Getter for Sprite palette index
-func (s *Sprite) PaletteIndex() int {
-	return s.paletteIndex
-}
-
 func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool) {
 	if s == nil {
 		return

@@ -84,13 +84,6 @@ func (p Pos) Distance(p2 Pos) float64 {
 	return d
 }
 
-// distance between points a and b.
-func DistanceF(xa, ya, xb, yb int) float64 {
-	x := math.Abs(float64(xa - xb))
-	y := math.Abs(float64(ya - yb))
-	return math.Sqrt(x*x + y*y)
-}
-
 func (p Pos) InBounds(width, height int) bool {
 	return p.X >= 0 && p.X < width && p.Y >= 0 && p.Y < height
 }

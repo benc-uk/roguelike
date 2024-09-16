@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	_ "embed"
 	"image"
 	"image/color"
 	_ "image/png"
@@ -11,16 +13,15 @@ import (
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_004"
+var version string = "0.0.1-alpha_005"
 
-// These are not
-var windowIcon image.Image
+//go:embed icon.png
+var iconBytes []byte // Icon for the window is embedded
 
 // Left global for now, could be refactored
 var game *engine.Game
@@ -29,38 +30,37 @@ const (
 	wallPalIndex   = 0
 	floorPalIndex  = 3
 	playerPalIndex = 10
+	rows           = 16
+	cols           = 24
 )
 
-// Implements the ebiten.Game interface holds external state for the rendering game and IO
+// Implements the ebiten.Game interface
+// Holds external state for the rendering & running of the game
 type EbitenGame struct {
-	// Touch controls
+	//state GameState
+
+	// Core consts for rendering the window
+	spSize       int // const - size of each tile in pixels
+	scrWidth     int // const - screen width in pixels
+	scrHeight    int // const - screen height in pixels
+	initialScale int // const - initial scale
+
+	// Graphics
+	bank    *graphics.SpriteBank // Sprite bank holds all the sprites
+	palette color.Palette        // Current palette
+
+	// Viewport & FOV
+	viewPort core.Rect // The area of the map that is visible
+	viewDist int       // View distance in tiles (const)
+
+	// Weird crap for touch controls
 	touches  map[ebiten.TouchID]*touch
 	touchIDs []ebiten.TouchID
 	taps     []tap
-
-	// Core consts for rendering
-	sz           int // const - size of each tile
-	rows         int // const - number of rows to render
-	cols         int // const - number of cols to render
-	scrWidth     int // const - screen width
-	scrHeight    int // const - screen height
-	initialScale int // const - initial scale
-	viewDist     int // const - view distance
-
-	// Graphics
-	bank     *graphics.SpriteBank
-	palette  color.Palette
-	viewPort core.Rect
 }
 
 func init() {
-	log.Printf("Generic Dungeon Game v%s is starting...", version)
 
-	iconImg, _, err := ebitenutil.NewImageFromFile(basePath + "assets/icon.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	windowIcon = iconImg
 }
 
 func (g *EbitenGame) Update() error {
@@ -88,36 +88,9 @@ func (g *EbitenGame) Update() error {
 		updateViewPort = true
 	}
 
-	// touch controls
-	// What touches have just ended?
-	g.taps = g.taps[:0]
-	for id, t := range g.touches {
-		if inpututil.IsTouchJustReleased(id) {
-
-			// If this one has not been touched long (30 frames can be assumed to be 500ms), or moved far, then it's a tap.
-			diff := core.DistanceF(t.originX, t.originY, t.currX, t.currY)
-			if !t.wasPinch && !t.isPan && (t.duration <= 30 || diff < 2) {
-				g.taps = append(g.taps, tap{
-					X: t.currX,
-					Y: t.currY,
-				})
-			}
-
-			delete(g.touches, id)
-		}
-	}
-
-	// What touches are new in this frame?
-	g.touchIDs = inpututil.AppendJustPressedTouchIDs(g.touchIDs[:0])
-	for _, id := range g.touchIDs {
-		x, y := ebiten.TouchPosition(id)
-		g.touches[id] = &touch{
-			originX: x, originY: y,
-			currX: x, currY: y,
-		}
-	}
-
-	g.touchIDs = ebiten.AppendTouchIDs(g.touchIDs[:0])
+	// Touch controls - figure out taps and touches
+	g.taps = handleTaps(g.taps, g.touches)
+	handleTouches(g.touchIDs, g.touches)
 
 	// Loop over taps (there should only be one)
 	for _, tap := range g.taps {
@@ -155,7 +128,7 @@ func (g *EbitenGame) UpdateViewAndFOV() {
 	gameMap := game.Map()
 	p := game.Player()
 	// ViewPort is the area of the map that is visible centered on the player
-	g.viewPort = core.NewRect(p.X-g.cols/2, p.Y-g.rows/2, g.cols, g.rows)
+	g.viewPort = core.NewRect(p.X-cols/2, p.Y-rows/2, cols, rows)
 
 	if g.viewPort.X < 0 {
 		g.viewPort.X = 0
@@ -180,16 +153,16 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 	gameMap := game.Map()
 	p := game.Player()
 
-	offsetX := g.viewPort.X * g.sz
-	offsetY := g.viewPort.Y * g.sz
+	offsetX := g.viewPort.X * g.spSize
+	offsetY := g.viewPort.Y * g.spSize
 
 	// Draw the map
 	for x := g.viewPort.X; x < g.viewPort.Width+g.viewPort.X; x++ {
 		for y := g.viewPort.Y; y < g.viewPort.Height+g.viewPort.Y; y++ {
 			tile := gameMap.Tile(x, y)
 			appear := tile.GetAppearance(gameMap)
-			drawX := x*g.sz - offsetX
-			drawY := y*g.sz - offsetY
+			drawX := x*g.spSize - offsetX
+			drawY := y*g.spSize - offsetY
 
 			// Unseen areas are blank/not drawn
 			if appear == nil {
@@ -236,6 +209,15 @@ func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, scree
 }
 
 func main() {
+	log.Printf("Generic Dungeon Game v%s is starting...", version)
+
+	// Create image for window icon from embedded bytes
+	buf := bytes.NewBuffer(iconBytes)
+	icon, _, err := image.Decode(buf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	bank, err := graphics.NewSpriteBank(basePath + "assets/sprites.json")
 	if err != nil {
 		log.Fatal(err)
@@ -251,18 +233,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sz := bank.Size()
+	spSize := bank.Size()
 	ebitenGame := &EbitenGame{
-		touches:      make(map[ebiten.TouchID]*touch),
-		sz:           sz,
-		rows:         16,
-		cols:         20,
-		scrWidth:     20 * sz,
-		scrHeight:    16 * sz,
-		initialScale: sz / 2,
+		touches:   make(map[ebiten.TouchID]*touch),
+		spSize:    spSize,
+		scrWidth:  cols * spSize,
+		scrHeight: rows * spSize,
+
+		initialScale: spSize / 2,
 		bank:         bank,
 		palette:      palette,
-		viewPort:     core.Rect{},
+		viewPort:     core.NewRect(0, 0, cols, rows),
 		viewDist:     6,
 	}
 
@@ -270,7 +251,7 @@ func main() {
 	ebiten.SetWindowPosition(0, 0)
 	ebiten.SetWindowTitle("Generic Dungeon Game")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	ebiten.SetWindowIcon([]image.Image{windowIcon})
+	ebiten.SetWindowIcon([]image.Image{icon})
 
 	// TODO: This is a lot of placeholder for now
 	engine.LoadItemFactory()
