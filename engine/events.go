@@ -2,22 +2,26 @@ package engine
 
 type GameEvent struct {
 	Type   string
-	Source entity
-	Data   string
+	Entity entity
+	Text   string
+	Age    int
 }
+
+const (
+	EventGameState      = "game_state"
+	EventItemPickup     = "item_pickup"
+	EventItemUsed       = "item_used"
+	EventItemDropped    = "item_dropped"
+	EventCreatureKilled = "creature_killed"
+)
 
 type EventManager struct {
 	// Log of game events
-	// log            []GameEvent
 	eventListeners []func(GameEvent)
 }
 
 // Global event manager, yeah it's a singleton, sue me
 var events EventManager
-
-const (
-	MAX_LOG_SIZE = 100
-)
 
 func init() {
 	events = EventManager{}
@@ -27,20 +31,15 @@ func (em *EventManager) AddEventListener(listener func(GameEvent)) {
 	em.eventListeners = append(em.eventListeners, listener)
 }
 
-func (em *EventManager) new(eventType string, source entity, data string) {
+func (em *EventManager) new(eventType string, entity entity, data string) {
 	e := GameEvent{
 		Type:   eventType,
-		Source: source,
-		Data:   data,
+		Entity: entity,
+		Text:   data,
+		Age:    0,
 	}
 
 	for _, listener := range em.eventListeners {
 		listener(e)
 	}
-
-	// // Log the last 100 events
-	// em.log = append(em.log, e)
-	// if len(em.log) > MAX_LOG_SIZE {
-	// 	em.log = events.log[1:]
-	// }
 }

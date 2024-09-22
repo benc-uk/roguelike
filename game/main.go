@@ -35,6 +35,7 @@ const (
 	PAL_INDEX_PLAYER = 10
 	VP_ROWS          = 16 // Number of rows of tiles in the viewport
 	VP_COLS          = 22 // Number of columns of tiles in the viewport
+	MAX_EVENT_AGE    = 6  // Max number of events to store
 )
 
 // Implements the ebiten.Game interface
@@ -60,7 +61,7 @@ type EbitenGame struct {
 	touchIDs []ebiten.TouchID
 	taps     []tap
 
-	events     []engine.GameEvent
+	events     []*engine.GameEvent
 	statusText string
 }
 
@@ -97,12 +98,10 @@ func (g *EbitenGame) Update() error {
 
 	// Loop over taps (there should only be one)
 	for _, tap := range g.taps {
-
 		if tap.X < g.scrWidth/4 {
 			move := engine.NewMoveAction(core.West)
 			move.Execute(p, game.Map())
 			updateViewPort = true
-
 		} else if tap.X > g.scrWidth/4*3 {
 			move := engine.NewMoveAction(core.East)
 			move.Execute(p, game.Map())
@@ -122,6 +121,15 @@ func (g *EbitenGame) Update() error {
 
 	if updateViewPort {
 		g.viewPort = UpdateViewAndFOV(g.viewDist)
+
+		// Handle events and age them
+		for i, e := range g.events {
+			e.Age++
+
+			if e.Age >= MAX_EVENT_AGE {
+				g.events = append(g.events[:i], g.events[i+1:]...)
+			}
+		}
 	}
 
 	g.statusText = "❤️18/45   $5   ▼1"
@@ -187,7 +195,7 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 
 	// Status text
 	offset := float32(g.scrHeight - 12)
-	grey := color.RGBA{0x70, 0x10, 0x10, 0xff}
+	grey := color.RGBA{0x10, 0x50, 0x10, 0xff}
 	vector.DrawFilledRect(screen, 0, offset, float32(g.scrWidth), 100, grey, false)
 
 	opTextStatus := &text.DrawOptions{}
@@ -197,7 +205,11 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 	opTextLog := &text.DrawOptions{}
 	opTextLog.GeoM.Translate(4, 1)
 	opTextLog.LineSpacing = 10
-	text.Draw(screen, "The door opens\nYou hit the ogre for 7 dam\nYou pickup the potion", fontFace, opTextLog)
+	eventsText := ""
+	for _, e := range g.events {
+		eventsText += e.Text + "\n"
+	}
+	text.Draw(screen, eventsText, fontFace, opTextLog)
 }
 
 func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -252,13 +264,13 @@ func main() {
 
 	game = engine.NewGame(basePath + "assets/datafiles")
 	game.AddEventListener(func(e engine.GameEvent) {
-		ebitenGame.events = append(ebitenGame.events, e)
+		ebitenGame.events = append(ebitenGame.events, &e)
 		// store the last 100 events
 		if len(ebitenGame.events) > 100 {
 			ebitenGame.events = ebitenGame.events[1:]
 		}
 	})
-	ebitenGame.events = append(ebitenGame.events, engine.GameEvent{Type: "game_state", Data: "Player has entered the dungeon"})
+	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Player has entered the dungeon"})
 
 	ebitenGame.viewPort = UpdateViewAndFOV(ebitenGame.viewDist)
 

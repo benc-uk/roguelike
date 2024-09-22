@@ -1,6 +1,7 @@
 items:
   potion_blue:
-    description: "A refreshing blue potion that restores health."
+    description: "A refreshing blue potion that restores health"
+    short: "a blue potion"
     graphic: "potion"
     colour: "9"
     usable: true
@@ -11,7 +12,8 @@ items:
       player.SetHealth(h)
 
   potion_pink:
-    description: "A sickly pink potion that damages health."
+    description: "A sickly pink potion that is probably bad for you"
+    short: "a pink potion"
     graphic: "potion"
     usable: true
     rarity: 0.5
@@ -22,7 +24,8 @@ items:
       player.SetHealth(h)
 
   sword:
-    description: "A basic iron sword."
+    description: "A basic iron sword, it's a bit rusty and blunt"
+    short: "an iron sword"
     graphic: "sword"
     equippable: true
     rarity: 1.0

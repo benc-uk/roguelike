@@ -38,9 +38,9 @@ func (a *MoveAction) Execute(p *Player, m *GameMap) bool {
 
 		if p.pickupItem(item) {
 			tile.removeItem(item)
-			events.new("item_pickup", item, item.Description())
+			events.new("item_pickup", item, "Picked up "+item.ShortDesc())
 		} else {
-			events.new("item_pickup_fail", item, item.Description())
+			events.new("item_pickup_fail", item, "Inventory full")
 		}
 
 	}

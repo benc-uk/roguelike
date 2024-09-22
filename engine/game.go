@@ -106,6 +106,7 @@ func NewGame(dataFileDir string) *Game {
 
 	g.gameMap.tiles[3][4].placeItem(potion)
 	g.gameMap.tiles[12][5].placeItem(poison)
+	g.gameMap.tiles[4][4].placeItem(poison)
 	g.gameMap.tiles[6][6].placeItem(sword)
 	g.gameMap.tiles[7][5].placeItem(door)
 	g.gameMap.tiles[14][7].placeItem(rat)

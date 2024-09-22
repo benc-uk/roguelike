@@ -19,7 +19,8 @@ type entityBase struct {
 	blocksMove bool
 	blocksLOS  bool // nolint
 
-	desc string
+	desc      string
+	shortDesc string
 
 	graphicId string
 	colour    string
@@ -44,6 +45,10 @@ func (e *entityBase) InstanceID() string {
 
 func (e *entityBase) Description() string {
 	return e.desc
+}
+
+func (e *entityBase) ShortDesc() string {
+	return e.shortDesc
 }
 
 func (e *entityBase) Appearance() Appearance {

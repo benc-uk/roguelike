@@ -1,9 +1,8 @@
 package engine
 
 import (
-	"roguelike/core"
-
 	"math/rand"
+	"roguelike/core"
 
 	"gopkg.in/yaml.v3"
 )
@@ -40,6 +39,7 @@ type itemFactoryDB map[string](func() *Item)
 
 type yamlItem struct {
 	Description string `yaml:"description"`
+	Short       string `yaml:"short"`
 	Graphic     string `yaml:"graphic"`
 	Colour      string `yaml:"colour"`
 	Usable      bool   `yaml:"usable"`
@@ -70,6 +70,7 @@ func NewItemFactory(dataFile string) (itemFactoryDB, error) {
 					id:         id,
 					instanceID: randId(),
 					desc:       item.Description,
+					shortDesc:  item.Short,
 					graphicId:  item.Graphic,
 					colour:     item.Colour,
 				},
