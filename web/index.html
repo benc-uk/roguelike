@@ -31,6 +31,21 @@
     );
 
     go.run(wasmSource.instance);
+
+    //
+    // Extra code below
+    //
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const can = document.querySelector("canvas")
+
+    // Go fullscreen when the game is loaded
+    if (isMobile) {
+      can.addEventListener("touchend", () => {
+        if (!document.fullscreenElement) {
+          can.requestFullscreen();
+        }
+      });
+    }
   </script>
 </body>
 

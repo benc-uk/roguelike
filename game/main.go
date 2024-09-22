@@ -35,7 +35,6 @@ const (
 	PAL_INDEX_PLAYER = 10
 	VP_ROWS          = 16 // Number of rows of tiles in the viewport
 	VP_COLS          = 22 // Number of columns of tiles in the viewport
-	TILE_SCALE       = 3
 )
 
 // Implements the ebiten.Game interface
@@ -62,7 +61,6 @@ type EbitenGame struct {
 	taps     []tap
 
 	events     []engine.GameEvent
-	tileScale  int
 	statusText string
 }
 
@@ -126,12 +124,7 @@ func (g *EbitenGame) Update() error {
 		g.viewPort = UpdateViewAndFOV(g.viewDist)
 	}
 
-	g.statusText = "❤️:89/100   G:5   L:1"
-	// Show the last events
-	for i := len(g.events) - 1; i >= 0; i-- {
-		e := g.events[i]
-		g.statusText += "\n" + e.Type + ": " + e.Data
-	}
+	g.statusText = "❤️18/45   $5   ▼1"
 
 	return nil
 }
@@ -168,41 +161,43 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 
 			// Walls
 			if appear.Graphic == "wall" {
-				g.bank.Sprite("wall").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_WALL], appear.InFOV, g.tileScale)
+				g.bank.Sprite("wall").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_WALL], appear.InFOV)
 				continue
 			}
 
 			// Draw the player in the center of the screen
 			if x == p.X && y == p.Y {
-				g.bank.Sprite("player").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_PLAYER], appear.InFOV, g.tileScale)
+				g.bank.Sprite("player").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_PLAYER], appear.InFOV)
 				continue
 			}
 
 			if appear.Graphic == "floor" {
-				g.bank.Sprite("floor").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_FLOOR], appear.InFOV, g.tileScale)
+				g.bank.Sprite("floor").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_FLOOR], appear.InFOV)
 				continue
 			}
 
 			// Then items/monsters/stuff
 			itemSprite := g.bank.Sprite(appear.Graphic)
 			if itemSprite != nil {
-				itemSprite.Draw(screen, drawX, drawY, colour, appear.InFOV, g.tileScale)
+				itemSprite.Draw(screen, drawX, drawY, colour, appear.InFOV)
 				continue
 			}
 		}
 	}
 
 	// Status text
-	offset := float32(g.scrHeight - 12*3)
-	grey := color.RGBA{0x10, 0x10, 0x10, 0xff}
-	vector.DrawFilledRect(screen, 0, offset, float32(g.scrWidth), 12*3, grey, false)
+	offset := float32(g.scrHeight - 12)
+	grey := color.RGBA{0x70, 0x10, 0x10, 0xff}
+	vector.DrawFilledRect(screen, 0, offset, float32(g.scrWidth), 100, grey, false)
 
-	opText := &text.DrawOptions{}
-	opText.GeoM.Translate(4, float64(offset))
-	opText.LineSpacing = 11
+	opTextStatus := &text.DrawOptions{}
+	opTextStatus.GeoM.Translate(4, float64(offset-2))
+	text.Draw(screen, g.statusText, fontFace, opTextStatus)
 
-	opText.Filter = ebiten.FilterNearest
-	text.Draw(screen, g.statusText, fontFace, opText)
+	opTextLog := &text.DrawOptions{}
+	opTextLog.GeoM.Translate(4, 1)
+	opTextLog.LineSpacing = 10
+	text.Draw(screen, "The door opens\nYou hit the ogre for 7 dam\nYou pickup the potion", fontFace, opTextLog)
 }
 
 func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -238,14 +233,13 @@ func main() {
 	ebitenGame := &EbitenGame{
 		touches:   make(map[ebiten.TouchID]*touch),
 		spSize:    spSize,
-		scrWidth:  VP_COLS * spSize * TILE_SCALE,
-		scrHeight: VP_ROWS * spSize * TILE_SCALE,
+		scrWidth:  VP_COLS * spSize,
+		scrHeight: VP_ROWS * spSize,
 
-		bank:      bank,
-		palette:   palette,
-		viewPort:  core.NewRect(0, 0, VP_COLS, VP_ROWS),
-		viewDist:  6,
-		tileScale: TILE_SCALE,
+		bank:     bank,
+		palette:  palette,
+		viewPort: core.NewRect(0, 0, VP_COLS, VP_ROWS),
+		viewDist: 6,
 	}
 
 	ebiten.SetWindowSize(ebitenGame.scrWidth*2, ebitenGame.scrHeight*2)
