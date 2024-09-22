@@ -25,3 +25,23 @@ A separate sprite editor has been developed to aid with creating sprites
 [Sprite Editor](./sprite-editor/readme.md)
 
 ![alt text](.etc/Screenshot2024-09-02153104.png)
+
+## Plan and Todo List:
+
+- [ ] HUD and status bar + text
+- [ ] Level generation
+  - [ ] Multiple levels
+  - [ ] Generation using BSP
+  - [ ] Generation using WFC
+  - [ ] Generation using Cellular Automata
+- [ ] Inventory system
+  - [ ] Scriptable items using JS
+  - [ ] Pick up items
+  - [ ] Drop items
+  - [ ] Use items
+- [ ] Implement creatures/monsters
+  - [ ] Scriptable AI using JS
+  - [ ] Combat
+- [ ] Implement furniture
+  - [ ] Doors
+- [ ] Timing & energy system

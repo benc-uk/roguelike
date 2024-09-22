@@ -1,69 +1,93 @@
 package engine
 
-// TODO: This is placeholder code
-func LoadItemFactory() {
-	itemFactory = make(map[string](func() *Item))
+import (
+	"roguelike/core"
 
-	itemFactory["sword"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:        "sword",
-				desc:      "A rusty sword",
-				graphicId: "sword",
-				colour:    "2",
-			},
-			consumable: false,
+	"math/rand"
+
+	"gopkg.in/yaml.v3"
+)
+
+// ===== Items ========================================================================================================
+
+type Item struct {
+	entityBase
+	usable     bool
+	equippable bool //nolint:unused
+}
+
+func (i *Item) Type() entityType {
+	return entityTypeItem
+}
+
+func (factory itemFactoryDB) CreateItem(id string) *Item {
+	factoryFunc, ok := factory[id]
+	if !ok {
+		return nil
+	}
+
+	// Create the item
+	return factoryFunc()
+}
+
+func (i *Item) String() string {
+	return "item_" + i.id + "_" + i.instanceID
+}
+
+// ===== Item Factory =================================================================================================
+
+type itemFactoryDB map[string](func() *Item)
+
+type yamlItem struct {
+	Description string `yaml:"description"`
+	Graphic     string `yaml:"graphic"`
+	Colour      string `yaml:"colour"`
+	Usable      bool   `yaml:"usable"`
+}
+
+type yamlItemsFile struct {
+	Items map[string]yamlItem `yaml:"items"`
+}
+
+func NewItemFactory(dataFile string) (itemFactoryDB, error) {
+	// Load items from YAML data file
+	data, err := core.ReadFile(dataFile)
+	if err != nil {
+		return nil, err
+	}
+
+	var itemsFile yamlItemsFile
+	err = yaml.Unmarshal(data, &itemsFile)
+	if err != nil {
+		return nil, err
+	}
+
+	itemFactory := make(map[string](func() *Item))
+	for id, item := range itemsFile.Items {
+		itemFactory[id] = func() *Item {
+			return &Item{
+				entityBase: entityBase{
+					id:         id,
+					instanceID: randId(),
+					desc:       item.Description,
+					graphicId:  item.Graphic,
+					colour:     item.Colour,
+				},
+				usable: item.Usable,
+			}
 		}
 	}
 
-	itemFactory["potion"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:        "potion",
-				desc:      "A refreshing looking blue potion",
-				graphicId: "potion",
-				colour:    "9",
-			},
-			consumable: true,
-		}
-	}
+	return itemFactory, nil
+}
 
-	itemFactory["potion_poison"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:        "potion_poison",
-				desc:      "A bubbling pink potion",
-				graphicId: "potion",
-				colour:    "11",
-			},
-			consumable: true,
-		}
+// Simple ID generator 8 characters long
+func randId() string {
+	// generate a random string
+	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	id := make([]byte, 8)
+	for i := range id {
+		id[i] = chars[rand.Intn(len(chars))]
 	}
-
-	itemFactory["door"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:         "door",
-				desc:       "A sturdy wooden door",
-				graphicId:  "door",
-				blocksMove: false,
-				blocksLOS:  true,
-				colour:     "5",
-			},
-			consumable: false,
-		}
-	}
-
-	itemFactory["rat"] = func() *Item {
-		return &Item{
-			entityBase: entityBase{
-				id:         "rat",
-				desc:       "A small, scurrying rat",
-				graphicId:  "rat",
-				blocksMove: true,
-				colour:     "4",
-			},
-			consumable: false,
-		}
-	}
+	return string(id)
 }

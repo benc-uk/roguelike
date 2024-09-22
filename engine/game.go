@@ -17,6 +17,9 @@ type Game struct {
 	State   GameState
 	player  *Player
 	gameMap *GameMap
+
+	// Entity factories
+	itemFactory itemFactoryDB
 }
 
 func (g *Game) Map() *GameMap {
@@ -68,22 +71,38 @@ func (g *Game) UpdateFOV(p Player, fovRange int) {
 	}
 }
 
-// TODO: All a massive placeholder for now
-func NewGame() *Game {
+func (g *Game) AddEventListener(listener func(GameEvent)) {
+	events.AddEventListener(listener)
+}
+
+// Create a new game instance
+func NewGame(dataFileDir string) *Game {
 	g := &Game{
 		State: GameStateTitle,
 		player: &Player{
 			Pos:  core.Pos{X: 2, Y: 2},
 			name: "Wizard Bob",
 		},
-		gameMap: NewMap(60, 60),
 	}
 
-	sword := itemFactory.CreateItem("sword")
-	potion := itemFactory.CreateItem("potion")
-	door := itemFactory.CreateItem("door")
-	rat := itemFactory.CreateItem("rat")
-	poison := itemFactory.CreateItem("potion_poison")
+	// Reset the global event manager
+	events = EventManager{}
+
+	var err error
+	g.itemFactory, err = NewItemFactory(dataFileDir + "/items.yaml")
+	if err != nil {
+		panic(err)
+	}
+
+	// *******************************
+	// HACK: PLACEHOLDER MAP SETUP
+	// *******************************
+	g.gameMap = NewMap(60, 60)
+	sword := g.itemFactory.CreateItem("sword")
+	potion := g.itemFactory.CreateItem("potion_blue")
+	door := g.itemFactory.CreateItem("door")
+	rat := g.itemFactory.CreateItem("rat")
+	poison := g.itemFactory.CreateItem("potion_pink")
 
 	g.gameMap.tiles[3][4].placeItem(potion)
 	g.gameMap.tiles[12][5].placeItem(poison)
@@ -104,9 +123,6 @@ func NewGame() *Game {
 
 	g.gameMap.tiles[13][8].makeWall()
 	g.gameMap.tiles[13][9].makeWall()
-
-	// HACK: DEBUG
-	//g.gameMap.seeAll()
 
 	return g
 }

@@ -22,13 +22,15 @@ type Sprite struct {
 	paletteIndex int
 }
 
-func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool) {
+func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool, scale int) {
 	if s == nil {
 		return
 	}
 
 	op := &ebiten.DrawImageOptions{}
+
 	op.GeoM.Translate(float64(x), float64(y))
+	op.GeoM.Scale(float64(scale), float64(scale))
 	op.ColorScale.ScaleWithColor(colour)
 	if !inFOV {
 		op.ColorScale.ScaleAlpha(0.3)

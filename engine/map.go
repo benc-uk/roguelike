@@ -65,6 +65,10 @@ func (t *tile) placeItem(item *Item) {
 	item.Pos = &t.Pos
 }
 
+func (t *tile) removeItem(item *Item) {
+	t.entities.Remove(item)
+}
+
 // GetAppearance returns the appearance of the tile as a string
 // to be used by the renderer and UI to display this tile
 func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
@@ -83,6 +87,7 @@ func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
 		if len(creatures) > 0 {
 			a := creatures[len(creatures)-1].Appearance()
 			a.InFOV = t.inFOV
+
 			return &a
 		}
 
@@ -90,6 +95,7 @@ func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
 		if len(items) > 0 {
 			a := items[len(items)-1].Appearance()
 			a.InFOV = t.inFOV
+
 			return &a
 		}
 	}
@@ -130,6 +136,10 @@ func (m *GameMap) Tile(x, y int) *tile {
 	return &m.tiles[x][y]
 }
 
+func (m *GameMap) TileAt(pos core.Pos) *tile {
+	return &m.tiles[pos.X][pos.Y]
+}
+
 func (m *GameMap) Size() core.Size {
 	return core.Size{Width: m.width, Height: m.height}
 }
@@ -140,6 +150,7 @@ func (m *GameMap) Rect() core.Rect {
 
 // TODO: Placeholder for now
 func NewMap(width, height int) *GameMap {
+	events.new("map_created", nil, "Map created")
 	m := &GameMap{
 		width:   width,
 		height:  height,

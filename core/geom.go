@@ -64,10 +64,8 @@ func (p Pos) String() string {
 	return fmt.Sprintf("(%d, %d)", p.X, p.Y)
 }
 
-func RandomPos(width, height int) Pos {
-	x := rand.Intn(width)
-	y := rand.Intn(height)
-	return Pos{x, y}
+func RandomPos(maxX, maxY int) Pos {
+	return Pos{rand.Intn(maxX), rand.Intn(maxY)}
 }
 
 func (p Pos) Add(p2 Pos) Pos {

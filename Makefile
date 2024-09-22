@@ -16,7 +16,7 @@ build-wasm: ## Build as WASM for web, and copy assets
 	rm -rf web/assets
 	cp -r assets/ web/
 
-watch: ## Watch for changes and rebuild
+watch: ## Watch for changes and rebuild as local binary
 	air -c .air.toml
 
 lint: ## Check for linting problems

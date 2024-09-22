@@ -13,7 +13,8 @@ const (
 )
 
 type entityBase struct {
-	id string
+	id         string
+	instanceID string
 	*core.Pos
 	blocksMove bool
 	blocksLOS  bool // nolint
@@ -26,6 +27,7 @@ type entityBase struct {
 
 type entity interface {
 	Id() string
+	InstanceID() string
 	Description() string
 	Type() entityType
 	BlocksLOS() bool
@@ -34,6 +36,10 @@ type entity interface {
 
 func (e *entityBase) Id() string {
 	return e.id
+}
+
+func (e *entityBase) InstanceID() string {
+	return e.instanceID
 }
 
 func (e *entityBase) Description() string {
@@ -53,32 +59,6 @@ func (e *entityBase) BlocksLOS() bool {
 
 func (e *entityBase) BlocksMove() bool {
 	return e.blocksMove
-}
-
-// ===== Items ========================================================================================================
-
-type Item struct {
-	entityBase
-	consumable bool
-	equippable bool //nolint
-}
-
-func (i *Item) Type() entityType {
-	return entityTypeItem
-}
-
-type itemFactoryDB map[string](func() *Item)
-
-var itemFactory itemFactoryDB
-
-func (factory itemFactoryDB) CreateItem(id string) *Item {
-	factoryFunc, ok := factory[id]
-	if !ok {
-		return nil
-	}
-
-	// Create the item
-	return factoryFunc()
 }
 
 // ===== Furniture ========================================================================================================
@@ -152,6 +132,15 @@ func (el entityList) First() *entity {
 
 func (el entityList) IsEmpty() bool {
 	return len(el) == 0
+}
+
+func (el *entityList) Remove(e entity) {
+	for i, ent := range *el {
+		if ent.InstanceID() == e.InstanceID() {
+			*el = append((*el)[:i], (*el)[i+1:]...)
+			return
+		}
+	}
 }
 
 // ===== Creatures ======================================================================================================
