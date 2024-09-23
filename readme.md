@@ -28,7 +28,9 @@ A separate sprite editor has been developed to aid with creating sprites
 
 ## Plan and Todo List:
 
-- [ ] HUD and status bar + text
+- [ ] HUD
+  - [x] Status bar
+- [x] Events
 - [ ] Level generation
   - [ ] Multiple levels
   - [ ] Generation using BSP

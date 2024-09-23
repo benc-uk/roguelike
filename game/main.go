@@ -16,12 +16,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_007"
+var version string = "0.0.1-alpha_008"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
@@ -34,8 +33,9 @@ const (
 	PAL_INDEX_FLOOR  = 3
 	PAL_INDEX_PLAYER = 10
 	VP_ROWS          = 16 // Number of rows of tiles in the viewport
-	VP_COLS          = 22 // Number of columns of tiles in the viewport
+	VP_COLS          = 24 // Number of columns of tiles in the viewport
 	MAX_EVENT_AGE    = 6  // Max number of events to store
+	INITAL_SCALE     = 4
 )
 
 // Implements the ebiten.Game interface
@@ -64,8 +64,6 @@ type EbitenGame struct {
 	events     []*engine.GameEvent
 	statusText string
 }
-
-var fontFace = text.NewGoXFace(bitmapfont.Face)
 
 func (g *EbitenGame) Update() error {
 	p := game.Player()
@@ -123,10 +121,13 @@ func (g *EbitenGame) Update() error {
 		g.viewPort = UpdateViewAndFOV(g.viewDist)
 
 		// Handle events and age them
-		for i, e := range g.events {
+		for _, e := range g.events {
 			e.Age++
+		}
 
-			if e.Age >= MAX_EVENT_AGE {
+		// Remove old events
+		for i, e := range g.events {
+			if e.Age > MAX_EVENT_AGE {
 				g.events = append(g.events[:i], g.events[i+1:]...)
 			}
 		}
@@ -193,23 +194,11 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	// Status text
-	offset := float32(g.scrHeight - 12)
-	grey := color.RGBA{0x10, 0x50, 0x10, 0xff}
-	vector.DrawFilledRect(screen, 0, offset, float32(g.scrWidth), 100, grey, false)
+	graphics.DrawTextRow(screen, g.statusText, 15, color.RGBA{0x10, 0x50, 0x10, 0xff})
 
-	opTextStatus := &text.DrawOptions{}
-	opTextStatus.GeoM.Translate(4, float64(offset-2))
-	text.Draw(screen, g.statusText, fontFace, opTextStatus)
-
-	opTextLog := &text.DrawOptions{}
-	opTextLog.GeoM.Translate(4, 1)
-	opTextLog.LineSpacing = 10
-	eventsText := ""
-	for _, e := range g.events {
-		eventsText += e.Text + "\n"
+	for i, e := range g.events {
+		graphics.DrawTextRow(screen, e.Text, i, color.RGBA{0x00, 0x00, 0x30, 0x30})
 	}
-	text.Draw(screen, eventsText, fontFace, opTextLog)
 }
 
 func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -254,25 +243,24 @@ func main() {
 		viewDist: 6,
 	}
 
-	ebiten.SetWindowSize(ebitenGame.scrWidth*2, ebitenGame.scrHeight*2)
+	ebiten.SetWindowSize(ebitenGame.scrWidth*INITAL_SCALE, ebitenGame.scrHeight*INITAL_SCALE)
 	ebiten.SetWindowPosition(0, 0)
 	ebiten.SetWindowTitle("Generic Dungeon Game")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowIcon([]image.Image{icon})
 
-	// TODO: This is a lot of placeholder for now
-
 	game = engine.NewGame(basePath + "assets/datafiles")
 	game.AddEventListener(func(e engine.GameEvent) {
 		ebitenGame.events = append(ebitenGame.events, &e)
-		// store the last 100 events
-		if len(ebitenGame.events) > 100 {
-			ebitenGame.events = ebitenGame.events[1:]
-		}
 	})
-	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Player has entered the dungeon"})
+
+	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "You have entered level 1!"})
 
 	ebitenGame.viewPort = UpdateViewAndFOV(ebitenGame.viewDist)
+
+	// Using hajimehoshi/bitmapfont/v3 for now
+	fontFace := text.NewGoXFace(bitmapfont.Face)
+	graphics.SetFontFace(fontFace)
 
 	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)

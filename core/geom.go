@@ -77,9 +77,7 @@ func (p Pos) Sub(p2 Pos) Pos {
 }
 
 func (p Pos) Distance(p2 Pos) float64 {
-	// TODO: Probably could be optimized
-	d := math.Sqrt(float64((p.X-p2.X)*(p.X-p2.X) + (p.Y-p2.Y)*(p.Y-p2.Y)))
-	return d
+	return math.Sqrt(float64((p.X-p2.X)*(p.X-p2.X) + (p.Y-p2.Y)*(p.Y-p2.Y)))
 }
 
 func (p Pos) InBounds(width, height int) bool {

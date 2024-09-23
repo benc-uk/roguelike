@@ -148,7 +148,6 @@ func (m *GameMap) Rect() core.Rect {
 	return core.NewRect(0, 0, m.width, m.height)
 }
 
-// TODO: Placeholder for now
 func NewMap(width, height int) *GameMap {
 	events.new("map_created", nil, "Map created")
 	m := &GameMap{
