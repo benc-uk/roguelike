@@ -105,6 +105,7 @@ func NewGame(dataFileDir string) *Game {
 	// Smaller
 	g.gameMap = NewMap(40, 40, 1)
 	g.gameMap.GenerateBSP(4, g.itemFactory) // 4 or 5 also works
+	g.gameMap.description = "a small dungeon"
 
 	// Small
 	//g.gameMap = NewMap(48, 48, 1)

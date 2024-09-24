@@ -63,6 +63,10 @@ func (r Rect) RandomPos() Pos {
 	return Pos{rand.Intn(r.Width) + r.X, rand.Intn(r.Height) + r.Y}
 }
 
+func (r Rect) Area() int {
+	return r.Width * r.Height
+}
+
 func NewRect(x, y, width, height int) Rect {
 	return Rect{Pos{x, y}, Size{width, height}}
 }

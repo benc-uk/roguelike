@@ -184,6 +184,14 @@ func NewMap(width, height, depth int) *GameMap {
 	return m
 }
 
+func (m *GameMap) Description() string {
+	return m.description
+}
+
+func (m *GameMap) Depth() int {
+	return m.depth
+}
+
 func (m *GameMap) floorArea(x, y, w, h int) {
 	for i := x; i < x+w; i++ {
 		for j := y; j < y+h; j++ {

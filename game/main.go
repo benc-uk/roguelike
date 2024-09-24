@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"image"
 	"image/color"
 	_ "image/png"
@@ -20,7 +21,7 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_008"
+var version string = "0.0.1-alpha_009"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
@@ -257,7 +258,9 @@ func main() {
 	ebitenGame.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 	game.UpdateFOV(ebitenGame.viewDist)
 
-	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "You have entered level 1!"})
+	levelText := fmt.Sprintf("You are on level %d of %s", game.Map().Depth(), game.Map().Description())
+	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Version " + version, Age: 0})
+	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: levelText, Age: 1})
 
 	// HACK: Removed for now to test map generation
 	if err := ebiten.RunGame(ebitenGame); err != nil {
