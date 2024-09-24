@@ -21,6 +21,6 @@ func DrawTextRow(screen *ebiten.Image, textStr string, row int, bgCol color.RGBA
 	vector.DrawFilledRect(screen, 0, float32(offset), 2000, rowH, bgCol, false)
 
 	op := &text.DrawOptions{}
-	op.GeoM.Translate(2, float64(offset-1))
+	op.GeoM.Translate(2, float64(offset-2))
 	text.Draw(screen, textStr, fontFace, op)
 }

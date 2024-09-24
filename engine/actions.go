@@ -19,7 +19,7 @@ func NewMoveAction(d core.Direction) *MoveAction {
 func (a *MoveAction) Execute(p *Player, m *GameMap) bool {
 	// heck if the player can move in the direction
 	newPos := p.Pos.Add(a.Direction.Pos())
-	if !newPos.InBounds(m.width, m.height) {
+	if !newPos.InBounds(m.Width, m.Height) {
 		return false
 	}
 
@@ -42,7 +42,8 @@ func (a *MoveAction) Execute(p *Player, m *GameMap) bool {
 		} else {
 			events.new("item_pickup_fail", item, "Inventory full")
 		}
-
+	} else if len(items) > 1 {
+		events.new("item_pickup_multiple", nil, "You stand over a pile of items")
 	}
 
 	return true

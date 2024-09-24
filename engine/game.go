@@ -30,7 +30,8 @@ func (g *Game) Player() *Player {
 	return g.player
 }
 
-func (g *Game) UpdateFOV(p Player, fovRange int) {
+func (g *Game) UpdateFOV(fovRange int) {
+	p := g.player
 	// Remove all previous FOV
 	for _, t := range g.gameMap.fovList {
 		t.inFOV = false
@@ -41,7 +42,7 @@ func (g *Game) UpdateFOV(p Player, fovRange int) {
 	// - if the ray hits a wall stop and otherwise the tile is inFov and seen
 	for x := p.X - fovRange; x < p.X+fovRange+1; x++ {
 		for y := p.Y - fovRange; y < p.Y+fovRange+1; y++ {
-			if x < 0 || x >= g.gameMap.width || y < 0 || y >= g.gameMap.height {
+			if x < 0 || x >= g.gameMap.Width || y < 0 || y >= g.gameMap.Height {
 				continue
 			}
 
@@ -89,7 +90,7 @@ func NewGame(dataFileDir string) *Game {
 	events = EventManager{}
 
 	var err error
-	g.itemFactory, err = NewItemFactory(dataFileDir + "/items.yaml")
+	g.itemFactory, err = newItemFactory(dataFileDir + "/items.yaml")
 	if err != nil {
 		panic(err)
 	}
@@ -97,35 +98,46 @@ func NewGame(dataFileDir string) *Game {
 	// *******************************
 	// HACK: PLACEHOLDER MAP SETUP
 	// *******************************
-	g.gameMap = NewMap(60, 60)
-	sword := g.itemFactory.CreateItem("sword")
-	potion := g.itemFactory.CreateItem("potion_blue")
-	door := g.itemFactory.CreateItem("door")
-	rat := g.itemFactory.CreateItem("rat")
-	poison := g.itemFactory.CreateItem("potion_pink")
+	// Tiny
+	//g.gameMap = NewMap(32, 32, 1)
+	//g.gameMap.GenerateBSP(3) // 4 or 5 also works
 
-	g.gameMap.tiles[3][4].placeItem(potion)
-	g.gameMap.tiles[12][5].placeItem(poison)
-	g.gameMap.tiles[4][4].placeItem(poison)
-	g.gameMap.tiles[5][4].placeItem(sword)
-	g.gameMap.tiles[6][4].placeItem(poison)
-	g.gameMap.tiles[6][6].placeItem(sword)
-	g.gameMap.tiles[7][5].placeItem(door)
-	g.gameMap.tiles[14][7].placeItem(rat)
+	// Smaller
+	g.gameMap = NewMap(40, 40, 1)
+	g.gameMap.GenerateBSP(4, g.itemFactory) // 4 or 5 also works
 
-	g.gameMap.makeRectRoom(2, 2, 5, 5)
-	g.gameMap.makeRectRoom(3, 10, 4, 4)
-	g.gameMap.makeRectRoom(10, 4, 7, 8)
-	g.gameMap.makeRectRoom(7, 5, 3, 1)
-	g.gameMap.makeRectRoom(5, 10, 5, 1)
+	// Small
+	//g.gameMap = NewMap(48, 48, 1)
+	//g.gameMap.GenerateBSP(6) // 5 also works
 
-	g.gameMap.makeRectRoom(23, 5, 8, 5)
-	g.gameMap.makeRectRoom(19, 15, 11, 9)
-	g.gameMap.makeRectRoom(17, 8, 7, 1)
-	g.gameMap.makeRectRoom(20, 8, 1, 7)
+	// Medium
+	// g.gameMap = NewMap(64, 64, 1)
+	// g.gameMap.GenerateBSP(6)
 
-	g.gameMap.tiles[13][8].makeWall()
-	g.gameMap.tiles[13][9].makeWall()
+	// HACK: Dump the map to a PNG file
+	g.gameMap.dumpPNG()
+
+	g.player.Pos = g.gameMap.randomFloorTile(true).Pos
 
 	return g
+}
+
+// ViewPort is the area of the map that is centered on the player
+func (g Game) GetViewPort(vpWidth, vpHeight int) core.Rect {
+	vp := core.NewRect((g.player.X - vpWidth/2), (g.player.Y - vpHeight/2), vpWidth, vpHeight)
+
+	if vp.X < 0 {
+		vp.X = 0
+	}
+	if vp.Y < 0 {
+		vp.Y = 0
+	}
+	if vp.X+vp.Width > g.gameMap.Width {
+		vp.X = g.gameMap.Width - vp.Width
+	}
+	if vp.Y+vp.Height > g.gameMap.Height {
+		vp.Y = g.gameMap.Height - vp.Height
+	}
+
+	return vp
 }

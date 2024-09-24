@@ -32,16 +32,27 @@ const (
 	PAL_INDEX_WALL   = 0
 	PAL_INDEX_FLOOR  = 3
 	PAL_INDEX_PLAYER = 10
-	VP_ROWS          = 16 // Number of rows of tiles in the viewport
-	VP_COLS          = 24 // Number of columns of tiles in the viewport
+	VP_ROWS          = 18 // Number of rows of tiles in the viewport
+	VP_COLS          = 26 // Number of columns of tiles in the viewport
 	MAX_EVENT_AGE    = 6  // Max number of events to store
-	INITAL_SCALE     = 4
+	INITIAL_SCALE    = 4
+)
+
+type GameState int
+
+const (
+	GameStateTitle GameState = iota
+	GameStatePlaying
+	GameStateInventory
+	GameStateCharacter
+	GameStateGameOver
+	GameStatePlayerGen
 )
 
 // Implements the ebiten.Game interface
 // Holds external state for the rendering & running of the game
 type EbitenGame struct {
-	//state GameState
+	state GameState // nolint
 
 	// Core consts for rendering the window
 	spSize    int // const - size of each tile in pixels
@@ -67,27 +78,19 @@ type EbitenGame struct {
 
 func (g *EbitenGame) Update() error {
 	p := game.Player()
-	updateViewPort := false
 
+	var move *engine.MoveAction
 	if inpututil.IsKeyJustPressed(ebiten.KeyUp) || inpututil.IsKeyJustPressed(ebiten.KeyW) {
-		move := engine.NewMoveAction(core.North)
-		move.Execute(p, game.Map())
-		updateViewPort = true
+		move = engine.NewMoveAction(core.DirNorth)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyDown) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
-		move := engine.NewMoveAction(core.South)
-		move.Execute(p, game.Map())
-		updateViewPort = true
+		move = engine.NewMoveAction(core.DirSouth)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
-		move := engine.NewMoveAction(core.West)
-		move.Execute(p, game.Map())
-		updateViewPort = true
+		move = engine.NewMoveAction(core.DirWest)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
-		move := engine.NewMoveAction(core.East)
-		move.Execute(p, game.Map())
-		updateViewPort = true
+		move = engine.NewMoveAction(core.DirEast)
 	}
 
 	// Touch controls - figure out taps and touches
@@ -97,28 +100,22 @@ func (g *EbitenGame) Update() error {
 	// Loop over taps (there should only be one)
 	for _, tap := range g.taps {
 		if tap.X < g.scrWidth/4 {
-			move := engine.NewMoveAction(core.West)
-			move.Execute(p, game.Map())
-			updateViewPort = true
+			move = engine.NewMoveAction(core.DirWest)
 		} else if tap.X > g.scrWidth/4*3 {
-			move := engine.NewMoveAction(core.East)
-			move.Execute(p, game.Map())
-			updateViewPort = true
+			move = engine.NewMoveAction(core.DirEast)
 		}
 
 		if tap.Y < g.scrHeight/4 {
-			move := engine.NewMoveAction(core.North)
-			move.Execute(p, game.Map())
-			updateViewPort = true
+			move = engine.NewMoveAction(core.DirNorth)
 		} else if tap.Y > g.scrHeight/4*3 {
-			move := engine.NewMoveAction(core.South)
-			move.Execute(p, game.Map())
-			updateViewPort = true
+			move = engine.NewMoveAction(core.DirSouth)
 		}
 	}
 
-	if updateViewPort {
-		g.viewPort = UpdateViewAndFOV(g.viewDist)
+	if move != nil {
+		move.Execute(p, game.Map())
+		g.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
+		game.UpdateFOV(g.viewDist)
 
 		// Handle events and age them
 		for _, e := range g.events {
@@ -174,7 +171,7 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 				continue
 			}
 
-			// Draw the player in the center of the screen
+			// Draw the player
 			if x == p.X && y == p.Y {
 				g.bank.Sprite("player").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_PLAYER], appear.InFOV)
 				continue
@@ -194,7 +191,7 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	graphics.DrawTextRow(screen, g.statusText, 15, color.RGBA{0x10, 0x50, 0x10, 0xff})
+	graphics.DrawTextRow(screen, g.statusText, VP_ROWS-1, color.RGBA{0x10, 0x50, 0x10, 0xff})
 
 	for i, e := range g.events {
 		graphics.DrawTextRow(screen, e.Text, i, color.RGBA{0x00, 0x00, 0x30, 0x30})
@@ -230,8 +227,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Using hajimehoshi/bitmapfont/v3 for now
+	graphics.SetFontFace(text.NewGoXFace(bitmapfont.Face))
+
 	spSize := bank.Size()
 	ebitenGame := &EbitenGame{
+		state:     GameStateTitle,
 		touches:   make(map[ebiten.TouchID]*touch),
 		spSize:    spSize,
 		scrWidth:  VP_COLS * spSize,
@@ -243,7 +244,7 @@ func main() {
 		viewDist: 6,
 	}
 
-	ebiten.SetWindowSize(ebitenGame.scrWidth*INITAL_SCALE, ebitenGame.scrHeight*INITAL_SCALE)
+	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
 	ebiten.SetWindowPosition(0, 0)
 	ebiten.SetWindowTitle("Generic Dungeon Game")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
@@ -253,41 +254,13 @@ func main() {
 	game.AddEventListener(func(e engine.GameEvent) {
 		ebitenGame.events = append(ebitenGame.events, &e)
 	})
+	ebitenGame.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
+	game.UpdateFOV(ebitenGame.viewDist)
 
 	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "You have entered level 1!"})
 
-	ebitenGame.viewPort = UpdateViewAndFOV(ebitenGame.viewDist)
-
-	// Using hajimehoshi/bitmapfont/v3 for now
-	fontFace := text.NewGoXFace(bitmapfont.Face)
-	graphics.SetFontFace(fontFace)
-
+	// HACK: Removed for now to test map generation
 	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func UpdateViewAndFOV(viewDist int) core.Rect {
-	gameMap := game.Map()
-	p := game.Player()
-
-	// ViewPort is the area of the map that is visible centered on the player
-	vp := core.NewRect((p.X - VP_COLS/2), (p.Y - VP_ROWS/2), VP_COLS, VP_ROWS)
-
-	if vp.X < 0 {
-		vp.X = 0
-	}
-	if vp.Y < 0 {
-		vp.Y = 0
-	}
-	if vp.X+vp.Width > gameMap.Size().Width {
-		vp.X = gameMap.Size().Width - vp.Width
-	}
-	if vp.Y+vp.Height > gameMap.Size().Height {
-		vp.Y = gameMap.Size().Height - vp.Height
-	}
-
-	game.UpdateFOV(*p, viewDist)
-
-	return vp
 }

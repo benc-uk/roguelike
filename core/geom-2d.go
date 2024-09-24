@@ -10,6 +10,7 @@ import (
 	"math/rand"
 )
 
+// Size represents a width and height
 type Size struct {
 	Width  int
 	Height int
@@ -25,6 +26,7 @@ func (s Size) Area() int {
 
 // ===== Rectangles =====
 
+// Rect represents a rectangle with a position (x & y) and size (width & height)
 type Rect struct {
 	Pos
 	Size
@@ -49,12 +51,25 @@ func (r Rect) IntersectingRect(other Rect) Rect {
 	return Rect{}
 }
 
+func (r Rect) Center() Pos {
+	if r.Width == 0 || r.Height == 0 {
+		return Pos{}
+	}
+
+	return Pos{r.X + r.Width/2, r.Y + r.Height/2}
+}
+
+func (r Rect) RandomPos() Pos {
+	return Pos{rand.Intn(r.Width) + r.X, rand.Intn(r.Height) + r.Y}
+}
+
 func NewRect(x, y, width, height int) Rect {
 	return Rect{Pos{x, y}, Size{width, height}}
 }
 
 // ===== Positions =====
 
+// Pos represents a 2D position with X and Y coordinates
 type Pos struct {
 	X int
 	Y int
@@ -155,26 +170,27 @@ func (p Pos) RayCastTo(p2 Pos, maxDist float64) []Pos {
 
 // ===== Directions =====
 
+// Direction represents a cardinal direction, such as North, South, East, or West
 type Direction int
 
 const (
-	North Direction = iota
-	South
-	East
-	West
+	DirNorth Direction = iota
+	DirSouth
+	DirEast
+	DirWest
 )
 
-var Directions = []Direction{North, South, East, West}
+var Directions = []Direction{DirNorth, DirSouth, DirEast, DirWest}
 
 func (d Direction) Pos() Pos {
 	switch d {
-	case North:
+	case DirNorth:
 		return Pos{0, -1}
-	case South:
+	case DirSouth:
 		return Pos{0, 1}
-	case East:
+	case DirEast:
 		return Pos{1, 0}
-	case West:
+	case DirWest:
 		return Pos{-1, 0}
 	}
 	return Pos{}

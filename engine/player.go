@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	MAX_ITEMS = 10
+	MAX_ITEMS = 110
 )
 
 type Player struct {

@@ -28,8 +28,8 @@ func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, in
 	}
 
 	op := &ebiten.DrawImageOptions{}
-
 	op.GeoM.Translate(float64(x), float64(y))
+	op.Filter = ebiten.FilterLinear
 	op.ColorScale.ScaleWithColor(colour)
 	if !inFOV {
 		op.ColorScale.ScaleAlpha(0.3)

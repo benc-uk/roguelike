@@ -28,6 +28,11 @@ A separate sprite editor has been developed to aid with creating sprites
 
 ## Plan and Todo List:
 
+- [ ] Debug and cheat modes
+- [ ] Game states (menu, in-game, gameover etc)
+  - [ ] Title screen
+- [ ] Character generation
+- [ ] Saving and loading
 - [ ] HUD
   - [x] Status bar
 - [x] Events
@@ -37,12 +42,14 @@ A separate sprite editor has been developed to aid with creating sprites
   - [ ] Generation using WFC
   - [ ] Generation using Cellular Automata
 - [ ] Inventory system
+  - [ ] Inventory screen
   - [ ] Scriptable items using JS
   - [ ] Pick up items
   - [ ] Drop items
   - [ ] Use items
 - [ ] Implement creatures/monsters
-  - [ ] Scriptable AI using JS
+  - [ ] Pathfinding A\* etc
+  - [ ] Scriptable AI using JS (?)
   - [ ] Combat
 - [ ] Implement furniture
   - [ ] Doors

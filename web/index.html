@@ -22,7 +22,6 @@
     //
     // Canonical way to initialize Go WASM in the browser
     //
-
     const go = new Go();
 
     const wasmSource = await WebAssembly.instantiateStreaming(
@@ -32,13 +31,15 @@
 
     go.run(wasmSource.instance);
 
-    // Extra code for mobile devices
+    // ---------------------------------------------------
+
+    // Extra handling only for mobile devices
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const gameCanvas = document.querySelector("canvas")
 
     // Go fullscreen on mobile devices when the user taps the screen
     if (isMobile) {
-      gameCanvas.addEventListener("touchend", () => {
+      gameCanvas.addEventListener("touchstart", () => {
         if (!document.fullscreenElement) {
           gameCanvas.requestFullscreen();
         }

@@ -17,7 +17,7 @@ items:
     graphic: "potion"
     usable: true
     rarity: 0.5
-    colour: "11"
+    colour: "12"
     onUseScript: -|
       h = player.GetHealth()
       h = h - 10
@@ -30,7 +30,29 @@ items:
     equippable: true
     rarity: 1.0
     weapon: true
-    colour: "2"
+    colour: "14"
     weaponProperties:
       damage: 10
       range: 1
+
+  shield:
+    description: "A rusty shield, it's seen better days"
+    short: "a rusty shield"
+    graphic: "shield"
+    equippable: true
+    rarity: 0.5
+    colour: "5"
+    equipProperties:
+      defence: 5
+
+  meat:
+    description: "A hunk of meat, it looks like it's been cooked"
+    short: "a hunk of meat"
+    graphic: "meat"
+    usable: true
+    rarity: 0.5
+    colour: "11"
+    onUseScript: -|
+      h = player.GetHealth()
+      h = h + 5
+      player.SetHealth(h)

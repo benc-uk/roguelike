@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"math/rand"
 	"roguelike/core"
 
 	"gopkg.in/yaml.v3"
@@ -17,16 +16,6 @@ type Item struct {
 
 func (i *Item) Type() entityType {
 	return entityTypeItem
-}
-
-func (factory itemFactoryDB) CreateItem(id string) *Item {
-	factoryFunc, ok := factory[id]
-	if !ok {
-		return nil
-	}
-
-	// Create the item
-	return factoryFunc()
 }
 
 func (i *Item) String() string {
@@ -49,7 +38,7 @@ type yamlItemsFile struct {
 	Items map[string]yamlItem `yaml:"items"`
 }
 
-func NewItemFactory(dataFile string) (itemFactoryDB, error) {
+func newItemFactory(dataFile string) (itemFactoryDB, error) {
 	// Load items from YAML data file
 	data, err := core.ReadFile(dataFile)
 	if err != nil {
@@ -68,7 +57,7 @@ func NewItemFactory(dataFile string) (itemFactoryDB, error) {
 			return &Item{
 				entityBase: entityBase{
 					id:         id,
-					instanceID: randId(),
+					instanceID: core.RandId(6),
 					desc:       item.Description,
 					shortDesc:  item.Short,
 					graphicId:  item.Graphic,
@@ -82,13 +71,26 @@ func NewItemFactory(dataFile string) (itemFactoryDB, error) {
 	return itemFactory, nil
 }
 
-// Simple ID generator 8 characters long
-func randId() string {
-	// generate a random string
-	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	id := make([]byte, 8)
-	for i := range id {
-		id[i] = chars[rand.Intn(len(chars))]
+// nolint
+func (factory itemFactoryDB) createItem(id string) *Item {
+	itemFunc, ok := factory[id]
+	if !ok {
+		return nil
 	}
-	return string(id)
+
+	// Create the item
+	return itemFunc()
+}
+
+func (factory itemFactoryDB) createRandomItem() *Item {
+	if len(factory) == 0 {
+		return nil
+	}
+
+	// Iteration in go is random, so we can just grab the first item
+	for _, itemFunc := range factory {
+		return itemFunc()
+	}
+
+	return nil
 }
