@@ -21,11 +21,7 @@ type EventManager struct {
 }
 
 // Global event manager, yeah it's a singleton, sue me
-var events EventManager
-
-func init() {
-	events = EventManager{}
-}
+var events EventManager = EventManager{}
 
 func (em *EventManager) AddEventListener(listener func(GameEvent)) {
 	em.eventListeners = append(em.eventListeners, listener)

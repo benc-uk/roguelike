@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	MAX_ITEMS = 110
+	playerMaxItems = 10
 )
 
 type Player struct {
@@ -16,7 +16,7 @@ type Player struct {
 }
 
 func (p *Player) pickupItem(item *Item) bool {
-	if len(p.items) >= MAX_ITEMS {
+	if len(p.items) >= playerMaxItems {
 		return false
 	}
 

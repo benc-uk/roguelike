@@ -4,17 +4,7 @@ import (
 	"roguelike/core"
 )
 
-type GameState int // TileType is an integer representing the type of tile
-
-const (
-	GameStateTitle GameState = iota
-	GameStatePlaying
-	GameStateGameOver
-	GameStatePlayerGen
-)
-
 type Game struct {
-	State   GameState
 	player  *Player
 	gameMap *GameMap
 
@@ -79,7 +69,6 @@ func (g *Game) AddEventListener(listener func(GameEvent)) {
 // Create a new game instance
 func NewGame(dataFileDir string) *Game {
 	g := &Game{
-		State: GameStateTitle,
 		player: &Player{
 			Pos:  core.Pos{X: 2, Y: 2},
 			name: "Wizard Bob",

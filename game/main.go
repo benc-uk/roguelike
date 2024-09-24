@@ -124,14 +124,15 @@ func (g *EbitenGame) Update() error {
 		}
 
 		// Remove old events
-		for i, e := range g.events {
+		for i := 0; i < len(g.events); i++ {
+			e := g.events[i]
 			if e.Age > MAX_EVENT_AGE {
 				g.events = append(g.events[:i], g.events[i+1:]...)
 			}
 		}
 	}
 
-	g.statusText = "❤️18/45   $5   ▼1"
+	g.statusText = "♥18/45   ⌘5   ▼1"
 
 	return nil
 }
@@ -259,8 +260,8 @@ func main() {
 	game.UpdateFOV(ebitenGame.viewDist)
 
 	levelText := fmt.Sprintf("You are on level %d of %s", game.Map().Depth(), game.Map().Description())
-	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Version " + version, Age: 0})
-	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: levelText, Age: 1})
+	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Version " + version})
+	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: levelText})
 
 	// HACK: Removed for now to test map generation
 	if err := ebiten.RunGame(ebitenGame); err != nil {

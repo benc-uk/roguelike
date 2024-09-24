@@ -5,3 +5,4 @@ web/*.wasm
 web/assets/
 site/
 dist/
+map.png

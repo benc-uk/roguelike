@@ -66,24 +66,6 @@ func (e *entityBase) BlocksMove() bool {
 	return e.blocksMove
 }
 
-// ===== Furniture ========================================================================================================
-
-type Furniture struct {
-	entityBase
-}
-
-func (f *Furniture) Type() entityType {
-	return entityTypeFurniture
-}
-
-func (f *Furniture) BlocksLOS() bool {
-	return true
-}
-
-func (f *Furniture) BlocksMove() bool {
-	return true
-}
-
 // ===== Lists ========================================================================================================
 
 type entityList []entity
@@ -146,14 +128,4 @@ func (el *entityList) Remove(e entity) {
 			return
 		}
 	}
-}
-
-// ===== Creatures ======================================================================================================
-
-type creature struct {
-	entityBase
-}
-
-func (m *creature) Type() entityType {
-	return entityTypeCreature
 }

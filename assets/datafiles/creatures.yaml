@@ -1,0 +1,37 @@
+creatures:
+  rat:
+    name: Rat
+    description: A small, furry rodent.
+    hostile: true
+    hp: 5
+    attack: 1
+    defense: 1
+    speed: 1
+    xp: 10
+  goblin:
+    name: Goblin
+    description: A small, green-skinned humanoid.
+    hostile: true
+    hp: 10
+    attack: 2
+    defense: 2
+    speed: 2
+    xp: 20
+  slime:
+    name: Slime
+    description: A blob of green goo.
+    hostile: true
+    hp: 15
+    attack: 3
+    defense: 3
+    speed: 3
+    xp: 30
+  skeleton:
+    name: Skeleton
+    description: A walking pile of bones.
+    hostile: true
+    hp: 20
+    attack: 4
+    defense: 4
+    speed: 4
+    xp: 40

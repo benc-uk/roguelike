@@ -32,7 +32,7 @@ func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, in
 	op.Filter = ebiten.FilterLinear
 	op.ColorScale.ScaleWithColor(colour)
 	if !inFOV {
-		op.ColorScale.ScaleAlpha(0.3)
+		op.ColorScale.ScaleAlpha(0.5)
 	}
 	screen.DrawImage(s.image, op)
 }
