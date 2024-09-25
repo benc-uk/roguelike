@@ -37,7 +37,7 @@ func (g *Game) UpdateFOV(fovRange int) {
 			}
 
 			// Step along the ray from the player to the edge of the square, stopping if we hit a wall
-			rayCoords := p.Pos.RayCastTo(core.Pos{x, y}, float64(fovRange)) // nolint
+			rayCoords := p.RayCastTo(pos{x, y}, float64(fovRange)) // nolint
 			for _, checkCoord := range rayCoords {
 				tile := &g.gameMap.tiles[checkCoord.X][checkCoord.Y]
 
@@ -68,12 +68,7 @@ func (g *Game) AddEventListener(listener func(GameEvent)) {
 
 // Create a new game instance
 func NewGame(dataFileDir string) *Game {
-	g := &Game{
-		player: &Player{
-			Pos:  core.Pos{X: 2, Y: 2},
-			name: "Wizard Bob",
-		},
-	}
+	g := &Game{}
 
 	// Reset the global event manager
 	events = EventManager{}
@@ -107,7 +102,7 @@ func NewGame(dataFileDir string) *Game {
 	// HACK: Dump the map to a PNG file
 	g.gameMap.dumpPNG()
 
-	g.player.Pos = g.gameMap.randomFloorTile(true).Pos
+	g.player = NewPlayer(g.gameMap.randomFloorTile(true).pos)
 
 	return g
 }

@@ -33,7 +33,7 @@ func (b bspNode) String() string {
 func (gm *GameMap) GenerateBSP(maxGenDepth int, itemFactory itemFactoryDB) {
 	// Create a BSP tree
 	gen := bspGenerator{maxGenDepth}
-	root := gen.buildBSP(gm.Rect(), 0)
+	root := gen.buildBSP(rect{pos{0, 0}, gm.Size()}, 0) //nolint
 
 	// Traverse the tree and create rooms
 	root.traverseBSP(gm, itemFactory)

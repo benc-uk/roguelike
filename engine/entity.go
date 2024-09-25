@@ -1,9 +1,5 @@
 package engine
 
-import (
-	"roguelike/core"
-)
-
 type entityType int
 
 const (
@@ -13,9 +9,10 @@ const (
 )
 
 type entityBase struct {
+	*pos
 	id         string
 	instanceID string
-	*core.Pos
+
 	blocksMove bool
 	blocksLOS  bool // nolint
 

@@ -67,6 +67,10 @@ func (r Rect) Area() int {
 	return r.Width * r.Height
 }
 
+func (r Rect) ContainsPos(p Pos) bool {
+	return p.X >= r.X && p.X < r.X+r.Width && p.Y >= r.Y && p.Y < r.Y+r.Height
+}
+
 func NewRect(x, y, width, height int) Rect {
 	return Rect{Pos{x, y}, Size{width, height}}
 }
@@ -101,6 +105,10 @@ func (p Pos) Distance(p2 Pos) float64 {
 
 func (p Pos) InBounds(width, height int) bool {
 	return p.X >= 0 && p.X < width && p.Y >= 0 && p.Y < height
+}
+
+func (p Pos) InRect(r Rect) bool {
+	return p.X >= r.X && p.X < r.X+r.Width && p.Y >= r.Y && p.Y < r.Y+r.Height
 }
 
 func (p Pos) IsNeighbour(p2 Pos) bool {

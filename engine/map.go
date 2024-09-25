@@ -23,8 +23,8 @@ const (
 )
 
 type tile struct {
-	core.Pos
-	Type       tileType
+	pos
+	tileType   tileType
 	seen       bool
 	inFOV      bool
 	blocksMove bool
@@ -39,23 +39,23 @@ type Appearance struct {
 }
 
 func newWall(x, y int) tile {
-	return tile{Pos: core.Pos{X: x, Y: y}, Type: tileTypeWall, blocksMove: true, blocksLOS: true}
+	return tile{pos: pos{X: x, Y: y}, tileType: tileTypeWall, blocksMove: true, blocksLOS: true}
 }
 
 // nolint
 func newFloor(pos core.Pos) tile {
-	return tile{Pos: pos, Type: tileTypeFloor, blocksMove: false, blocksLOS: false}
+	return tile{pos: pos, tileType: tileTypeFloor, blocksMove: false, blocksLOS: false}
 }
 
 func (t *tile) makeFloor() {
-	t.Type = tileTypeFloor
+	t.tileType = tileTypeFloor
 	t.blocksMove = false
 	t.blocksLOS = false
 }
 
 // nolint
 func (t *tile) makeWall() {
-	t.Type = tileTypeWall
+	t.tileType = tileTypeWall
 	t.blocksMove = true
 	t.blocksLOS = true
 }
@@ -70,7 +70,7 @@ func (t *tile) placeItem(item *Item) {
 	}
 
 	t.entities = append(t.entities, item)
-	item.Pos = &t.Pos
+	item.pos = &t.pos
 }
 
 func (t *tile) removeItem(item *Item) {
@@ -88,7 +88,7 @@ func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
 		return nil
 	}
 
-	if t.Type == tileTypeWall {
+	if t.tileType == tileTypeWall {
 		return &Appearance{Graphic: "wall", InFOV: t.inFOV}
 	}
 
@@ -116,6 +116,10 @@ func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
 }
 
 func (t *tile) BlocksMove() bool {
+	if t == nil {
+		return true
+	}
+
 	for _, e := range t.entities {
 		if e.BlocksMove() {
 			return true
@@ -138,7 +142,7 @@ func (t *tile) BlocksLOS() bool {
 // =====================================================================================================================
 
 type GameMap struct {
-	core.Size
+	size
 	tiles [][]tile // 2D array of tiles
 
 	fovList     []*tile // List of all tiles in the FOV
@@ -147,19 +151,20 @@ type GameMap struct {
 }
 
 func (m *GameMap) Tile(x, y int) *tile {
-	if x < 0 || x >= m.Width || y < 0 || y >= m.Height {
-		return nil
-	} else {
-		return &m.tiles[x][y]
-	}
+	p := pos{X: x, Y: y}
+	return m.TileAt(p)
 }
 
 func (m *GameMap) TileAt(pos core.Pos) *tile {
+	if !pos.InBounds(m.Width, m.Height) {
+		return nil
+	}
+
 	return &m.tiles[pos.X][pos.Y]
 }
 
-func (m *GameMap) Rect() core.Rect {
-	return core.NewRect(0, 0, m.Width, m.Height)
+func (m *GameMap) Size() core.Size {
+	return m.size
 }
 
 // NewMap creates a new map with the given width and height
@@ -167,7 +172,7 @@ func (m *GameMap) Rect() core.Rect {
 // call the generation functions to create structure in the map
 func NewMap(width, height, depth int) *GameMap {
 	m := &GameMap{
-		Size:        core.Size{Width: width, Height: height},
+		size:        size{Width: width, Height: height},
 		fovList:     make([]*tile, 0),
 		depth:       depth,
 		description: "Empty map",
@@ -218,7 +223,7 @@ func (m *GameMap) randomFloorTile(noItems bool) tile {
 		x := rand.Intn(m.Width)
 		y := rand.Intn(m.Height)
 
-		if m.Tile(x, y).Type == tileTypeFloor {
+		if m.Tile(x, y).tileType == tileTypeFloor {
 			if noItems && !m.Tile(x, y).entities.IsEmpty() {
 				return *m.Tile(x, y)
 			} else {
@@ -237,7 +242,7 @@ func (m *GameMap) dumpPNG() {
 	for x := 0; x < m.Width; x++ {
 		for y := 0; y < m.Height; y++ {
 			tile := m.Tile(x, y)
-			if tile.Type == tileTypeWall {
+			if tile.tileType == tileTypeWall {
 				draw.Draw(img, image.Rect(x*tilesize, y*tilesize, x*tilesize+tilesize, y*tilesize+tilesize), &image.Uniform{color.Black}, image.Point{}, draw.Src)
 			} else {
 				draw.Draw(img, image.Rect(x*tilesize, y*tilesize, x*tilesize+tilesize, y*tilesize+tilesize), &image.Uniform{color.White}, image.Point{}, draw.Src)

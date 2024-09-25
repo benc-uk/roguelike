@@ -29,9 +29,6 @@ func main() {
 
 	// Listen for key presses loops like a game loop
 	_ = keyboard.Listen(func(key keys.Key) (stop bool, err error) {
-		gameMap := game.Map()
-		p := game.Player()
-
 		if key.Code == keys.CtrlC {
 			return true, nil // Stop listener by returning true on Ctrl+C
 		}
@@ -49,7 +46,7 @@ func main() {
 		}
 
 		if move != nil {
-			move.Execute(p, gameMap)
+			move.Execute(*game)
 			game.UpdateFOV(6)
 			viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 		}

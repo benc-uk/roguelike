@@ -1,12 +1,5 @@
 package engine
 
-type GameEvent struct {
-	Type   string
-	Entity entity
-	Text   string
-	Age    int
-}
-
 const (
 	EventGameState      = "game_state"
 	EventItemPickup     = "item_pickup"
@@ -14,6 +7,13 @@ const (
 	EventItemDropped    = "item_dropped"
 	EventCreatureKilled = "creature_killed"
 )
+
+type GameEvent struct {
+	Type   string
+	Entity entity
+	Text   string
+	Age    int
+}
 
 type EventManager struct {
 	// Log of game events

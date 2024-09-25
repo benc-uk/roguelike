@@ -21,7 +21,7 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_009"
+var version string = "0.0.1-alpha_010"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
@@ -33,7 +33,7 @@ const (
 	PAL_INDEX_WALL   = 0
 	PAL_INDEX_FLOOR  = 3
 	PAL_INDEX_PLAYER = 10
-	VP_ROWS          = 18 // Number of rows of tiles in the viewport
+	VP_ROWS          = 17 // Number of rows of tiles in the viewport, +1 for status bar
 	VP_COLS          = 26 // Number of columns of tiles in the viewport
 	MAX_EVENT_AGE    = 6  // Max number of events to store
 	INITIAL_SCALE    = 4
@@ -81,18 +81,6 @@ func (g *EbitenGame) Update() error {
 	p := game.Player()
 
 	var move *engine.MoveAction
-	if inpututil.IsKeyJustPressed(ebiten.KeyUp) || inpututil.IsKeyJustPressed(ebiten.KeyW) {
-		move = engine.NewMoveAction(core.DirNorth)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyDown) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
-		move = engine.NewMoveAction(core.DirSouth)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
-		move = engine.NewMoveAction(core.DirWest)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
-		move = engine.NewMoveAction(core.DirEast)
-	}
 
 	// Touch controls - figure out taps and touches
 	g.taps = handleTaps(g.taps, g.touches)
@@ -113,8 +101,21 @@ func (g *EbitenGame) Update() error {
 		}
 	}
 
+	if inpututil.IsKeyJustPressed(ebiten.KeyUp) || inpututil.IsKeyJustPressed(ebiten.KeyW) {
+		move = engine.NewMoveAction(core.DirNorth)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyDown) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
+		move = engine.NewMoveAction(core.DirSouth)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
+		move = engine.NewMoveAction(core.DirWest)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
+		move = engine.NewMoveAction(core.DirEast)
+	}
+
 	if move != nil {
-		move.Execute(p, game.Map())
+		move.Execute(*game)
 		g.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 		game.UpdateFOV(g.viewDist)
 
@@ -132,7 +133,7 @@ func (g *EbitenGame) Update() error {
 		}
 	}
 
-	g.statusText = "♥18/45   ⌘5   ▼1"
+	g.statusText = fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ▼%d", p.Name(), p.CurrentHP(), p.MaxHP(), p.Exp(), p.Level())
 
 	return nil
 }
@@ -174,7 +175,7 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 			}
 
 			// Draw the player
-			if x == p.X && y == p.Y {
+			if x == p.Pos().X && y == p.Pos().Y {
 				g.bank.Sprite("player").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_PLAYER], appear.InFOV)
 				continue
 			}
@@ -193,7 +194,8 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	graphics.DrawTextRow(screen, g.statusText, VP_ROWS-1, color.RGBA{0x10, 0x50, 0x10, 0xff})
+	// Draw the status bar, it was at row VP_ROWS-1 but we added a row for the status bar
+	graphics.DrawTextRow(screen, g.statusText, VP_ROWS, color.RGBA{0x10, 0x50, 0x10, 0xff})
 
 	for i, e := range g.events {
 		graphics.DrawTextRow(screen, e.Text, i, color.RGBA{0x00, 0x00, 0x30, 0x30})
@@ -205,7 +207,7 @@ func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, scree
 }
 
 func main() {
-	log.Printf("Generic Dungeon Game v%s is starting...", version)
+	log.Printf("GoRogue v%s is starting...", version)
 
 	// Create image for window icon from embedded bytes
 	buf := bytes.NewBuffer(iconBytes)
@@ -238,7 +240,7 @@ func main() {
 		touches:   make(map[ebiten.TouchID]*touch),
 		spSize:    spSize,
 		scrWidth:  VP_COLS * spSize,
-		scrHeight: VP_ROWS * spSize,
+		scrHeight: (VP_ROWS + 1) * spSize, // Adds an extra row for status bar
 
 		bank:     bank,
 		palette:  palette,
@@ -248,7 +250,7 @@ func main() {
 
 	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
 	ebiten.SetWindowPosition(0, 0)
-	ebiten.SetWindowTitle("Generic Dungeon Game")
+	ebiten.SetWindowTitle("GoRogue")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowIcon([]image.Image{icon})
 
