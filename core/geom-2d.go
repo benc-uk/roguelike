@@ -7,7 +7,7 @@ package core
 import (
 	"fmt"
 	"math"
-	"math/rand"
+	"math/rand/v2"
 )
 
 // Size represents a width and height
@@ -59,8 +59,12 @@ func (r Rect) Center() Pos {
 	return Pos{r.X + r.Width/2, r.Y + r.Height/2}
 }
 
-func (r Rect) RandomPos() Pos {
-	return Pos{rand.Intn(r.Width) + r.X, rand.Intn(r.Height) + r.Y}
+func (r Rect) RandomPos(rng *rand.Rand) Pos {
+	if r.Width <= 0 || r.Height <= 0 {
+		return Pos{}
+	}
+
+	return Pos{rng.IntN(r.Width) + r.X, rng.IntN(r.Height) + r.Y}
 }
 
 func (r Rect) Area() int {
@@ -88,7 +92,7 @@ func (p Pos) String() string {
 }
 
 func RandomPos(maxX, maxY int) Pos {
-	return Pos{rand.Intn(maxX), rand.Intn(maxY)}
+	return Pos{rand.IntN(maxX), rand.IntN(maxY)}
 }
 
 func (p Pos) Add(p2 Pos) Pos {

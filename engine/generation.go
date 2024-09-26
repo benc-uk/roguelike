@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"math/rand"
 	"roguelike/core"
 )
 
@@ -30,45 +29,52 @@ func (b bspNode) String() string {
 	return fmt.Sprintf("BSPNode{Rect: %v, Depth: %d, Center: %v, Left: %v, Right: %v}", b.Rect, b.depth, b.center, b.Left, b.Right)
 }
 
-func (gm *GameMap) GenerateBSP(maxGenDepth int, itemFactory itemFactoryDB) {
+func (gm *GameMap) GenerateBSP(maxGenDepth int, itemFactory *itemGenerator, creatureGenerator *creatureGenerator) {
 	// Create a BSP tree
 	gen := bspGenerator{maxGenDepth}
 	root := gen.buildBSP(rect{pos{0, 0}, gm.Size()}, 0) //nolint
 
 	// Traverse the tree and create rooms
-	root.traverseBSP(gm, itemFactory)
+	root.traverseBSP(gm, itemFactory, creatureGenerator)
 
 	// Separate pass to create corridors
 	root.createCorridors(gm)
 }
 
-func (node *bspNode) traverseBSP(gm *GameMap, itemFactory itemFactoryDB) {
+func (node *bspNode) traverseBSP(gm *GameMap, itemFactory *itemGenerator, creatureGenerator *creatureGenerator) {
 	if node.Left != nil {
-		node.Left.traverseBSP(gm, itemFactory)
+		node.Left.traverseBSP(gm, itemFactory, creatureGenerator)
 	}
 	if node.Right != nil {
-		node.Right.traverseBSP(gm, itemFactory)
+		node.Right.traverseBSP(gm, itemFactory, creatureGenerator)
 	}
 
 	// Percentage chance to create a room
-	if rand.Intn(100) < 70 {
+	if rng.IntN(100) < 70 {
 		// Create a room at the center of leaf nodes
 		if node.Left == nil && node.Right == nil {
 			// Room size is randomly 40-70% of the node size
-			width := node.Width * (40 + rand.Intn(30)) / 100
-			height := node.Height * (40 + rand.Intn(30)) / 100
+			width := node.Width * (40 + rng.IntN(30)) / 100
+			height := node.Height * (40 + rng.IntN(30)) / 100
 			room := core.NewRect(node.center.X-width/2, node.center.Y-height/2, width, height)
 
 			// Carve the room area
 			gm.floorAreaRect(room)
 
 			// Place 0-3 items in the room
-			numItems := rand.Intn(4)
+			numItems := rng.IntN(4)
 			for i := 0; i < numItems; i++ {
-				pos := room.RandomPos()
+				pos := room.RandomPos(rng)
+
 				item := itemFactory.createRandomItem()
 				gm.TileAt(pos).placeItem(item)
 			}
+
+			// Place one creature in the room
+			pos := room.RandomPos(rng)
+			creature := creatureGenerator.createRandomCreature()
+			creature.pos = &pos
+			gm.TileAt(pos).entities = append(gm.TileAt(pos).entities, creature)
 		}
 	}
 }
@@ -109,15 +115,20 @@ func (gen bspGenerator) buildBSP(r core.Rect, depth int) *bspNode {
 	} else if aspect <= 0.75 {
 		horiz = true
 	} else {
-		horiz = rand.Intn(100) < 50
+		horiz = rng.IntN(100) < 50
 	}
 
 	if horiz {
 		// Split horizontally
 		split := r.Height / 2
-		// move the split point by a factor of 0.4
+
+		// Move the split point by random factor
 		factor := 0.4
-		split += rand.Intn(int(float64(split)*factor*2)) - int(float64(split)*factor)
+		splitRand := int(float64(split) * factor * 2)
+		if splitRand <= 0 {
+			splitRand = 1
+		}
+		split += rng.IntN(splitRand) - int(float64(split)*factor)
 
 		left := core.NewRect(r.X, r.Y, r.Width, split)
 		right := core.NewRect(r.X, r.Y+split, r.Width, r.Height-split)
@@ -125,9 +136,14 @@ func (gen bspGenerator) buildBSP(r core.Rect, depth int) *bspNode {
 	} else {
 		// Split vertically
 		split := r.Width / 2
-		// move the split point by a factor of 0.4
+
+		// Move the split point by random factor
 		factor := 0.4
-		split += rand.Intn(int(float64(split)*factor*2)) - int(float64(split)*factor)
+		splitRand := int(float64(split) * factor * 2)
+		if splitRand <= 0 {
+			splitRand = 1
+		}
+		split += rng.IntN(splitRand) - int(float64(split)*factor)
 
 		left := core.NewRect(r.X, r.Y, split, r.Height)
 		right := core.NewRect(r.X+split, r.Y, r.Width-split, r.Height)

@@ -16,8 +16,8 @@ type entityBase struct {
 	blocksMove bool
 	blocksLOS  bool // nolint
 
-	desc      string
-	shortDesc string
+	desc string
+	name string
 
 	graphicId string
 	colour    string
@@ -45,7 +45,7 @@ func (e *entityBase) Description() string {
 }
 
 func (e *entityBase) ShortDesc() string {
-	return e.shortDesc
+	return e.name
 }
 
 func (e *entityBase) Appearance() Appearance {
@@ -63,6 +63,10 @@ func (e *entityBase) BlocksMove() bool {
 	return e.blocksMove
 }
 
+func (e *entityBase) String() string {
+	return e.id + "_" + e.instanceID
+}
+
 // ===== Lists ========================================================================================================
 
 type entityList []entity
@@ -76,6 +80,7 @@ func (el entityList) AllItems() []*Item {
 			if !ok {
 				continue
 			}
+
 			items = append(items, i)
 		}
 	}
@@ -92,6 +97,7 @@ func (el entityList) AllCreatures() []*creature {
 			if !ok {
 				continue
 			}
+
 			creatures = append(creatures, c)
 		}
 	}

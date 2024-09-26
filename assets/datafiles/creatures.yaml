@@ -1,6 +1,8 @@
 creatures:
   rat:
-    name: Rat
+    name: rat
+    graphic: rat
+    colour: 4
     description: A small, furry rodent.
     hostile: true
     hp: 5
@@ -9,7 +11,9 @@ creatures:
     speed: 1
     xp: 10
   goblin:
-    name: Goblin
+    name: goblin
+    graphic: goblin
+    colour: 7
     description: A small, green-skinned humanoid.
     hostile: true
     hp: 10
@@ -17,8 +21,21 @@ creatures:
     defense: 2
     speed: 2
     xp: 20
+  hob_goblin:
+    name: hob-goblin
+    graphic: goblin
+    colour: 5
+    description: An ugly, hobgoblin.
+    hostile: true
+    hp: 10
+    attack: 2
+    defense: 2
+    speed: 2
+    xp: 20
   slime:
-    name: Slime
+    name: slime
+    graphic: slime
+    colour: 15
     description: A blob of green goo.
     hostile: true
     hp: 15
@@ -27,7 +44,9 @@ creatures:
     speed: 3
     xp: 30
   skeleton:
-    name: Skeleton
+    name: skeleton
+    graphic: skeleton
+    colour: 13
     description: A walking pile of bones.
     hostile: true
     hp: 20

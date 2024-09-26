@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"log"
 	"roguelike/core"
 )
 
@@ -8,8 +9,9 @@ type Game struct {
 	player  *Player
 	gameMap *GameMap
 
-	// Entity factories
-	itemFactory itemFactoryDB
+	// Entity generators
+	itemGen     *itemGenerator
+	creatureGen *creatureGenerator
 }
 
 func (g *Game) Map() *GameMap {
@@ -66,38 +68,66 @@ func (g *Game) AddEventListener(listener func(GameEvent)) {
 	events.AddEventListener(listener)
 }
 
-// Create a new game instance
+// Create a new game instance, it all starts here
 func NewGame(dataFileDir string) *Game {
+	seed := uint64(108154) // good tiny dungeon seed
+	seedRNG(seed)
+	log.Printf("Seeded RNG with %v", seed)
+
 	g := &Game{}
 
 	// Reset the global event manager
 	events = EventManager{}
 
 	var err error
-	g.itemFactory, err = newItemFactory(dataFileDir + "/items.yaml")
+	g.itemGen, err = newItemGenerator(dataFileDir + "/items.yaml")
 	if err != nil {
 		panic(err)
 	}
 
-	// *******************************
-	// HACK: PLACEHOLDER MAP SETUP
-	// *******************************
-	// Tiny
-	//g.gameMap = NewMap(32, 32, 1)
-	//g.gameMap.GenerateBSP(3) // 4 or 5 also works
+	g.creatureGen, err = newCreatureGenerator(dataFileDir + "/creatures.yaml")
+	if err != nil {
+		panic(err)
+	}
 
-	// Smaller
-	g.gameMap = NewMap(40, 40, 1)
-	g.gameMap.GenerateBSP(4, g.itemFactory) // 4 or 5 also works
-	g.gameMap.description = "a small dungeon"
+	size := rng.IntN(4)
+	log.Printf("Generating a %v dungeon", []string{"tiny", "small", "medium", "large"}[size])
+	depth := 1
+	switch size {
+	case 0:
+		{
+			// Tiny
+			g.gameMap = NewMap(32, 32, depth)
+			genDepth := rng.IntN(3) + 3
+			g.gameMap.GenerateBSP(genDepth, g.itemGen, g.creatureGen) // 4 or 5 also works
+			g.gameMap.description = "a tiny dungeon"
+		}
 
-	// Small
-	//g.gameMap = NewMap(48, 48, 1)
-	//g.gameMap.GenerateBSP(6) // 5 also works
+	case 1:
+		{
+			// Small
+			g.gameMap = NewMap(40, 40, depth)
+			genDepth := rng.IntN(3) + 4
+			g.gameMap.GenerateBSP(genDepth, g.itemGen, g.creatureGen) // 4 or 5 also works
+			g.gameMap.description = "a small dungeon"
+		}
 
-	// Medium
-	// g.gameMap = NewMap(64, 64, 1)
-	// g.gameMap.GenerateBSP(6)
+	case 2:
+		{
+			// Medium
+			g.gameMap = NewMap(48, 48, depth)
+			g.gameMap.GenerateBSP(6, g.itemGen, g.creatureGen) // 5 also works
+			g.gameMap.description = "a medium dungeon"
+		}
+
+	case 3:
+		{
+			// Large
+			g.gameMap = NewMap(64, 64, depth)
+			g.gameMap.GenerateBSP(6, g.itemGen, g.creatureGen) // 5 also works
+			g.gameMap.description = "a large dungeon"
+		}
+	}
 
 	// HACK: Dump the map to a PNG file
 	g.gameMap.dumpPNG()

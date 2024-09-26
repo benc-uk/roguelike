@@ -61,5 +61,6 @@ func (p *Player) pickupItem(item *Item) bool {
 	}
 
 	p.items = append(p.items, *item)
+	item.pos = nil
 	return true
 }

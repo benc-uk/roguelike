@@ -6,7 +6,6 @@ import (
 	"image/draw"
 	"image/png"
 	_ "image/png"
-	"math/rand"
 	"os"
 	"roguelike/core"
 )
@@ -58,10 +57,6 @@ func (t *tile) makeWall() {
 	t.tileType = tileTypeWall
 	t.blocksMove = true
 	t.blocksLOS = true
-}
-
-func (t *tile) Entities() entityList {
-	return t.entities
 }
 
 func (t *tile) placeItem(item *Item) {
@@ -220,8 +215,8 @@ func (m *GameMap) revealMap() {
 
 func (m *GameMap) randomFloorTile(noItems bool) tile {
 	for {
-		x := rand.Intn(m.Width)
-		y := rand.Intn(m.Height)
+		x := rng.IntN(m.Width)
+		y := rng.IntN(m.Height)
 
 		if m.Tile(x, y).tileType == tileTypeFloor {
 			if noItems && !m.Tile(x, y).entities.IsEmpty() {

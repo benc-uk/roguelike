@@ -1,9 +1,9 @@
 items:
   potion_blue:
-    description: "A refreshing blue potion that restores health"
-    short: "a blue potion"
-    graphic: "potion"
-    colour: "9"
+    description: A refreshing blue potion that restores health
+    name: a blue potion
+    graphic: potion
+    colour: 9
     usable: true
     rarity: 0.5
     onUseScript: -|
@@ -12,46 +12,46 @@ items:
       player.SetHealth(h)
 
   potion_pink:
-    description: "A sickly pink potion that is probably bad for you"
-    short: "a pink potion"
-    graphic: "potion"
+    description: A sickly pink potion that is probably bad for you
+    name: a pink potion
+    graphic: potion
     usable: true
     rarity: 0.5
-    colour: "12"
+    colour: 12
     onUseScript: -|
       h = player.GetHealth()
       h = h - 10
       player.SetHealth(h)
 
   sword:
-    description: "A basic iron sword, it's a bit rusty and blunt"
-    short: "an iron sword"
-    graphic: "sword"
+    description: A basic iron sword, it's a bit rusty and blunt
+    name: an iron sword
+    graphic: sword
     equippable: true
     rarity: 1.0
     weapon: true
-    colour: "14"
+    colour: 14
     weaponProperties:
       damage: 10
       range: 1
 
   shield:
-    description: "A rusty shield, it's seen better days"
-    short: "a rusty shield"
-    graphic: "shield"
+    description: A rusty shield, it's seen better days
+    name: a rusty shield
+    graphic: shield
     equippable: true
     rarity: 0.5
-    colour: "5"
+    colour: 5
     equipProperties:
       defence: 5
 
   meat:
-    description: "A hunk of meat, it looks like it's been cooked"
-    short: "a hunk of meat"
-    graphic: "meat"
+    description: A hunk of meat, it looks like it's been cooked
+    name: a hunk of meat
+    graphic: meat
     usable: true
     rarity: 0.5
-    colour: "11"
+    colour: 11
     onUseScript: -|
       h = player.GetHealth()
       h = h + 5

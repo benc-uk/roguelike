@@ -23,8 +23,17 @@ func (a *MoveAction) Execute(g Game) bool {
 	destPos := p.pos.Add(a.Pos())
 	destTile := m.TileAt(destPos)
 
+	creatures := destTile.entities.AllCreatures()
+
 	// Check if the player can move in the direction
 	if !destPos.InBounds(m.Width, m.Height) || destTile.BlocksMove() {
+		// Creature blocking the way
+		if len(creatures) > 0 {
+			creature := creatures[0]
+			destTile.entities.Remove(creature)
+			events.new(EventCreatureKilled, creature, "You killed a "+creature.name)
+		}
+
 		return false
 	}
 

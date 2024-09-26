@@ -2,11 +2,10 @@ package engine
 
 import (
 	"roguelike/core"
+	"slices"
 
 	"gopkg.in/yaml.v3"
 )
-
-// ===== Items ========================================================================================================
 
 type Item struct {
 	entityBase
@@ -22,13 +21,16 @@ func (i *Item) String() string {
 	return "item_" + i.id + "_" + i.instanceID
 }
 
-// ===== Item Factory =================================================================================================
+// ===== Item Generator =================================================================================================
 
-type itemFactoryDB map[string](func() *Item)
+type itemGenerator struct {
+	genFunctions map[string](func() *Item)
+	keys         []string
+}
 
 type yamlItem struct {
 	Description string `yaml:"description"`
-	Short       string `yaml:"short"`
+	Name        string `yaml:"name"`
 	Graphic     string `yaml:"graphic"`
 	Colour      string `yaml:"colour"`
 	Usable      bool   `yaml:"usable"`
@@ -38,8 +40,7 @@ type yamlItemsFile struct {
 	Items map[string]yamlItem `yaml:"items"`
 }
 
-func newItemFactory(dataFile string) (itemFactoryDB, error) {
-	// Load items from YAML data file
+func newItemGenerator(dataFile string) (*itemGenerator, error) {
 	data, err := core.ReadFile(dataFile)
 	if err != nil {
 		return nil, err
@@ -51,46 +52,52 @@ func newItemFactory(dataFile string) (itemFactoryDB, error) {
 		return nil, err
 	}
 
-	itemFactory := make(map[string](func() *Item))
+	gen := itemGenerator{
+		genFunctions: make(map[string](func() *Item)),
+		keys:         make([]string, 0),
+	}
+
 	for id, item := range itemsFile.Items {
-		itemFactory[id] = func() *Item {
+		gen.genFunctions[id] = func() *Item {
 			return &Item{
 				entityBase: entityBase{
 					id:         id,
 					instanceID: core.RandId(6),
 					desc:       item.Description,
-					shortDesc:  item.Short,
+					name:       item.Name,
 					graphicId:  item.Graphic,
 					colour:     item.Colour,
 				},
 				usable: item.Usable,
 			}
 		}
+
+		gen.keys = append(gen.keys, id)
 	}
 
-	return itemFactory, nil
+	// Sort the keys as the map iteration order above is random
+	slices.Sort(gen.keys)
+
+	return &gen, nil
 }
 
 // nolint
-func (factory itemFactoryDB) createItem(id string) *Item {
-	itemFunc, ok := factory[id]
+func (gen itemGenerator) createItem(id string) *Item {
+	itemFunc, ok := gen.genFunctions[id]
 	if !ok {
 		return nil
 	}
 
-	// Create the item
+	// Create the item by invoking the generation function
 	return itemFunc()
 }
 
-func (factory itemFactoryDB) createRandomItem() *Item {
-	if len(factory) == 0 {
+func (gen itemGenerator) createRandomItem() *Item {
+	if len(gen.genFunctions) == 0 {
 		return nil
 	}
 
-	// Iteration in go is random, so we can just grab the first item
-	for _, itemFunc := range factory {
-		return itemFunc()
-	}
-
-	return nil
+	// Get a random item, we have to use the keys slice as the map iteration order is random
+	id := gen.keys[rng.IntN(len(gen.keys))]
+	return gen.createItem(id)
 }
