@@ -18,5 +18,5 @@ func (f *furniture) BlocksMove() bool {
 }
 
 func (f *furniture) String() string {
-	 return "furn_" + f.id + "_" + f.instanceID
+	return "furn_" + f.id + "_" + f.instanceID
 }

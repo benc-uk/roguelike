@@ -69,10 +69,8 @@ func (g *Game) AddEventListener(listener func(GameEvent)) {
 }
 
 // Create a new game instance, it all starts here
-func NewGame(dataFileDir string) *Game {
-	seed := uint64(108154) // good tiny dungeon seed
+func NewGame(dataFileDir string, seed uint64) *Game {
 	seedRNG(seed)
-	log.Printf("Seeded RNG with %v", seed)
 
 	g := &Game{}
 

@@ -8,6 +8,8 @@ import (
 	"image/color"
 	_ "image/png"
 	"log"
+	"math/rand/v2"
+	"os"
 	"roguelike/core"
 	"roguelike/engine"
 	"roguelike/game/graphics"
@@ -254,7 +256,25 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowIcon([]image.Image{icon})
 
-	game = engine.NewGame(basePath + "assets/datafiles")
+	// Seed the game world from the command line or not
+	var seed uint64
+	if len(os.Args) > 1 && os.Args[1] != "" {
+		seed, err = strconv.ParseUint(os.Args[1], 10, 64)
+		if err != nil {
+			log.Printf("Error parsing seed: %s", err)
+		} else {
+
+			log.Printf("Using provided game world seed: %d", seed)
+		}
+	}
+
+	// Either no seed provided or it was invalid, generate a random one
+	if seed == 0 {
+		seed := rand.Uint64N(100000000)
+		log.Printf("Generated random seed: %d", seed)
+	}
+
+	game = engine.NewGame(basePath+"assets/datafiles", seed)
 	game.AddEventListener(func(e engine.GameEvent) {
 		ebitenGame.events = append(ebitenGame.events, &e)
 	})

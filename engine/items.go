@@ -10,7 +10,7 @@ import (
 type Item struct {
 	entityBase
 	usable     bool
-	equippable bool
+	equippable bool // nolint
 }
 
 func (i *Item) Type() entityType {

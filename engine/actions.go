@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"roguelike/core"
 )
 
@@ -31,7 +32,10 @@ func (a *MoveAction) Execute(g Game) bool {
 		if len(creatures) > 0 {
 			creature := creatures[0]
 			destTile.entities.Remove(creature)
-			events.new(EventCreatureKilled, creature, "You killed a "+creature.name)
+			message := fmt.Sprintf("You %s a %s",
+				randString("killed", "defeated", "felled", "vanquished", "slew", "destroyed", "murdered"),
+				creature.Name())
+			events.new("creature_killed", creature, message)
 		}
 
 		return false
@@ -47,7 +51,7 @@ func (a *MoveAction) Execute(g Game) bool {
 
 		if p.pickupItem(item) {
 			destTile.removeItem(item)
-			events.new("item_pickup", item, "Picked up "+item.ShortDesc())
+			events.new("item_pickup", item, "Picked up "+item.Name())
 		} else {
 			events.new("item_pickup_fail", item, "Inventory full")
 		}

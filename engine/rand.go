@@ -1,6 +1,8 @@
 package engine
 
-import "math/rand/v2"
+import (
+	"math/rand/v2"
+)
 
 var rng *rand.Rand
 
@@ -12,4 +14,8 @@ func init() {
 func seedRNG(seed uint64) {
 	s := rand.NewPCG(seed, seed)
 	rng = rand.New(s)
+}
+
+func randString(strings ...string) string {
+	return strings[rng.IntN(len(strings))]
 }

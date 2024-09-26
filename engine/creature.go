@@ -13,19 +13,19 @@ type creature struct {
 	hp int //nolint
 }
 
-func (f *creature) String() string {
-	return fmt.Sprintf("creature_%v_%v", f.id, f.instanceID)
+func (c *creature) String() string {
+	return fmt.Sprintf("creature_%v_%v", c.id, c.instanceID)
 }
 
-func (f *creature) Type() entityType {
+func (c *creature) Type() entityType {
 	return entityTypeCreature
 }
 
-func (f *creature) BlocksLOS() bool {
+func (c *creature) BlocksLOS() bool {
 	return false
 }
 
-func (f *creature) BlocksMove() bool {
+func (c *creature) BlocksMove() bool {
 	return true
 }
 

@@ -1,5 +1,7 @@
 package engine
 
+import "fmt"
+
 type entityType int
 
 const (
@@ -44,7 +46,7 @@ func (e *entityBase) Description() string {
 	return e.desc
 }
 
-func (e *entityBase) ShortDesc() string {
+func (e *entityBase) Name() string {
 	return e.name
 }
 
@@ -64,7 +66,7 @@ func (e *entityBase) BlocksMove() bool {
 }
 
 func (e *entityBase) String() string {
-	return e.id + "_" + e.instanceID
+	return fmt.Sprintf("entity_%s_%s", e.id, e.instanceID)
 }
 
 // ===== Lists ========================================================================================================

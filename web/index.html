@@ -29,6 +29,7 @@
       go.importObject
     );
 
+    getSeed(go);
     go.run(wasmSource.instance);
 
     // ---------------------------------------------------
@@ -44,6 +45,23 @@
           gameCanvas.requestFullscreen();
         }
       });
+    }
+
+    // Helper function to get the seed from the URL or generate a random one
+    function getSeed(go) {
+      let seed = 0;
+
+      // If the URL has a seed parameter, use it
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has("seed")) {
+        seed = urlParams.get("seed");
+      } else {
+        // Otherwise, generate a random seed
+        seed = Math.floor(Math.random() * 100000000).toString();
+        window.history.replaceState({}, document.title, `?seed=${seed}`);
+      }
+
+      go.argv = ["__ignored__", seed];
     }
   </script>
 </body>

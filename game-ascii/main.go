@@ -20,7 +20,7 @@ const (
 )
 
 func main() {
-	game = engine.NewGame(basePath + "assets/datafiles")
+	game = engine.NewGame(basePath+"assets/datafiles", 1111)
 	viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 	game.UpdateFOV(6)
 	area, _ := pterm.DefaultArea.WithFullscreen().Start()
