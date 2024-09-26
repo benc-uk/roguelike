@@ -16,3 +16,7 @@ func (f *furniture) BlocksLOS() bool {
 func (f *furniture) BlocksMove() bool {
 	return true
 }
+
+func (f *furniture) String() string {
+	return "furn_" + f.id + "_" + f.instanceID
+}
