@@ -6,7 +6,12 @@ import (
 )
 
 type Action interface {
-	Execute(g Game) bool
+	Execute(g Game) ActionResult
+}
+
+type ActionResult struct {
+	Success     bool
+	EnergySpent int
 }
 
 type MoveAction struct {
@@ -17,7 +22,7 @@ func NewMoveAction(d core.Direction) *MoveAction {
 	return &MoveAction{d}
 }
 
-func (a *MoveAction) Execute(g Game) bool {
+func (a *MoveAction) Execute(g Game) ActionResult {
 	p := g.Player()
 	m := g.Map()
 
@@ -25,6 +30,9 @@ func (a *MoveAction) Execute(g Game) bool {
 	destTile := m.TileAt(destPos)
 
 	creatures := destTile.entities.AllCreatures()
+
+	// TODO: Not implemented
+	energy := 5
 
 	// Check if the player can move in the direction
 	if !destPos.InBounds(m.Width, m.Height) || destTile.BlocksMove() {
@@ -36,9 +44,11 @@ func (a *MoveAction) Execute(g Game) bool {
 				randString("killed", "defeated", "felled", "vanquished", "slew", "destroyed", "murdered"),
 				creature.Name())
 			events.new("creature_killed", creature, message)
+			energy = 40
+			return ActionResult{true, energy}
 		}
 
-		return false
+		return ActionResult{false, energy}
 	}
 
 	p.pos.X += a.Pos().X
@@ -52,6 +62,7 @@ func (a *MoveAction) Execute(g Game) bool {
 		if p.pickupItem(item) {
 			destTile.removeItem(item)
 			events.new("item_pickup", item, "Picked up "+item.Name())
+			energy = 40
 		} else {
 			events.new("item_pickup_fail", item, "Inventory full")
 		}
@@ -59,5 +70,5 @@ func (a *MoveAction) Execute(g Game) bool {
 		events.new("item_pickup_multiple", nil, "You stand over a pile of items")
 	}
 
-	return true
+	return ActionResult{true, energy}
 }

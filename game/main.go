@@ -13,6 +13,7 @@ import (
 	"roguelike/core"
 	"roguelike/engine"
 	"roguelike/game/graphics"
+	"slices"
 	"strconv"
 
 	"github.com/hajimehoshi/bitmapfont/v3"
@@ -79,18 +80,31 @@ type EbitenGame struct {
 	statusText string
 
 	playerLeft bool
+
+	lastMoveFrame int64
+	frameCount    int64
+	delayFrames   int
 }
 
 func (g *EbitenGame) Update() error {
+	if g.delayFrames > 0 {
+		g.delayFrames--
+		return nil
+	}
+
 	p := game.Player()
+	g.statusText = fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ▼%d", p.Name(), p.CurrentHP(), p.MaxHP(), p.Exp(), p.Level())
 
 	var move *engine.MoveAction
+
+	pressedKeys := []ebiten.Key{}
+	pressedKeys = inpututil.AppendPressedKeys(pressedKeys)
 
 	// Touch controls - figure out taps and touches
 	g.taps = handleTaps(g.taps, g.touches)
 	handleTouches(g.touchIDs, g.touches)
 
-	// Loop over taps (there should only be one)
+	// Loop over taps (there should only be one for reasons)
 	for _, tap := range g.taps {
 		if tap.X < g.scrWidth/4 {
 			move = engine.NewMoveAction(core.DirWest)
@@ -105,23 +119,33 @@ func (g *EbitenGame) Update() error {
 		}
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyUp) || inpututil.IsKeyJustPressed(ebiten.KeyW) {
-		move = engine.NewMoveAction(core.DirNorth)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyDown) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
-		move = engine.NewMoveAction(core.DirSouth)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
-		move = engine.NewMoveAction(core.DirWest)
-		g.playerLeft = true
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
-		move = engine.NewMoveAction(core.DirEast)
-		g.playerLeft = false
+	for _, key := range pressedKeys {
+		if slices.Contains(controls["up"], key) {
+			move = engine.NewMoveAction(core.DirNorth)
+		}
+		if slices.Contains(controls["down"], key) {
+			move = engine.NewMoveAction(core.DirSouth)
+		}
+		if slices.Contains(controls["left"], key) {
+			move = engine.NewMoveAction(core.DirWest)
+			g.playerLeft = true
+		}
+		if slices.Contains(controls["right"], key) {
+			move = engine.NewMoveAction(core.DirEast)
+			g.playerLeft = false
+		}
 	}
 
+	// sinceLastMove := g.frameCount - g.lastMoveFrame
 	if move != nil {
-		move.Execute(*game)
+		result := move.Execute(*game)
+		if !result.Success {
+			return nil
+		}
+		if result.EnergySpent > 0 {
+			g.delayFrames = result.EnergySpent
+		}
+
 		g.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 		game.UpdateFOV(g.viewDist)
 
@@ -137,14 +161,16 @@ func (g *EbitenGame) Update() error {
 				g.events = append(g.events[:i], g.events[i+1:]...)
 			}
 		}
-	}
 
-	g.statusText = fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ▼%d", p.Name(), p.CurrentHP(), p.MaxHP(), p.Exp(), p.Level())
+		g.lastMoveFrame = g.frameCount
+	}
 
 	return nil
 }
 
 func (g *EbitenGame) Draw(screen *ebiten.Image) {
+	g.frameCount++
+
 	screen.Fill(color.Black)
 
 	gameMap := game.Map()

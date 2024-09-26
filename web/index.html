@@ -29,7 +29,7 @@
       go.importObject
     );
 
-    getSeed(go);
+    setGameSeed(go);
     go.run(wasmSource.instance);
 
     // ---------------------------------------------------
@@ -48,7 +48,7 @@
     }
 
     // Helper function to get the seed from the URL or generate a random one
-    function getSeed(go) {
+    function setGameSeed(go) {
       let seed = 0;
 
       // If the URL has a seed parameter, use it
