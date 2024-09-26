@@ -22,18 +22,31 @@ type Sprite struct {
 	paletteIndex int
 }
 
-func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool) {
+func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool, flipX bool, flipY bool) {
 	if s == nil {
 		return
 	}
 
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(x), float64(y))
 	op.Filter = ebiten.FilterLinear
+
+	if flipX {
+		op.GeoM.Scale(-1, 1)
+		x += s.size.Width
+	}
+	if flipY {
+		op.GeoM.Scale(1, -1)
+		y += s.size.Height
+	}
+
+	op.GeoM.Translate(float64(x), float64(y))
+
 	op.ColorScale.ScaleWithColor(colour)
+
 	if !inFOV {
 		op.ColorScale.ScaleAlpha(0.5)
 	}
+
 	screen.DrawImage(s.image, op)
 }
 

@@ -77,6 +77,8 @@ type EbitenGame struct {
 
 	events     []*engine.GameEvent
 	statusText string
+
+	playerLeft bool
 }
 
 func (g *EbitenGame) Update() error {
@@ -111,9 +113,11 @@ func (g *EbitenGame) Update() error {
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
 		move = engine.NewMoveAction(core.DirWest)
+		g.playerLeft = true
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
 		move = engine.NewMoveAction(core.DirEast)
+		g.playerLeft = false
 	}
 
 	if move != nil {
@@ -172,25 +176,25 @@ func (g *EbitenGame) Draw(screen *ebiten.Image) {
 
 			// Walls
 			if appear.Graphic == "wall" {
-				g.bank.Sprite("wall").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_WALL], appear.InFOV)
+				g.bank.Sprite("wall").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_WALL], appear.InFOV, false, false)
 				continue
 			}
 
 			// Draw the player
 			if x == p.Pos().X && y == p.Pos().Y {
-				g.bank.Sprite("player").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_PLAYER], appear.InFOV)
+				g.bank.Sprite("player").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_PLAYER], appear.InFOV, g.playerLeft, false)
 				continue
 			}
 
 			if appear.Graphic == "floor" {
-				g.bank.Sprite("floor").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_FLOOR], appear.InFOV)
+				g.bank.Sprite("floor").Draw(screen, drawX, drawY, g.palette[PAL_INDEX_FLOOR], appear.InFOV, false, false)
 				continue
 			}
 
 			// Then items/monsters/stuff
 			itemSprite := g.bank.Sprite(appear.Graphic)
 			if itemSprite != nil {
-				itemSprite.Draw(screen, drawX, drawY, colour, appear.InFOV)
+				itemSprite.Draw(screen, drawX, drawY, colour, appear.InFOV, false, false)
 				continue
 			}
 		}
