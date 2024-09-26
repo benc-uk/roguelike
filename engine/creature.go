@@ -10,7 +10,7 @@ import (
 
 type creature struct {
 	entityBase
-	hp int
+	hp int //nolint
 }
 
 func (f *creature) String() string {
