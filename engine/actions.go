@@ -1,5 +1,9 @@
 package engine
 
+// ============================================================================
+// Actions & action execution operate on the game state
+// ============================================================================
+
 import (
 	"fmt"
 	"roguelike/core"
@@ -18,6 +22,10 @@ type MoveAction struct {
 	direction
 }
 
+type AttackAction struct {
+	target *creature //nolint
+}
+
 func NewMoveAction(d core.Direction) *MoveAction {
 	return &MoveAction{d}
 }
@@ -31,8 +39,8 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 
 	creatures := destTile.entities.AllCreatures()
 
-	// TODO: Not implemented
-	energy := 5
+	// TODO: Energy not really implemented
+	energy := 3
 
 	// Check if the player can move in the direction
 	if !destPos.InBounds(m.Width, m.Height) || destTile.BlocksMove() {
@@ -41,7 +49,7 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 			creature := creatures[0]
 			destTile.entities.Remove(creature)
 			message := fmt.Sprintf("You %s a %s",
-				randString("killed", "defeated", "felled", "vanquished", "slew", "destroyed", "murdered"),
+				randString("killed", "defeated", "felled", "vanquished", "slayed", "destroyed", "murdered"),
 				creature.Name())
 			events.new("creature_killed", creature, message)
 			energy = 40

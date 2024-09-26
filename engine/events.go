@@ -1,5 +1,9 @@
 package engine
 
+// ============================================================================
+// Events are used to communicate to listeners to changes in the game state
+// ============================================================================
+
 const (
 	EventGameState      = "game_state"
 	EventItemPickup     = "item_pickup"

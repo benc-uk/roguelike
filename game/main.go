@@ -76,29 +76,30 @@ type EbitenGame struct {
 	touchIDs []ebiten.TouchID
 	taps     []tap
 
-	events     []*engine.GameEvent
-	statusText string
-
-	playerLeft bool
-
-	lastMoveFrame int64
-	frameCount    int64
-	delayFrames   int
+	events      []*engine.GameEvent
+	eventLog    []string
+	statusText  string
+	playerLeft  bool
+	frameCount  int64
+	delayFrames int
 }
 
 func (g *EbitenGame) Update() error {
-	if g.delayFrames > 0 {
-		g.delayFrames--
-		return nil
+	// One closing save events to file, one line per event
+	if ebiten.IsWindowBeingClosed() {
+		eventFile, _ := os.OpenFile("events.txt", os.O_CREATE|os.O_WRONLY, 0644)
+		_ = eventFile.Truncate(0)
+		for _, evtText := range g.eventLog {
+			_, _ = eventFile.WriteString(evtText + "\n")
+		}
 	}
 
 	p := game.Player()
 	g.statusText = fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ▼%d", p.Name(), p.CurrentHP(), p.MaxHP(), p.Exp(), p.Level())
 
 	var move *engine.MoveAction
-
-	pressedKeys := []ebiten.Key{}
-	pressedKeys = inpututil.AppendPressedKeys(pressedKeys)
+	pressedKeys := inpututil.AppendPressedKeys(nil)
+	justPressedKeys := inpututil.AppendJustPressedKeys(nil)
 
 	// Touch controls - figure out taps and touches
 	g.taps = handleTaps(g.taps, g.touches)
@@ -119,29 +120,59 @@ func (g *EbitenGame) Update() error {
 		}
 	}
 
+	// Held keys require a delay before moving the player
 	for _, key := range pressedKeys {
-		if slices.Contains(controls["up"], key) {
+		if slices.Contains(controls["up"], key) && inpututil.KeyPressDuration(key) > 20 {
 			move = engine.NewMoveAction(core.DirNorth)
 		}
-		if slices.Contains(controls["down"], key) {
+		if slices.Contains(controls["down"], key) && inpututil.KeyPressDuration(key) > 20 {
 			move = engine.NewMoveAction(core.DirSouth)
 		}
-		if slices.Contains(controls["left"], key) {
+		if slices.Contains(controls["left"], key) && inpututil.KeyPressDuration(key) > 20 {
 			move = engine.NewMoveAction(core.DirWest)
 			g.playerLeft = true
 		}
-		if slices.Contains(controls["right"], key) {
+		if slices.Contains(controls["right"], key) && inpututil.KeyPressDuration(key) > 20 {
 			move = engine.NewMoveAction(core.DirEast)
 			g.playerLeft = false
 		}
 	}
 
-	// sinceLastMove := g.frameCount - g.lastMoveFrame
+	// Tapped keys (just pressed) reset the delayFrames and move the player immediately
+	for _, key := range justPressedKeys {
+		if slices.Contains(controls["up"], key) {
+			move = engine.NewMoveAction(core.DirNorth)
+			g.delayFrames = 0
+		}
+		if slices.Contains(controls["down"], key) {
+			move = engine.NewMoveAction(core.DirSouth)
+			g.delayFrames = 0
+		}
+		if slices.Contains(controls["left"], key) {
+			move = engine.NewMoveAction(core.DirWest)
+			g.playerLeft = true
+			g.delayFrames = 0
+		}
+		if slices.Contains(controls["right"], key) {
+			move = engine.NewMoveAction(core.DirEast)
+			g.playerLeft = false
+			g.delayFrames = 0
+		}
+	}
+
+	// This stops the whole game from running too fast
+	if g.delayFrames > 0 {
+		g.delayFrames--
+		return nil
+	}
+
 	if move != nil {
 		result := move.Execute(*game)
 		if !result.Success {
 			return nil
 		}
+
+		// We translate the energy spent into frames to delay the game
 		if result.EnergySpent > 0 {
 			g.delayFrames = result.EnergySpent
 		}
@@ -161,8 +192,6 @@ func (g *EbitenGame) Update() error {
 				g.events = append(g.events[:i], g.events[i+1:]...)
 			}
 		}
-
-		g.lastMoveFrame = g.frameCount
 	}
 
 	return nil
@@ -298,16 +327,19 @@ func main() {
 		}
 	}
 
-	// Either no seed provided or it was invalid, generate a random one
+	// Either no seed provided or it was invalid, better generate a random one
 	if seed == 0 {
-		seed := rand.Uint64N(100000000)
+		seed = rand.Uint64N(100000000)
 		log.Printf("Generated random seed: %d", seed)
 	}
 
 	game = engine.NewGame(basePath+"assets/datafiles", seed)
+
 	game.AddEventListener(func(e engine.GameEvent) {
 		ebitenGame.events = append(ebitenGame.events, &e)
+		ebitenGame.eventLog = append(ebitenGame.eventLog, e.Text)
 	})
+
 	ebitenGame.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 	game.UpdateFOV(ebitenGame.viewDist)
 
@@ -315,7 +347,7 @@ func main() {
 	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Version " + version})
 	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: levelText})
 
-	// HACK: Removed for now to test map generation
+	// Phew - finally start the ebiten game loop with RunGame
 	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)
 	}

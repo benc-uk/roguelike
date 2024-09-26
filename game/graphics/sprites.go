@@ -119,7 +119,7 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 			op.ColorScale.SetB(255)
 			spriteImg.DrawImage(subImage, op)
 		} else {
-			// HACK: Clone the image, may not be needed
+			// Clone the sub image to avoid sharing the same image data
 			spriteImg = ebiten.NewImageFromImage(subImage)
 		}
 

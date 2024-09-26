@@ -10,9 +10,11 @@ import (
 	"roguelike/core"
 )
 
-// =====================================================================================================================
-// Tile stuff
-// =====================================================================================================================
+// ============================================================================
+// GameMap represents the structure of the game world as a 2D grid of tiles
+// ============================================================================
+
+// ===== Tiles ================================================================
 
 type tileType int // TileType is an integer representing the type of tile
 
@@ -132,9 +134,7 @@ func (t *tile) BlocksLOS() bool {
 	return t.blocksLOS
 }
 
-// =====================================================================================================================
-// Map stuff
-// =====================================================================================================================
+// ===== GameMap ==============================================================
 
 type GameMap struct {
 	size
@@ -143,23 +143,6 @@ type GameMap struct {
 	fovList     []*tile // List of all tiles in the FOV
 	depth       int     // Depth of the map
 	description string
-}
-
-func (m *GameMap) Tile(x, y int) *tile {
-	p := pos{X: x, Y: y}
-	return m.TileAt(p)
-}
-
-func (m *GameMap) TileAt(pos core.Pos) *tile {
-	if !pos.InBounds(m.Width, m.Height) {
-		return nil
-	}
-
-	return &m.tiles[pos.X][pos.Y]
-}
-
-func (m *GameMap) Size() core.Size {
-	return m.size
 }
 
 // NewMap creates a new map with the given width and height
@@ -182,6 +165,23 @@ func NewMap(width, height, depth int) *GameMap {
 	}
 
 	return m
+}
+
+func (m *GameMap) Tile(x, y int) *tile {
+	p := pos{X: x, Y: y}
+	return m.TileAt(p)
+}
+
+func (m *GameMap) TileAt(pos core.Pos) *tile {
+	if !pos.InBounds(m.Width, m.Height) {
+		return nil
+	}
+
+	return &m.tiles[pos.X][pos.Y]
+}
+
+func (m *GameMap) Size() core.Size {
+	return m.size
 }
 
 func (m *GameMap) Description() string {

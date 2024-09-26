@@ -2,6 +2,11 @@ package engine
 
 import "fmt"
 
+// ============================================================================
+// Entities exist in the game world	- creatures, items, furniture etc
+// This is the base entity type extended by other entity types
+// ============================================================================
+
 type entityType int
 
 const (

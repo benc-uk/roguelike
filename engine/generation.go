@@ -5,6 +5,10 @@ import (
 	"roguelike/core"
 )
 
+// ============================================================================
+// Generator for the game map using a simple BSP tree
+// ============================================================================
+
 // Representation of a BSP tree node, used in the generation of the map
 type bspNode struct {
 	core.Rect

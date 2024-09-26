@@ -1,5 +1,9 @@
 package engine
 
+// ============================================================================
+// Creature entities are mostly monsters but can be also non-hostile
+// ============================================================================
+
 import (
 	"fmt"
 	"roguelike/core"

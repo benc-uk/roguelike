@@ -1,6 +1,10 @@
 // nolint
 package engine
 
+// ============================================================================
+// Furniture entities are things like doors, barrels, tables etc
+// ============================================================================
+
 type furniture struct {
 	entityBase
 }

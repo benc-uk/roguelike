@@ -54,8 +54,4 @@ func handleTouches(touchIDs []ebiten.TouchID, touches map[ebiten.TouchID]*touch)
 			currX: x, currY: y,
 		}
 	}
-
-	// Remove touches that have ended,
-	// TODO: is this necessary?
-	ebiten.AppendTouchIDs(touchIDs[:0])
 }

@@ -4,6 +4,10 @@ import (
 	"roguelike/core"
 )
 
+// ============================================================================
+// Player data structure holds the player's state
+// ============================================================================
+
 const playerMaxItems = 10
 
 type Player struct {

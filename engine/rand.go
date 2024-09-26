@@ -4,6 +4,11 @@ import (
 	"math/rand/v2"
 )
 
+// ============================================================================
+// Random number generator
+// This is a seedable RNG for deterministic levels and level generation
+// ============================================================================
+
 var rng *rand.Rand
 
 func init() {

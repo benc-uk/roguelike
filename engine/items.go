@@ -7,6 +7,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// ============================================================================
+// Item entities are things like weapons, armour, potions etc
+// ============================================================================
+
 type Item struct {
 	entityBase
 	usable     bool

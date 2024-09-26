@@ -5,6 +5,11 @@ import (
 	"roguelike/core"
 )
 
+// ============================================================================
+// This is core of the game engine
+// The struct `Game` holds all the game state and all logic hangs off it
+// ============================================================================
+
 type Game struct {
 	player  *Player
 	gameMap *GameMap
