@@ -45,3 +45,9 @@ editor-build: ## Bundle the sprite editor web app
 clean: ## Clean up
 	rm -rf bin/ web/main.wasm site/ sprite-editor/dist/ web/assets site/
 	find . -name ".vite" -type d -exec rm -rf {} \; || true
+
+localwin: clean build-bin
+	rm -rf /mnt/c/Temp/roguelike/assets
+	rm -rf /mnt/c/Temp/roguelike/*
+	cp -r assets/ /mnt/c/Temp/roguelike
+	cp bin/dungeon.exe /mnt/c/Temp/roguelike

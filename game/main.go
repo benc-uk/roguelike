@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	_ "embed"
+	"flag"
 	"fmt"
 	"image"
 	"image/color"
@@ -24,7 +25,7 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_011"
+var version string = "0.0.1-alpha_012"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
@@ -82,6 +83,9 @@ type EbitenGame struct {
 	playerLeft  bool
 	frameCount  int64
 	delayFrames int
+
+	// Audio
+	sound *soundEffects
 }
 
 func (g *EbitenGame) Update() error {
@@ -177,6 +181,8 @@ func (g *EbitenGame) Update() error {
 			g.delayFrames = result.EnergySpent
 		}
 
+		g.sound.play("walk")
+
 		g.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 		game.UpdateFOV(g.viewDist)
 
@@ -270,6 +276,13 @@ func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, scree
 func main() {
 	log.Printf("GoRogue v%s is starting...", version)
 
+	// Arguments and flags
+	var seed uint64
+	var disableAudio bool
+	flag.Uint64Var(&seed, "seed", 0, "Seed for the game world")
+	flag.BoolVar(&disableAudio, "noaudio", false, "Disable audio")
+	flag.Parse()
+
 	// Create image for window icon from embedded bytes
 	buf := bytes.NewBuffer(iconBytes)
 	icon, _, err := image.Decode(buf)
@@ -292,6 +305,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	sound := newSoundEffects(basePath+"assets/", !disableAudio)
+
 	// Using hajimehoshi/bitmapfont/v3 for now
 	graphics.SetFontFace(text.NewGoXFace(bitmapfont.Face))
 
@@ -307,6 +322,7 @@ func main() {
 		palette:  palette,
 		viewPort: core.NewRect(0, 0, VP_COLS, VP_ROWS),
 		viewDist: 6,
+		sound:    sound,
 	}
 
 	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
@@ -314,18 +330,6 @@ func main() {
 	ebiten.SetWindowTitle("GoRogue")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowIcon([]image.Image{icon})
-
-	// Seed the game world from the command line or not
-	var seed uint64
-	if len(os.Args) > 1 && os.Args[1] != "" {
-		seed, err = strconv.ParseUint(os.Args[1], 10, 64)
-		if err != nil {
-			log.Printf("Error parsing seed: %s", err)
-		} else {
-
-			log.Printf("Using provided game world seed: %d", seed)
-		}
-	}
 
 	// Either no seed provided or it was invalid, better generate a random one
 	if seed == 0 {
@@ -338,6 +342,14 @@ func main() {
 	game.AddEventListener(func(e engine.GameEvent) {
 		ebitenGame.events = append(ebitenGame.events, &e)
 		ebitenGame.eventLog = append(ebitenGame.eventLog, e.Text)
+
+		if e.Type == engine.EventCreatureKilled {
+			ebitenGame.sound.play("hurt")
+		}
+
+		if e.Type == engine.EventItemPickup {
+			ebitenGame.sound.play("pickup")
+		}
 	})
 
 	ebitenGame.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)

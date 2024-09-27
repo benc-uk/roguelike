@@ -4,7 +4,7 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 # seed 108154 2132143
-bin = "./tmp/main"
+bin = "./tmp/main -noaudio"
 cmd = "go build -o ./tmp/main ./game"
 delay = 1000
 exclude_dir = ["assets", "web", "bin", ".vite", "sprite-editor", "site", "etc"]
