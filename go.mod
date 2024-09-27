@@ -7,6 +7,8 @@ require (
 	github.com/hajimehoshi/bitmapfont/v3 v3.2.0
 	github.com/hajimehoshi/ebiten/v2 v2.8.0
 	github.com/pterm/pterm v0.12.79
+	github.com/s0rg/fantasyname v1.3.5
+	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
 	gopkg.in/yaml.v3 v3.0.1
 )
 

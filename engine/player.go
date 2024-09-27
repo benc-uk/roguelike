@@ -2,6 +2,9 @@ package engine
 
 import (
 	"roguelike/core"
+	"strings"
+
+	fn "github.com/s0rg/fantasyname"
 )
 
 // ============================================================================
@@ -24,9 +27,17 @@ type Player struct {
 }
 
 func NewPlayer(pos core.Pos) *Player {
+	name := "Jimmy No Name"
+	gen, err := fn.Compile("sd", fn.Collapse(true), fn.RandFn(rng.IntN))
+	if err == nil {
+		name = gen.String()
+		// capitalize the first letter
+		name = strings.ToUpper(name[:1]) + name[1:]
+	}
+
 	return &Player{
 		pos:       pos,
-		name:      "Player",
+		name:      name,
 		currentHP: 10,
 		maxHP:     10,
 		exp:       0,

@@ -355,8 +355,10 @@ func main() {
 	ebitenGame.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 	game.UpdateFOV(ebitenGame.viewDist)
 
+	// TODO: Move this to a more appropriate place like the engine
 	levelText := fmt.Sprintf("You are on level %d of %s", game.Map().Depth(), game.Map().Description())
 	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Version " + version})
+	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Welcome adventurer " + game.Player().Name()})
 	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: levelText})
 
 	// Phew - finally start the ebiten game loop with RunGame
