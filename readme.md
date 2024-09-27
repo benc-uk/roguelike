@@ -16,6 +16,7 @@ Deployed versions to try out:
 
 ## Screens
 
+![screen 2](.etc/Screenshot_2024-09-27_163424.png)
 ![screenshot](.etc/Screenshot_2024-09-13_113518.png)
 
 ## Sprite Editor
@@ -29,6 +30,8 @@ A separate sprite editor has been developed to aid with creating sprites
 ## Plan and Todo List:
 
 - [ ] Debug and cheat modes
+- [ ] Sounds
+- [ ] Animations
 - [ ] Game states (menu, in-game, gameover etc)
   - [ ] Title screen
 - [ ] Character generation
@@ -36,15 +39,17 @@ A separate sprite editor has been developed to aid with creating sprites
 - [ ] HUD
   - [x] Status bar
 - [x] Events
+  - [ ] Logging
 - [ ] Level generation
+  - [x] Seeded RNG
   - [ ] Multiple levels
-  - [ ] Generation using BSP
+  - [x] Generation using BSP
   - [ ] Generation using WFC
   - [ ] Generation using Cellular Automata
 - [ ] Inventory system
   - [ ] Inventory screen
   - [ ] Scriptable items using JS
-  - [ ] Pick up items
+  - [x] Pick up items
   - [ ] Drop items
   - [ ] Use items
 - [ ] Implement creatures/monsters

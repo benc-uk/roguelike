@@ -39,7 +39,7 @@ const (
 	PAL_INDEX_PLAYER = 10
 	VP_ROWS          = 17 // Number of rows of tiles in the viewport, +1 for status bar
 	VP_COLS          = 26 // Number of columns of tiles in the viewport
-	MAX_EVENT_AGE    = 6  // Max number of events to store
+	MAX_EVENT_AGE    = 16 // Max number of events to store
 	INITIAL_SCALE    = 4
 )
 

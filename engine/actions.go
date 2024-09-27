@@ -52,7 +52,7 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 				randString("killed", "defeated", "felled", "vanquished", "slayed", "destroyed", "murdered"),
 				creature.Name())
 			events.new("creature_killed", creature, message)
-			energy = 40
+			energy = 60
 			return ActionResult{true, energy}
 		}
 
@@ -72,7 +72,7 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 			events.new("item_pickup", item, "Picked up "+item.Name())
 			energy = 40
 		} else {
-			events.new("item_pickup_fail", item, "Inventory full")
+			events.new("item_pickup_fail", item, "You are carrying too much!")
 		}
 	} else if len(items) > 1 {
 		events.new("item_pickup_multiple", nil, "You stand over a pile of items")
