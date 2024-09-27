@@ -31,6 +31,7 @@ func newSoundEffects(sfxPath string, enabled bool) *soundEffects {
 		enabled:      true,
 	}
 
+	// TODO: Refactor this to be come from a datafile like the graphics
 	es.loadSound("hurt", path.Join(sfxPath, "sfx"), 3)
 	es.loadSound("walk", path.Join(sfxPath, "sfx"), 3)
 	es.loadSound("pickup", path.Join(sfxPath, "sfx"), 1)
