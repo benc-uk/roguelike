@@ -3,6 +3,7 @@ package graphics
 import (
 	"image/color"
 
+	"github.com/hajimehoshi/bitmapfont/v3"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -10,8 +11,9 @@ import (
 
 var fontFace text.Face
 
-func SetFontFace(face text.Face) {
-	fontFace = face
+func init() {
+	// Using hajimehoshi/bitmapfont/v3 for now
+	fontFace = text.NewGoXFace(bitmapfont.Face)
 }
 
 func DrawTextRow(screen *ebiten.Image, textStr string, row int, bgCol color.RGBA) {

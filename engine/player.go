@@ -15,7 +15,8 @@ const playerMaxItems = 10
 
 type Player struct {
 	pos
-	name string
+	currentTile *tile
+	name        string
 
 	currentHP int
 	maxHP     int
@@ -31,7 +32,7 @@ func NewPlayer(pos core.Pos) *Player {
 	gen, err := fn.Compile("sd", fn.Collapse(true), fn.RandFn(rng.IntN))
 	if err == nil {
 		name = gen.String()
-		// capitalize the first letter
+		// Capitalize the first letter
 		name = strings.ToUpper(name[:1]) + name[1:]
 	}
 
@@ -39,7 +40,7 @@ func NewPlayer(pos core.Pos) *Player {
 		pos:       pos,
 		name:      name,
 		currentHP: 10,
-		maxHP:     10,
+		maxHP:     50,
 		exp:       0,
 		level:     1,
 	}
@@ -69,6 +70,30 @@ func (p *Player) Pos() core.Pos {
 	return p.pos
 }
 
+func (p *Player) Inventory() []Item {
+	return p.items
+}
+
+func (p *Player) MaxItems() int {
+	return playerMaxItems
+}
+
+func (p *Player) DropItem(index int) {
+	if index < 0 || index >= len(p.items) {
+		return
+	}
+
+	item := p.items[index]
+	p.items = append(p.items[:index], p.items[index+1:]...)
+	item.pos = &p.pos
+	p.currentTile.placeItem(&item)
+}
+
+func (p *Player) moveToTile(t *tile) {
+	p.pos = t.pos
+	p.currentTile = t
+}
+
 // Pickup an item from the ground, returning true if the item was picked up
 func (p *Player) pickupItem(item *Item) bool {
 	if len(p.items) >= playerMaxItems {
@@ -77,5 +102,7 @@ func (p *Player) pickupItem(item *Item) bool {
 
 	p.items = append(p.items, *item)
 	item.pos = nil
+
+	p.currentTile.removeItem(item)
 	return true
 }

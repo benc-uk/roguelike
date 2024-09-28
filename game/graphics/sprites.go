@@ -6,23 +6,22 @@ import (
 	"path"
 	"roguelike/core"
 
-	"encoding/json"
 	"image/color"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"gopkg.in/yaml.v3"
 )
 
 // Represents a single named sprite image
-type Sprite struct {
-	id           string
-	image        *ebiten.Image
-	size         core.Size
-	paletteIndex int
+type sprite struct {
+	id    string
+	image *ebiten.Image
+	size  core.Size
 }
 
-func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool, flipX bool, flipY bool) {
+func (s *sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool, flipX bool, flipY bool) {
 	if s == nil {
 		return
 	}
@@ -54,7 +53,7 @@ func (s *Sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, in
 
 // Holds a collection of sprites, indexed by name/id
 type SpriteBank struct {
-	sprites  map[string]*Sprite
+	sprites  map[string]*sprite
 	capacity int
 	size     int
 }
@@ -67,9 +66,9 @@ type spriteMetaFile struct {
 }
 
 type spriteMetaEntry struct {
-	Id           string
-	PaletteIndex int
-	core.Pos
+	Id string
+	X  int
+	Y  int
 }
 
 // Create a new SpriteBank from a JSON meta file and a source image file
@@ -81,14 +80,14 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 
 	// Parse the JSON data into a SpriteMetaFile struct
 	var meta spriteMetaFile
-	err = json.Unmarshal(data, &meta)
+	err = yaml.Unmarshal(data, &meta)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create a new SpriteBank and populate it with sprites
 	spriteBank := &SpriteBank{
-		sprites:  make(map[string]*Sprite),
+		sprites:  make(map[string]*sprite),
 		capacity: meta.Count,
 		size:     meta.Size,
 	}
@@ -107,38 +106,33 @@ func NewSpriteBank(metaFile string) (*SpriteBank, error) {
 	sz := meta.Size
 	for _, entry := range meta.Sprites {
 		// Sub image inside the sprite sheet where the sprite is located
-		subImage := sheetImg.SubImage(image.Rect(entry.Pos.X, entry.Pos.Y, entry.Pos.X+sz, entry.Pos.Y+sz)).(*ebiten.Image)
+		subImage := sheetImg.SubImage(image.Rect(entry.X, entry.Y, entry.X+sz, entry.Y+sz)).(*ebiten.Image)
 
-		// Logic to white out the sprite or not, used for monochrome sprites
-		var spriteImg *ebiten.Image
-		if entry.PaletteIndex > -1 {
-			spriteImg = ebiten.NewImage(sz, sz)
-			op := &ebiten.DrawImageOptions{}
-			op.ColorScale.SetR(255)
-			op.ColorScale.SetG(255)
-			op.ColorScale.SetB(255)
-			spriteImg.DrawImage(subImage, op)
-		} else {
-			// Clone the sub image to avoid sharing the same image data
-			spriteImg = ebiten.NewImageFromImage(subImage)
-		}
+		// Replace the colour of the sprite with white
+		spriteImg := ebiten.NewImage(sz, sz)
+		op := &ebiten.DrawImageOptions{}
+		op.ColorScale.SetR(255)
+		op.ColorScale.SetG(255)
+		op.ColorScale.SetB(255)
+		spriteImg.DrawImage(subImage, op)
 
-		sprite := &Sprite{
-			image:        spriteImg,
-			size:         core.Size{Width: spriteImg.Bounds().Dx(), Height: spriteImg.Bounds().Dy()},
-			id:           entry.Id,
-			paletteIndex: entry.PaletteIndex,
+		sprite := &sprite{
+			image: spriteImg,
+			size:  core.Size{Width: spriteImg.Bounds().Dx(), Height: spriteImg.Bounds().Dy()},
+			id:    entry.Id,
 		}
 
 		spriteBank.sprites[sprite.id] = sprite
 		spriteBank.capacity++
 	}
 
+	log.Printf("Loaded %d sprites", len(meta.Sprites))
+
 	return spriteBank, nil
 }
 
 // Get a sprite from the SpriteBank by name, can return nil
-func (sb *SpriteBank) Sprite(name string) *Sprite {
+func (sb *SpriteBank) Sprite(name string) *sprite {
 	sprite, ok := sb.sprites[name]
 	if !ok {
 		return nil

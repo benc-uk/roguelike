@@ -52,6 +52,7 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 				randString("killed", "defeated", "felled", "vanquished", "slayed", "destroyed", "murdered"),
 				creature.Name())
 			events.new("creature_killed", creature, message)
+			p.exp += creature.xp
 			energy = 60
 			return ActionResult{true, energy}
 		}
@@ -59,8 +60,7 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 		return ActionResult{false, energy}
 	}
 
-	p.pos.X += a.Pos().X
-	p.pos.Y += a.Pos().Y
+	p.moveToTile(destTile)
 
 	// Check for items
 	items := destTile.entities.AllItems()
@@ -68,7 +68,6 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 		item := items[0]
 
 		if p.pickupItem(item) {
-			destTile.removeItem(item)
 			events.new("item_pickup", item, "Picked up "+item.Name())
 			energy = 40
 		} else {

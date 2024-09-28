@@ -16,22 +16,14 @@ Deployed versions to try out:
 
 ## Screens
 
-![screen 2](.etc/Screenshot_2024-09-27_163424.png)
-![screenshot](.etc/Screenshot_2024-09-13_113518.png)
-
-## Sprite Editor
-
-A separate sprite editor has been developed to aid with creating sprites
-
-[Sprite Editor](./sprite-editor/readme.md)
-
-![alt text](.etc/Screenshot2024-09-02153104.png)
+![screen 2 - latest](.etc/Screenshot_2024-09-27_163424.png)
+![Screen 1 - older](.etc/Screenshot_2024-09-13_113518.png)
 
 ## Plan and Todo List:
 
 - [ ] Debug and cheat modes
 - [ ] Sounds
-- [ ] Animations
+- [ ] Combat Animations
 - [ ] Game states (menu, in-game, gameover etc)
   - [ ] Title screen
 - [ ] Character generation
@@ -59,3 +51,23 @@ A separate sprite editor has been developed to aid with creating sprites
 - [ ] Implement furniture
   - [ ] Doors
 - [ ] Timing & energy system
+
+## Adjunct Side-Side Project Ideas
+
+Ideas for spin off side projects
+
+## Sprite Editor
+
+A separate sprite editor has been developed to aid with creating sprites, it's pure a HTML/JS web app currently contained as a sub-project in this repo
+
+[Sprite Editor](./sprite-editor/readme.md)
+
+![alt text](.etc/Screenshot2024-09-02153104.png)
+
+## Sound Effect Engine
+
+Make my own, 8 bit SID like sound engine?
+
+## Music mod player
+
+Make my own? (Probably not, [you've been here before](https://github.com/benc-uk/nanotracker) Ben)

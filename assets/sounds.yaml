@@ -1,0 +1,5 @@
+sourceDir: "sfx"
+effects:
+  hurt: 3
+  walk: 3
+  pickup: 1

@@ -228,6 +228,7 @@ func (m *GameMap) randomFloorTile(noItems bool) tile {
 	}
 }
 
+// nolint
 func (m *GameMap) dumpPNG() {
 	tilesize := 16
 	// Create a new image

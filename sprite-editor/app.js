@@ -1,6 +1,7 @@
 import { Sprite } from './lib/sprite.js'
 import { randomHexColor } from './lib/colours.js'
 import { WIDTH as mapWidth, HEIGHT as mapHeight } from './map.js'
+import { dump as yamlDump } from './lib/js-yaml.mjs'
 
 export default () => ({
   size: 16,
@@ -188,15 +189,6 @@ export default () => ({
           const sprite = this.$store.sprites.sprites[i]
           sprite.drawOnCanvas(ctx, x * this.size, y * this.size, this.$store.pal.colours)
 
-          // // Palette index for monochrome sprites, -1 for multi-colour
-          // let paletteIndex = null
-          // const colours = sprite.collectColours()
-
-          // // Check monochrome sprite
-          // if (colours.length === 1) {
-          //   paletteIndex = colours[0]
-          // }
-
           let id = sprite.id.replaceAll(' ', '_')
           id = id.toLowerCase()
 
@@ -219,11 +211,12 @@ export default () => ({
     imageA.click()
 
     // Download meta data
-    const content = JSON.stringify(meta, null, 2)
-    const metaBlob = new Blob([content], { type: 'application/json' })
+    const yamlContent = yamlDump(meta)
+    // const jsonContent = JSON.stringify(meta, null, 2)
+    const metaBlob = new Blob([yamlContent], { type: 'application/yaml' })
     const metaA = document.createElement('a')
     metaA.href = URL.createObjectURL(metaBlob)
-    metaA.download = `${exportName}.json`
+    metaA.download = `${exportName}.yaml`
     metaA.click()
   },
 

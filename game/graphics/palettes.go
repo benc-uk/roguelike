@@ -1,64 +1,71 @@
 package graphics
 
 import (
-	"errors"
 	"image/color"
 	"log"
 	"roguelike/core"
 	"strconv"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
-var palettes map[string]palette
+type paletteMetaFile struct {
+	Palettes map[string]paletteMetaEntry `yaml:"palettes"`
+}
 
-type palette struct {
+type paletteMetaEntry struct {
 	Name    string   `yaml:"name"`
 	Colours []string `yaml:"colours"`
 }
 
-// LoadPalettes loads the palettes from the JSON file, call this before using any other functions in this package
-func LoadPalettes(filename string) error {
-	data, err := core.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-
-	err = yaml.Unmarshal(data, &palettes)
-	if err != nil {
-		return err
-	}
-
-	return nil
+type palette struct {
+	Name    string
+	Colours color.Palette
 }
 
-// GetPalettes returns the loaded palettes
-func GetPalettes() (map[string]palette, error) {
-	if palettes == nil {
-		return nil, errors.New("palettes not loaded, please call LoadPalettes first")
+type PaletteSet struct {
+	Palettes map[string]palette
+}
+
+func NewPallettSet(metaFile string) (*PaletteSet, error) {
+	data, err := core.ReadFile(metaFile)
+	if err != nil {
+		return nil, err
 	}
 
-	return palettes, nil
+	paletteMeta := paletteMetaFile{}
+	err = yaml.Unmarshal(data, &paletteMeta)
+	if err != nil {
+		return nil, err
+	}
+
+	paletteSet := &PaletteSet{
+		Palettes: make(map[string]palette),
+	}
+
+	ids := make([]string, 0, len(paletteMeta.Palettes))
+	for id, entry := range paletteMeta.Palettes {
+		ids = append(ids, id)
+		paletteSet.Palettes[id] = palette{
+			Name:    entry.Name,
+			Colours: GetRGBPalette(entry.Colours),
+		}
+	}
+
+	log.Printf("Loaded palettes: %s", strings.Join(ids, ", "))
+
+	return paletteSet, nil
 }
 
 // GetRGBPalette returns a color.Palette (array of color.RGBA) from the loaded palettes
-func GetRGBPalette(id string) (color.Palette, error) {
-	if palettes == nil {
-		return nil, errors.New("palettes not loaded, please call LoadPalettes first")
-	}
-
-	pal, ok := palettes[id]
-	if !ok {
-		return nil, errors.New("palette with id " + id + " not found")
-	}
-	log.Printf("Loaded palette '%s' with %d colours", pal.Name, len(pal.Colours))
-
-	var p color.Palette = make(color.Palette, len(pal.Colours))
-	for i, c := range pal.Colours {
+func GetRGBPalette(pal []string) color.Palette {
+	var p color.Palette = make(color.Palette, len(pal))
+	for i, c := range pal {
 		p[i] = HexStringToRGBA(c)
 	}
 
-	return p, nil
+	return p
 }
 
 // Utility function to convert a hex string to a color.RGBA

@@ -15,6 +15,7 @@ import (
 type creature struct {
 	entityBase
 	hp int //nolint
+	xp int //nolint
 }
 
 func (c *creature) String() string {
@@ -41,13 +42,16 @@ type creatureGenerator struct {
 }
 
 type yamlCreature struct {
+	// Entity fields
 	Description string `yaml:"description"`
 	Name        string `yaml:"name"`
 	Graphic     string `yaml:"graphic"`
-	Hostile     bool   `yaml:"hostile"`
 	Colour      string `yaml:"colour"`
-	Hp          int    `yaml:"hp"`
-	Xp          int    `yaml:"xp"`
+
+	// Creature specific fields
+	Hostile bool `yaml:"hostile"`
+	Hp      int  `yaml:"hp"`
+	Xp      int  `yaml:"xp"`
 }
 
 type yamlCreaturesFile struct {
@@ -82,6 +86,8 @@ func newCreatureGenerator(dataFile string) (*creatureGenerator, error) {
 					graphicId:  creat.Graphic,
 					colour:     creat.Colour,
 				},
+				hp: creat.Hp,
+				xp: creat.Xp,
 			}
 		}
 

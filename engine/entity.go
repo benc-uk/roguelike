@@ -33,6 +33,7 @@ type entityBase struct {
 type entity interface {
 	Id() string
 	InstanceID() string
+	Graphic() string
 	Description() string
 	Type() entityType
 	BlocksLOS() bool
@@ -68,6 +69,10 @@ func (e *entityBase) BlocksLOS() bool {
 
 func (e *entityBase) BlocksMove() bool {
 	return e.blocksMove
+}
+
+func (e *entityBase) Graphic() string {
+	return e.graphicId
 }
 
 func (e *entityBase) String() string {

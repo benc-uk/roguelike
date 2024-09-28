@@ -83,8 +83,8 @@ func NewRect(x, y, width, height int) Rect {
 
 // Pos represents a 2D position with X and Y coordinates
 type Pos struct {
-	X int
-	Y int
+	X int `yaml:"x"`
+	Y int `yaml:"y"`
 }
 
 func (p Pos) String() string {

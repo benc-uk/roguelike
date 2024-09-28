@@ -1,58 +1,58 @@
----
-default:
-  name: Dungeon Default
-  colours:
-    - "#505050" #0
-    - "#ABABAB" #1
-    - "#f0f0f0" #2
-    - "#633A18" #3
-    - "#916A49" #4
-    - "#C46829" #5
-    - "#41653D" #6
-    - "#4FCE38" #7
-    - "#2F35B8" #8
-    - "#20C7E8" #9
-    - "#DFBB22" #10
-    - "#CE4FDA" #11
-    - "#7A5BBF" #12
-    - "#E4D181" #13
-    - "#5E808E" #14
-    - "#5EC8A3" #15
-spectrum:
-  name: ZX Spectrum
-  colours:
-    - "#aaaaaa"
-    - "#0000D7"
-    - "#00D700"
-    - "#00D7D7"
-    - "#D70000"
-    - "#D700D7"
-    - "#D7D700"
-    - "#D7D7D7"
-    - "#000000"
-    - "#0000FF"
-    - "#00FF00"
-    - "#00FFFF"
-    - "#FF0000"
-    - "#FF00FF"
-    - "#FFFF00"
-    - "#FFFFFF"
-c64:
-  name: Commodore 64
-  colours:
-    - "#000000"
-    - "#FFFFFF"
-    - "#8B4131"
-    - "#7BBDC5"
-    - "#8B41AC"
-    - "#6AAC41"
-    - "#3931A4"
-    - "#D5DE73"
-    - "#945A20"
-    - "#5A4100"
-    - "#BD736A"
-    - "#525252"
-    - "#838383"
-    - "#ACEE8B"
-    - "#7B73DE"
-    - "#ACACAC"
+palettes:
+  default:
+    name: Dungeon Default
+    colours:
+      - "#505050" #0
+      - "#ABABAB" #1
+      - "#f0f0f0" #2
+      - "#633A18" #3
+      - "#916A49" #4
+      - "#C46829" #5
+      - "#41653D" #6
+      - "#4FCE38" #7
+      - "#2F35B8" #8
+      - "#20C7E8" #9
+      - "#DFBB22" #10
+      - "#CE4FDA" #11
+      - "#7A5BBF" #12
+      - "#E4D181" #13
+      - "#5E808E" #14
+      - "#5EC8A3" #15
+  spectrum:
+    name: ZX Spectrum
+    colours:
+      - "#aaaaaa"
+      - "#0000D7"
+      - "#00D700"
+      - "#00D7D7"
+      - "#D70000"
+      - "#D700D7"
+      - "#D7D700"
+      - "#D7D7D7"
+      - "#000000"
+      - "#0000FF"
+      - "#00FF00"
+      - "#00FFFF"
+      - "#FF0000"
+      - "#FF00FF"
+      - "#FFFF00"
+      - "#FFFFFF"
+  c64:
+    name: Commodore 64
+    colours:
+      - "#000000"
+      - "#FFFFFF"
+      - "#8B4131"
+      - "#7BBDC5"
+      - "#8B41AC"
+      - "#6AAC41"
+      - "#3931A4"
+      - "#D5DE73"
+      - "#945A20"
+      - "#5A4100"
+      - "#BD736A"
+      - "#525252"
+      - "#838383"
+      - "#ACEE8B"
+      - "#7B73DE"
+      - "#ACACAC"
