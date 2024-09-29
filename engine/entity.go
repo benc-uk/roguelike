@@ -1,6 +1,8 @@
 package engine
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // ============================================================================
 // Entities exist in the game world	- creatures, items, furniture etc
@@ -38,50 +40,59 @@ type entity interface {
 	Type() entityType
 	BlocksLOS() bool
 	BlocksMove() bool
+	setPos(*pos)
 }
 
-func (e *entityBase) Id() string {
+func (e entityBase) Id() string {
 	return e.id
 }
 
-func (e *entityBase) InstanceID() string {
+func (e entityBase) InstanceID() string {
 	return e.instanceID
 }
 
-func (e *entityBase) Description() string {
+func (e entityBase) Description() string {
 	return e.desc
 }
 
-func (e *entityBase) Name() string {
+func (e entityBase) Name() string {
 	return e.name
 }
 
-func (e *entityBase) Appearance() Appearance {
+func (e entityBase) Appearance() Appearance {
 	return Appearance{
 		Graphic: e.graphicId,
 		Colour:  e.colour,
 	}
 }
 
-func (e *entityBase) BlocksLOS() bool {
+func (e entityBase) BlocksLOS() bool {
 	return e.blocksLOS
 }
 
-func (e *entityBase) BlocksMove() bool {
+func (e entityBase) BlocksMove() bool {
 	return e.blocksMove
 }
 
-func (e *entityBase) Graphic() string {
+func (e entityBase) Graphic() string {
 	return e.graphicId
 }
 
-func (e *entityBase) String() string {
+func (e entityBase) String() string {
 	return fmt.Sprintf("entity_%s_%s", e.id, e.instanceID)
+}
+
+func (e *entityBase) setPos(p *pos) {
+	e.pos = p
 }
 
 // ===== Lists ========================================================================================================
 
 type entityList []entity
+
+func NewEntityList() entityList {
+	return make(entityList, 0)
+}
 
 func (el entityList) AllItems() []*Item {
 	items := make([]*Item, 0)
@@ -98,6 +109,10 @@ func (el entityList) AllItems() []*Item {
 	}
 
 	return items
+}
+
+func (el entityList) Count() int {
+	return len(el)
 }
 
 func (el entityList) AllCreatures() []*creature {
@@ -143,4 +158,18 @@ func (el *entityList) Remove(e entity) {
 			return
 		}
 	}
+}
+
+func (el *entityList) Add(e ...entity) {
+	*el = append(*el, e...)
+}
+
+func (el entityList) Contains(thing entity) bool {
+	for _, e := range el {
+		if e.InstanceID() == thing.InstanceID() {
+			return true
+		}
+	}
+
+	return false
 }

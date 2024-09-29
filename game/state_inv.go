@@ -3,71 +3,94 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"roguelike/engine"
 	"roguelike/game/controls"
 	"roguelike/game/graphics"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-func (g *EbitenGame) SwitchStateInventory() {
-	g.state = GameStateInventory
-	g.invCursor = 0
+type InventoryState struct {
+	// Neatly encapsulate the state of the game
+	*EbitenGame
+
+	// Internal vars for this state
+	invCursor int
 }
 
-func (g *EbitenGame) UpdateInv(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
+func (g *EbitenGame) SwitchStateInventory() {
+	g.handlers[GameStateInventory].Init()
+	g.state = GameStateInventory
+}
+
+func (s *InventoryState) Init() {
+	s.invCursor = 0
+}
+
+func (s *InventoryState) PassEvent(e engine.GameEvent) {
+}
+
+func (s *InventoryState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 	for _, key := range tappedKeys {
 		if controls.Escape.IsKey(key) || controls.Inventory.IsKey(key) {
-			g.state = GameStatePlaying
+			s.state = GameStatePlaying
 		}
 
 		if controls.Up.IsKey(key) {
-			g.invCursor--
-			if g.invCursor < 0 {
-				g.invCursor = 0
+			s.invCursor--
+			if s.invCursor < 0 {
+				s.invCursor = 0
 			}
 		}
 
 		if controls.Down.IsKey(key) {
-			g.invCursor++
-			if g.invCursor >= len(g.game.Player().Inventory()) {
-				g.invCursor = len(g.game.Player().Inventory()) - 1
+			s.invCursor++
+			if s.invCursor >= len(s.game.Player().Inventory()) {
+				s.invCursor = len(s.game.Player().Inventory()) - 1
 			}
 		}
 
 		if controls.Drop.IsKey(key) {
-			p := g.game.Player()
+			p := s.game.Player()
 			if len(p.Inventory()) > 0 {
-				p.DropItem(g.invCursor)
-				g.state = GameStatePlaying
+				item := p.Inventory()[s.invCursor]
+
+				p.DropItem(item)
+				s.state = GameStatePlaying
 			}
 		}
 	}
 }
 
-func (g *EbitenGame) DrawInv(screen *ebiten.Image) {
-	p := g.game.Player()
+func (s *InventoryState) Draw(screen *ebiten.Image) {
+	p := s.game.Player()
 
 	// Draw the inventory screen
-	graphics.DrawTextBox(screen, 0, 0, VP_COLS-1, VP_ROWS, color.RGBA{0x20, 0x00, 0x30, 0xff})
-	graphics.DrawTextBox(screen, 2, 0, VP_COLS-1, 0, color.RGBA{0x20, 0x00, 0x30, 0xff})
+	graphics.DrawTextBox(screen, 0, 0, VP_COLS-1, 2, graphics.ColourInv)
+	graphics.DrawTextBox(screen, 2, 0, VP_COLS-1, VP_ROWS-2, graphics.ColourInv)
 
 	countCarried := len(p.Inventory())
 	countMax := p.MaxItems()
-	graphics.DrawTextRow(screen, fmt.Sprintf("  Inventory (%d/%d)", countCarried, countMax), 1, graphics.Trans)
+	graphics.DrawTextRow(screen, fmt.Sprintf("  Backpack (%d/%d)", countCarried, countMax), 1, graphics.ColourTrans)
 
 	// Draw the player's inventory
 	for i, item := range p.Inventory() {
 		curString := "    "
-		if i == g.invCursor {
+		if i == s.invCursor {
 			curString = "  ⌦ "
 		}
 
-		graphics.DrawTextRow(screen, fmt.Sprintf("%s  %s", curString, item.Name()), i+3, graphics.Trans)
+		equipLocDesc := ""
+		if item.EquipLocation() != engine.EquipLocationNone {
+			equipLocDesc = fmt.Sprintf("[%s]", item.EquipLocation())
+		}
 
-		sprite := g.bank.Sprite(item.Graphic())
+		graphics.DrawTextRow(screen, fmt.Sprintf("%s  %s", curString, item.Name()), i+3, graphics.ColourTrans)
+		graphics.DrawTextRow(screen, fmt.Sprintf("                          %s", equipLocDesc), i+3, graphics.ColourTrans)
+
+		sprite := s.bank.Sprite(item.Graphic())
 		if sprite != nil {
 			sprite.Draw(screen, 24, (i+3)*12, color.White, true, false, false)
 		}
-
 	}
 }

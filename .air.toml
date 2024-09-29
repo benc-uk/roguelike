@@ -3,7 +3,7 @@ tmp_dir = "tmp"
 
 [build]
 args_bin = []
-# seed 108154 2132143
+# seed 108154 2132143 87461333
 bin = "./tmp/main -noaudio"
 cmd = "go build -o ./tmp/main ./game"
 delay = 1000

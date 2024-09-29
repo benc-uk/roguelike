@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"roguelike/core"
 	"strings"
 
@@ -24,10 +25,13 @@ type Player struct {
 	exp   int
 	level int
 
-	items []Item
+	backpack entityList
+
+	// Inspired by Angband https://angband.readthedocs.io/en/latest/command.html#inventory-commands
+	equipSlots map[equipLocation]*Item
 }
 
-func NewPlayer(pos core.Pos, item ...Item) *Player {
+func NewPlayer(tile *tile, items ...Item) *Player {
 	name := "Jimmy No Name"
 	gen, err := fn.Compile("sd", fn.Collapse(true), fn.RandFn(rng.IntN))
 	if err == nil {
@@ -37,16 +41,16 @@ func NewPlayer(pos core.Pos, item ...Item) *Player {
 	}
 
 	p := &Player{
-		pos:       pos,
-		name:      name,
-		currentHP: 10,
-		maxHP:     50,
-		exp:       0,
-		level:     1,
+		pos:         tile.pos,
+		currentTile: tile,
+		name:        name,
+		currentHP:   10,
+		maxHP:       50,
+		exp:         0,
+		level:       1,
+		backpack:    NewEntityList(),
+		equipSlots:  make(map[equipLocation]*Item),
 	}
-
-	// Starting items if any
-	p.items = append(p.items, item...)
 
 	return p
 }
@@ -75,23 +79,28 @@ func (p *Player) Pos() core.Pos {
 	return p.pos
 }
 
-func (p *Player) Inventory() []Item {
-	return p.items
+func (p *Player) Inventory() []*Item {
+	return p.backpack.AllItems()
 }
 
 func (p *Player) MaxItems() int {
 	return playerMaxItems
 }
 
-func (p *Player) DropItem(index int) {
-	if index < 0 || index >= len(p.items) {
+func (p *Player) DropItem(item *Item) {
+	if !p.backpack.Contains(item) {
 		return
 	}
 
-	item := p.items[index]
-	p.items = append(p.items[:index], p.items[index+1:]...)
-	item.pos = &p.pos
-	p.currentTile.placeItem(&item)
+	if placedOK := p.currentTile.addEntity(item); placedOK {
+		p.backpack.Remove(item)
+		events.new(EventItemDropped, item, fmt.Sprintf("You dropped the %s", item.Name()))
+		item.dropped = true
+	}
+}
+
+func (p *Player) CurrentTile() tile {
+	return *p.currentTile
 }
 
 func (p *Player) moveToTile(t *tile) {
@@ -100,14 +109,14 @@ func (p *Player) moveToTile(t *tile) {
 }
 
 // Pickup an item from the ground, returning true if the item was picked up
-func (p *Player) pickupItem(item *Item) bool {
-	if len(p.items) >= playerMaxItems {
+func (p *Player) PickupItem(item *Item) bool {
+	if len(p.backpack) >= playerMaxItems {
 		return false
 	}
 
-	p.items = append(p.items, *item)
+	p.backpack.Add(item)
+	p.currentTile.entities.Remove(item)
 	item.pos = nil
 
-	p.currentTile.removeItem(item)
 	return true
 }

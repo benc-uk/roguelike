@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"flag"
-	"fmt"
 	"image"
 	"image/color"
 	_ "image/png"
@@ -33,7 +32,7 @@ const (
 	PAL_INDEX_PLAYER = 10
 	VP_ROWS          = 17 // Number of rows of tiles in the viewport, +1 for status bar
 	VP_COLS          = 26 // Number of columns of tiles in the viewport
-	MAX_EVENT_AGE    = 16 // Max number of events to store
+	MAX_EVENT_AGE    = 8  // Max number of events to store
 	INITIAL_SCALE    = 4
 	ASSETS_DIR       = "assets"
 )
@@ -48,6 +47,14 @@ const (
 	GameStateGameOver
 	GameStatePlayerGen
 )
+
+// GameStateHander is an interface for processing the game in a given state
+type GameStateHander interface {
+	Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key)
+	Draw(screen *ebiten.Image)
+	Init()
+	PassEvent(evt engine.GameEvent)
+}
 
 // Implements the ebiten.Game interface
 // Holds external state for the rendering & running of the game
@@ -74,19 +81,19 @@ type EbitenGame struct {
 	touchIDs []ebiten.TouchID
 	taps     []tap
 
-	events      []*engine.GameEvent
-	eventLog    []string
-	playerLeft  bool
-	frameCount  int64
-	delayFrames int
-	invCursor   int
+	events   []*engine.GameEvent
+	eventLog []string
+
+	frameCount int64
 
 	// Audio
 	effect *audio.Effects
+
+	// State handlers
+	handlers map[GameState]GameStateHander
 }
 
 func (g *EbitenGame) Update() error {
-
 	heldKeys := inpututil.AppendPressedKeys(nil)
 	tappedKeys := inpututil.AppendJustPressedKeys(nil)
 
@@ -94,27 +101,17 @@ func (g *EbitenGame) Update() error {
 	g.taps = handleTaps(g.taps, g.touches)
 	handleTouches(g.touchIDs, g.touches)
 
-	switch g.state {
-	case GameStatePlaying:
-		g.UpdatePlaying(heldKeys, tappedKeys)
-	case GameStateInventory:
-		g.UpdateInv(heldKeys, tappedKeys)
-	}
+	// Based on the current state, call the appropriate update handler
+	g.handlers[g.state].Update(heldKeys, tappedKeys)
 
 	return nil
 }
 
 func (g *EbitenGame) Draw(screen *ebiten.Image) {
 	g.frameCount++
-
 	screen.Fill(color.Black)
-
-	switch g.state {
-	case GameStatePlaying:
-		g.DrawPlaying(screen)
-	case GameStateInventory:
-		g.DrawInv(screen)
-	}
+	// Based on the current state, call the appropriate draw handler
+	g.handlers[g.state].Draw(screen)
 }
 
 func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -160,7 +157,7 @@ func main() {
 	graphics.SetTileSize(spSize)
 	ebitenGame := &EbitenGame{
 		game:      nil,
-		state:     GameStateInventory,
+		state:     GameStatePlaying,
 		touches:   make(map[ebiten.TouchID]*touch),
 		spSize:    spSize,
 		scrWidth:  VP_COLS * spSize,
@@ -172,6 +169,17 @@ func main() {
 		viewPort:   core.NewRect(0, 0, VP_COLS, VP_ROWS),
 		viewDist:   6,
 		effect:     sound,
+	}
+
+	// Build a map of state handlers for each game state
+	ebitenGame.handlers = map[GameState]GameStateHander{
+		GameStatePlaying: &PlayingState{
+			EbitenGame: ebitenGame,
+		},
+
+		GameStateInventory: &InventoryState{
+			EbitenGame: ebitenGame,
+		},
 	}
 
 	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
@@ -186,30 +194,30 @@ func main() {
 		log.Printf("Generated random seed: %d", seed)
 	}
 
-	game := engine.NewGame(basePath+"assets/datafiles", seed)
-
-	game.AddEventListener(func(e engine.GameEvent) {
+	listener := func(e engine.GameEvent) {
 		ebitenGame.events = append(ebitenGame.events, &e)
-		ebitenGame.eventLog = append(ebitenGame.eventLog, e.Text)
+		ebitenGame.eventLog = append(ebitenGame.eventLog, e.Text())
 
-		if e.Type == engine.EventCreatureKilled {
+		if e.Type() == engine.EventCreatureKilled {
 			ebitenGame.effect.Play("hurt")
 		}
 
-		if e.Type == engine.EventItemPickup {
+		if e.Type() == engine.EventItemPickup {
 			ebitenGame.effect.Play("pickup")
 		}
-	})
+
+		// Pass all events to state handlers
+		ebitenGame.handlers[ebitenGame.state].PassEvent(e)
+	}
+
+	game := engine.NewGame(basePath+"assets/datafiles", seed, listener)
+
+	// game.AddEventListener()
 
 	ebitenGame.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 	game.UpdateFOV(ebitenGame.viewDist)
 
-	// TODO: Move this to a more appropriate place like the engine
-	levelText := fmt.Sprintf("You are on level %d of %s", game.Map().Depth(), game.Map().Description())
-	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Version " + version})
-	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: "Welcome adventurer " + game.Player().Name()})
-	ebitenGame.events = append(ebitenGame.events, &engine.GameEvent{Type: "game_state", Text: levelText})
-
+	// IMPORTANT! Link both structs
 	ebitenGame.game = game
 
 	// Phew - finally start the ebiten game loop with RunGame

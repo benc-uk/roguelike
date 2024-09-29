@@ -71,14 +71,13 @@ func (node *bspNode) traverseBSP(gm *GameMap, itemFactory *itemGenerator, creatu
 				pos := room.RandomPos(rng)
 
 				item := itemFactory.createRandomItem()
-				gm.TileAt(pos).placeItem(item)
+				gm.TileAt(pos).addEntity(item)
 			}
 
 			// Place one creature in the room
 			pos := room.RandomPos(rng)
 			creature := creatureGenerator.createRandomCreature()
-			creature.pos = &pos
-			gm.TileAt(pos).entities = append(gm.TileAt(pos).entities, creature)
+			gm.TileAt(pos).addEntity(creature)
 		}
 	}
 }

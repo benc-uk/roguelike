@@ -36,6 +36,9 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 
 	destPos := p.pos.Add(a.Pos())
 	destTile := m.TileAt(destPos)
+	if destTile == nil {
+		return ActionResult{false, 0}
+	}
 
 	creatures := destTile.entities.AllCreatures()
 
@@ -62,19 +65,22 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 
 	p.moveToTile(destTile)
 
-	// Check for items
+	// Check for items and auto pick them up
 	items := destTile.entities.AllItems()
 	if len(items) == 1 {
 		item := items[0]
+		if item.dropped {
+			return ActionResult{false, 0}
+		}
 
-		if p.pickupItem(item) {
-			events.new("item_pickup", item, "Picked up "+item.Name())
+		if p.PickupItem(item) {
+			events.new(EventItemPickup, item, "Picked up "+item.Name())
 			energy = 40
 		} else {
 			events.new("item_pickup_fail", item, "You are carrying too much!")
 		}
 	} else if len(items) > 1 {
-		events.new("item_pickup_multiple", nil, "You stand over a pile of items")
+		events.new(EventItemMultiple, nil, "You stand over a pile of items")
 	}
 
 	return ActionResult{true, energy}

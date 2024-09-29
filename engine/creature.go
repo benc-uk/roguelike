@@ -18,19 +18,19 @@ type creature struct {
 	xp int //nolint
 }
 
-func (c *creature) String() string {
+func (c creature) String() string {
 	return fmt.Sprintf("creature_%v_%v", c.id, c.instanceID)
 }
 
-func (c *creature) Type() entityType {
+func (c creature) Type() entityType {
 	return entityTypeCreature
 }
 
-func (c *creature) BlocksLOS() bool {
+func (c creature) BlocksLOS() bool {
 	return false
 }
 
-func (c *creature) BlocksMove() bool {
+func (c creature) BlocksMove() bool {
 	return true
 }
 

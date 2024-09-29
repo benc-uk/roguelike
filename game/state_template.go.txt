@@ -1,0 +1,23 @@
+package main
+
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+)
+
+type ExampleState struct {
+	// Neatly encapsulate the state of the game
+	*EbitenGame
+}
+
+func (h *ExampleState) Init() {
+}
+
+func (g *ExampleState) PassEvent(e engine.GameEvent) {
+}
+
+
+func (h *ExampleState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
+}
+
+func (h *ExampleState) Draw(screen *ebiten.Image) {
+}

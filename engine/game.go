@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"log"
 	"roguelike/core"
 )
@@ -69,18 +70,17 @@ func (g *Game) UpdateFOV(fovRange int) {
 	}
 }
 
-func (g *Game) AddEventListener(listener func(GameEvent)) {
-	events.AddEventListener(listener)
-}
-
 // Create a new game instance, it all starts here
-func NewGame(dataFileDir string, seed uint64) *Game {
+func NewGame(dataFileDir string, seed uint64, listeners ...EventListener) *Game {
 	seedRNG(seed)
 
 	g := &Game{}
 
 	// Reset the global event manager
-	events = EventManager{}
+	events = eventManager{}
+
+	// Register event listeners
+	events.addEventListeners(listeners...)
 
 	var err error
 	g.itemGen, err = newItemGenerator(dataFileDir + "/items.yaml")
@@ -94,6 +94,7 @@ func NewGame(dataFileDir string, seed uint64) *Game {
 	}
 
 	size := rng.IntN(4)
+	// TODO: Remove log statements
 	log.Printf("Generating a %v dungeon", []string{"tiny", "small", "medium", "large"}[size])
 	depth := 1
 	switch size {
@@ -135,15 +136,11 @@ func NewGame(dataFileDir string, seed uint64) *Game {
 	// HACK: Dump the map to a PNG file
 	// g.gameMap.dumpPNG()
 
-	staringItems := []Item{
-		*g.itemGen.createRandomItem(),
-		*g.itemGen.createRandomItem(),
-		*g.itemGen.createRandomItem(),
-		*g.itemGen.createRandomItem(),
-		*g.itemGen.createRandomItem(),
-		*g.itemGen.createRandomItem(),
-	}
-	g.player = NewPlayer(g.gameMap.randomFloorTile(true).pos, staringItems...)
+	g.player = NewPlayer(g.gameMap.randomFloorTile(true))
+
+	levelText := fmt.Sprintf("You are on level %d of %s", g.Map().Depth(), g.Map().Description())
+	events.new("new_game", nil, "Welcome adventurer "+g.Player().Name())
+	events.new("enter_level", nil, levelText)
 
 	return g
 }

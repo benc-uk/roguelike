@@ -27,23 +27,22 @@ items:
     description: A basic iron sword, it's a bit rusty and blunt
     name: iron sword
     graphic: sword
-    equippable: true
+    equipLocation: weapon
     rarity: 1.0
-    weapon: true
     colour: 14
-    weaponProperties:
-      damage: 10
-      range: 1
+    equipProperties:
+      toHit: +5
+      damage: "1d6"
 
   shield:
     description: A rusty shield, it's seen better days
     name: rusty shield
     graphic: shield
-    equippable: true
+    equipLocation: shield
     rarity: 0.5
     colour: 5
     equipProperties:
-      defence: 5
+      armour: +5
 
   meat:
     description: A hunk of meat, it looks like it's been cooked

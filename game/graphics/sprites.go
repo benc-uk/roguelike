@@ -43,7 +43,7 @@ func (s *sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, in
 	op.ColorScale.ScaleWithColor(colour)
 
 	if !inFOV {
-		op.ColorScale.ScaleAlpha(0.5)
+		op.ColorScale.ScaleAlpha(float32(fovScale))
 	}
 
 	screen.DrawImage(s.image, op)

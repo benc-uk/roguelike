@@ -23,6 +23,8 @@ const (
 	tileTypeWall
 )
 
+const maxTileItems = 10
+
 type tile struct {
 	pos
 	tileType   tileType
@@ -61,27 +63,31 @@ func (t *tile) makeWall() {
 	t.blocksLOS = true
 }
 
-func (t *tile) placeItem(item *Item) {
-	if item == nil {
-		return
+func (t *tile) addEntity(e entity) bool {
+	// Only allow a certain number of items on a tile
+	if e.Type() == entityTypeItem && t.entities.Count() >= maxTileItems {
+		return false
 	}
 
-	t.entities = append(t.entities, item)
-	item.pos = &t.pos
-}
+	// Only one creature per tile
+	if e.Type() == entityTypeCreature && len(t.entities.AllCreatures()) > 0 {
+		return false
+	}
 
-func (t *tile) removeItem(item *Item) {
-	t.entities.Remove(item)
+	if e == nil {
+		return false
+	}
+
+	t.entities.Add(e)
+	e.setPos(&t.pos)
+
+	return true
 }
 
 // GetAppearance returns the appearance of the tile as a string
 // to be used by the renderer and UI to display this tile
-func (t *tile) GetAppearance(gameMap *GameMap) *Appearance {
-	if t == nil {
-		return nil
-	}
-
-	if !t.seen {
+func (t *tile) GetAppearance() *Appearance {
+	if t == nil || !t.seen {
 		return nil
 	}
 
@@ -132,6 +138,15 @@ func (t *tile) BlocksLOS() bool {
 		}
 	}
 	return t.blocksLOS
+}
+
+func (t *tile) ListItems() []Item {
+	itemsOut := make([]Item, 0)
+	for _, item := range t.entities.AllItems() {
+		itemsOut = append(itemsOut, *item)
+	}
+
+	return itemsOut
 }
 
 // ===== GameMap ==============================================================
@@ -213,16 +228,16 @@ func (m *GameMap) revealMap() {
 	}
 }
 
-func (m *GameMap) randomFloorTile(noItems bool) tile {
+func (m *GameMap) randomFloorTile(noItems bool) *tile {
 	for {
 		x := rng.IntN(m.Width)
 		y := rng.IntN(m.Height)
 
 		if m.Tile(x, y).tileType == tileTypeFloor {
 			if noItems && !m.Tile(x, y).entities.IsEmpty() {
-				return *m.Tile(x, y)
+				return m.Tile(x, y)
 			} else {
-				return *m.Tile(x, y)
+				return m.Tile(x, y)
 			}
 		}
 	}
