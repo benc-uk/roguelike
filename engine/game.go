@@ -135,7 +135,15 @@ func NewGame(dataFileDir string, seed uint64) *Game {
 	// HACK: Dump the map to a PNG file
 	// g.gameMap.dumpPNG()
 
-	g.player = NewPlayer(g.gameMap.randomFloorTile(true).pos)
+	staringItems := []Item{
+		*g.itemGen.createRandomItem(),
+		*g.itemGen.createRandomItem(),
+		*g.itemGen.createRandomItem(),
+		*g.itemGen.createRandomItem(),
+		*g.itemGen.createRandomItem(),
+		*g.itemGen.createRandomItem(),
+	}
+	g.player = NewPlayer(g.gameMap.randomFloorTile(true).pos, staringItems...)
 
 	return g
 }

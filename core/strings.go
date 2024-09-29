@@ -12,3 +12,12 @@ func RandId(idLen int) string {
 	}
 	return string(id)
 }
+
+// MakeStr creates a string of n length with s repeated
+func MakeStr(n int, s string) string {
+	str := ""
+	for i := 0; i < n; i++ {
+		str += s
+	}
+	return str
+}

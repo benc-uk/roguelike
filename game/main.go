@@ -157,9 +157,10 @@ func main() {
 	palette := palSet.Palettes["default"].Colours
 
 	spSize := bank.Size()
+	graphics.SetTileSize(spSize)
 	ebitenGame := &EbitenGame{
 		game:      nil,
-		state:     GameStatePlaying,
+		state:     GameStateInventory,
 		touches:   make(map[ebiten.TouchID]*touch),
 		spSize:    spSize,
 		scrWidth:  VP_COLS * spSize,

@@ -27,7 +27,7 @@ type Player struct {
 	items []Item
 }
 
-func NewPlayer(pos core.Pos) *Player {
+func NewPlayer(pos core.Pos, item ...Item) *Player {
 	name := "Jimmy No Name"
 	gen, err := fn.Compile("sd", fn.Collapse(true), fn.RandFn(rng.IntN))
 	if err == nil {
@@ -36,7 +36,7 @@ func NewPlayer(pos core.Pos) *Player {
 		name = strings.ToUpper(name[:1]) + name[1:]
 	}
 
-	return &Player{
+	p := &Player{
 		pos:       pos,
 		name:      name,
 		currentHP: 10,
@@ -44,6 +44,11 @@ func NewPlayer(pos core.Pos) *Player {
 		exp:       0,
 		level:     1,
 	}
+
+	// Starting items if any
+	p.items = append(p.items, item...)
+
+	return p
 }
 
 func (p *Player) Name() string {

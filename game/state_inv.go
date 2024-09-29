@@ -48,22 +48,25 @@ func (g *EbitenGame) DrawInv(screen *ebiten.Image) {
 	p := g.game.Player()
 
 	// Draw the inventory screen
+	graphics.DrawTextBox(screen, 0, 0, VP_COLS-1, VP_ROWS, color.RGBA{0x20, 0x00, 0x30, 0xff})
+	graphics.DrawTextBox(screen, 2, 0, VP_COLS-1, 0, color.RGBA{0x20, 0x00, 0x30, 0xff})
+
 	countCarried := len(p.Inventory())
 	countMax := p.MaxItems()
-	graphics.DrawTextRow(screen, fmt.Sprintf(" Inventory (%d/%d)", countCarried, countMax), 0, color.RGBA{0x30, 0x00, 0x30, 0xff})
+	graphics.DrawTextRow(screen, fmt.Sprintf("  Inventory (%d/%d)", countCarried, countMax), 1, graphics.Trans)
 
 	// Draw the player's inventory
 	for i, item := range p.Inventory() {
-		curString := "  "
+		curString := "    "
 		if i == g.invCursor {
-			curString = "⌦ "
+			curString = "  ⌦ "
 		}
 
-		graphics.DrawTextRow(screen, fmt.Sprintf("%s  %s", curString, item.Name()), i+1, color.RGBA{0x30, 0x00, 0x30, 0xff})
+		graphics.DrawTextRow(screen, fmt.Sprintf("%s  %s", curString, item.Name()), i+3, graphics.Trans)
 
 		sprite := g.bank.Sprite(item.Graphic())
 		if sprite != nil {
-			sprite.Draw(screen, 12, (i+1)*12, color.White, true, false, false)
+			sprite.Draw(screen, 24, (i+3)*12, color.White, true, false, false)
 		}
 
 	}
