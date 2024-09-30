@@ -23,7 +23,7 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_014"
+var version string = "0.0.1-alpha_015"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
@@ -203,9 +203,8 @@ func main() {
 		}
 		if !e.SameAs(lastEvent) {
 			ebitenGame.events = append(ebitenGame.events, &e)
+			ebitenGame.eventLog = append(ebitenGame.eventLog, e.Text())
 		}
-
-		ebitenGame.eventLog = append(ebitenGame.eventLog, e.Text())
 
 		if e.Type() == engine.EventCreatureKilled {
 			ebitenGame.effect.Play("hurt")
