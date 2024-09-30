@@ -63,7 +63,7 @@
 
       // Quickstart mode skips the title screen
       let quickstart = false;
-      if (urlParams.has("quickstart")) {
+      if (urlParams.has("qs") || urlParams.has("quickstart")) {
         go.argv.push("-quickstart");
         quickstart = true;
       }
