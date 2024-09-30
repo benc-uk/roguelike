@@ -65,7 +65,7 @@ func drawScreen(area *pterm.AreaPrinter) {
 	for y := viewPort.Y; y < viewPort.Height+viewPort.Y; y++ {
 		for x := viewPort.X; x < viewPort.Width+viewPort.X; x++ {
 			tile := gameMap.Tile(x, y)
-			appear := tile.GetAppearance()
+			appear := tile.Appearance()
 
 			if appear == nil {
 				screen += " "

@@ -32,7 +32,9 @@ type tile struct {
 	inFOV      bool
 	blocksMove bool
 	blocksLOS  bool
-	entities   entityList
+	items      entityList
+	creature   *creature  //nolint
+	furniture  *furniture //nolint
 }
 
 type Appearance struct {
@@ -51,6 +53,10 @@ func newFloor(pos core.Pos) tile {
 }
 
 func (t *tile) makeFloor() {
+	if t == nil {
+		return
+	}
+
 	t.tileType = tileTypeFloor
 	t.blocksMove = false
 	t.blocksLOS = false
@@ -58,35 +64,55 @@ func (t *tile) makeFloor() {
 
 // nolint
 func (t *tile) makeWall() {
+	if t == nil {
+		return
+	}
+
 	t.tileType = tileTypeWall
 	t.blocksMove = true
 	t.blocksLOS = true
 }
 
-func (t *tile) addEntity(e entity) bool {
+func (t *tile) addItem(i *Item) bool {
+	if t == nil {
+		return false
+	}
+
 	// Only allow a certain number of items on a tile
-	if e.Type() == entityTypeItem && t.entities.Count() >= maxTileItems {
+	if t.items.Count() >= maxTileItems {
 		return false
 	}
 
-	// Only one creature per tile
-	if e.Type() == entityTypeCreature && len(t.entities.AllCreatures()) > 0 {
+	if i == nil {
 		return false
 	}
 
-	if e == nil {
-		return false
-	}
-
-	t.entities.Add(e)
-	e.setPos(&t.pos)
+	t.items.Add(i)
+	i.setPos(&t.pos)
 
 	return true
 }
 
-// GetAppearance returns the appearance of the tile as a string
-// to be used by the renderer and UI to display this tile
-func (t *tile) GetAppearance() *Appearance {
+func (t *tile) placeCreature(c *creature) bool {
+	// Only one creature per tile
+	if t.creature != nil {
+		return false
+	}
+
+	if c == nil {
+		return false
+	}
+
+	t.creature = c
+	c.setPos(&t.pos)
+	c.currentTile = t
+
+	return true
+}
+
+// Appearance returns the appearance of the tile as a string
+// Used by the renderer and UI to display this tile
+func (t *tile) Appearance() *Appearance {
 	if t == nil || !t.seen {
 		return nil
 	}
@@ -95,24 +121,21 @@ func (t *tile) GetAppearance() *Appearance {
 		return &Appearance{Graphic: "wall", InFOV: t.inFOV}
 	}
 
-	// If there are entities on this tile, return the appearance of the last one
-	if !t.entities.IsEmpty() {
-		// Creatures take precedence over items, and will be displayed first
-		creatures := t.entities.AllCreatures()
-		if len(creatures) > 0 {
-			a := creatures[len(creatures)-1].Appearance()
-			a.InFOV = t.inFOV
+	// Creatures take precedence over items, and will be displayed first
+	if t.creature != nil {
+		a := t.creature.Appearance()
+		a.InFOV = t.inFOV
 
-			return &a
-		}
+		return &a
+	}
 
-		items := t.entities.AllItems()
-		if len(items) > 0 {
-			a := items[len(items)-1].Appearance()
-			a.InFOV = t.inFOV
+	// If there are items on this tile, return the appearance of the last one
+	if last := t.items.Last(); last != nil {
+		item := last.(*Item)
+		appear := item.Appearance()
+		appear.InFOV = t.inFOV
 
-			return &a
-		}
+		return &appear
 	}
 
 	return &Appearance{Graphic: "floor", InFOV: t.inFOV}
@@ -123,16 +146,22 @@ func (t *tile) BlocksMove() bool {
 		return true
 	}
 
-	for _, e := range t.entities {
-		if e.BlocksMove() {
+	if t.creature != nil {
+		return t.creature.BlocksMove()
+	}
+
+	// Items don't block move, but lets check them anyway
+	for _, i := range t.items {
+		if i.BlocksMove() {
 			return true
 		}
 	}
+
 	return t.blocksMove
 }
 
 func (t *tile) BlocksLOS() bool {
-	for _, e := range t.entities {
+	for _, e := range t.items {
 		if e.BlocksLOS() {
 			return true
 		}
@@ -142,11 +171,30 @@ func (t *tile) BlocksLOS() bool {
 
 func (t *tile) ListItems() []Item {
 	itemsOut := make([]Item, 0)
-	for _, item := range t.entities.AllItems() {
+	for _, item := range t.items.AllItems() {
 		itemsOut = append(itemsOut, *item)
 	}
 
 	return itemsOut
+}
+
+func (t *tile) Creature() *creature {
+	if t == nil {
+		return nil
+	}
+
+	return t.creature
+}
+
+func (t *tile) AdjacentTileDir(dir core.Direction, m *GameMap) *tile {
+	destPos := t.pos.Add(dir.Pos())
+	destTile := m.TileAt(destPos)
+
+	if destTile == nil {
+		return nil
+	}
+
+	return destTile
 }
 
 // ===== GameMap ==============================================================
@@ -210,7 +258,7 @@ func (m *GameMap) Depth() int {
 func (m *GameMap) floorArea(x, y, w, h int) {
 	for i := x; i < x+w; i++ {
 		for j := y; j < y+h; j++ {
-			m.tiles[i][j].makeFloor()
+			m.Tile(i, j).makeFloor()
 		}
 	}
 }
@@ -232,13 +280,18 @@ func (m *GameMap) randomFloorTile(noItems bool) *tile {
 	for {
 		x := rng.IntN(m.Width)
 		y := rng.IntN(m.Height)
+		t := m.Tile(x, y)
 
-		if m.Tile(x, y).tileType == tileTypeFloor {
-			if noItems && !m.Tile(x, y).entities.IsEmpty() {
-				return m.Tile(x, y)
-			} else {
-				return m.Tile(x, y)
+		if t.tileType == tileTypeFloor {
+			if t.BlocksMove() {
+				continue
 			}
+
+			if noItems && !t.items.IsEmpty() {
+				continue
+			}
+
+			return t
 		}
 	}
 }

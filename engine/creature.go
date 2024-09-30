@@ -14,8 +14,10 @@ import (
 
 type creature struct {
 	entityBase
-	hp int //nolint
-	xp int //nolint
+
+	currentTile *tile
+	hp          int //nolint
+	xp          int //nolint
 }
 
 func (c creature) String() string {

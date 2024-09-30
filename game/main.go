@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"flag"
+	"fmt"
 	"image"
 	"image/color"
 	_ "image/png"
@@ -16,12 +17,13 @@ import (
 	"roguelike/game/graphics"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_013"
+var version string = "0.0.1-alpha_014"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
@@ -110,8 +112,14 @@ func (g *EbitenGame) Update() error {
 func (g *EbitenGame) Draw(screen *ebiten.Image) {
 	g.frameCount++
 	screen.Fill(color.Black)
+
 	// Based on the current state, call the appropriate draw handler
 	g.handlers[g.state].Draw(screen)
+
+	// debug version
+	if g.frameCount < 240 {
+		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("v%s", version), g.scrWidth-130, g.scrHeight-14)
+	}
 }
 
 func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -128,7 +136,7 @@ func main() {
 	flag.BoolVar(&disableAudio, "noaudio", false, "Disable audio")
 	flag.Parse()
 
-	// Windo icon uses embedded bytes
+	// Window icon uses embedded bytes
 	buf := bytes.NewBuffer(iconBytes)
 	icon, _, err := image.Decode(buf)
 	if err != nil {

@@ -92,15 +92,15 @@ func (p *Player) DropItem(item *Item) {
 		return
 	}
 
-	if placedOK := p.currentTile.addEntity(item); placedOK {
+	if placedOK := p.currentTile.addItem(item); placedOK {
 		p.backpack.Remove(item)
 		events.new(EventItemDropped, item, fmt.Sprintf("You dropped the %s", item.Name()))
 		item.dropped = true
 	}
 }
 
-func (p *Player) CurrentTile() tile {
-	return *p.currentTile
+func (p *Player) CurrentTile() *tile {
+	return p.currentTile
 }
 
 func (p *Player) moveToTile(t *tile) {
@@ -115,7 +115,7 @@ func (p *Player) PickupItem(item *Item) bool {
 	}
 
 	p.backpack.Add(item)
-	p.currentTile.entities.Remove(item)
+	p.currentTile.items.Remove(item)
 	item.pos = nil
 
 	return true

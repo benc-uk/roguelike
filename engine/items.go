@@ -52,7 +52,7 @@ func (el equipLocation) String() string {
 	case equipLocationAmulet:
 		return "amulet"
 	default:
-		return "unknown"
+		return "none"
 	}
 }
 

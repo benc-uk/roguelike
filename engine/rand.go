@@ -6,7 +6,7 @@ import (
 
 // ============================================================================
 // Random number generator
-// This is a seedable RNG for deterministic levels and level generation
+// This is a seedable RNG for random but repeatable generation of levels etc
 // ============================================================================
 
 var rng *rand.Rand

@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"log"
 	"roguelike/core"
 )
 
@@ -50,7 +49,7 @@ func (g *Game) UpdateFOV(fovRange int) {
 				tile := &g.gameMap.tiles[checkCoord.X][checkCoord.Y]
 
 				// Check if title contains any entities that block LOS
-				for _, entity := range tile.entities {
+				for _, entity := range tile.items {
 					if entity.BlocksLOS() {
 						tile.blocksLOS = true
 						break
@@ -94,8 +93,6 @@ func NewGame(dataFileDir string, seed uint64, listeners ...EventListener) *Game 
 	}
 
 	size := rng.IntN(4)
-	// TODO: Remove log statements
-	log.Printf("Generating a %v dungeon", []string{"tiny", "small", "medium", "large"}[size])
 	depth := 1
 	switch size {
 	case 0:
@@ -132,9 +129,6 @@ func NewGame(dataFileDir string, seed uint64, listeners ...EventListener) *Game 
 			g.gameMap.description = "a large dungeon"
 		}
 	}
-
-	// HACK: Dump the map to a PNG file
-	// g.gameMap.dumpPNG()
 
 	g.player = NewPlayer(g.gameMap.randomFloorTile(true))
 

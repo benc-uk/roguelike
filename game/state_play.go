@@ -30,37 +30,40 @@ func (s *PlayingState) PassEvent(e engine.GameEvent) {
 }
 
 func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
-	var move *engine.MoveAction
+	var action engine.Action
+	player := s.game.Player()
+	currTile := player.CurrentTile()
+	gm := s.game.Map()
 
 	// Loop over taps (there should only be one for reasons)
 	for _, tap := range s.taps {
 		if tap.X < s.scrWidth/4 {
-			move = engine.NewMoveAction(core.DirWest)
+			action = engine.NewMoveAction(core.DirWest)
 		} else if tap.X > s.scrWidth/4*3 {
-			move = engine.NewMoveAction(core.DirEast)
+			action = engine.NewMoveAction(core.DirEast)
 		}
 
 		if tap.Y < s.scrHeight/4 {
-			move = engine.NewMoveAction(core.DirNorth)
+			action = engine.NewMoveAction(core.DirNorth)
 		} else if tap.Y > s.scrHeight/4*3 {
-			move = engine.NewMoveAction(core.DirSouth)
+			action = engine.NewMoveAction(core.DirSouth)
 		}
 	}
 
 	// Held keys require a delay before moving the player
 	for _, key := range heldKeys {
 		if controls.Up.IsKey(key) && inpututil.KeyPressDuration(key) > 20 {
-			move = engine.NewMoveAction(core.DirNorth)
+			action = engine.NewMoveAction(core.DirNorth)
 		}
 		if controls.Down.IsKey(key) && inpututil.KeyPressDuration(key) > 20 {
-			move = engine.NewMoveAction(core.DirSouth)
+			action = engine.NewMoveAction(core.DirSouth)
 		}
 		if controls.Left.IsKey(key) && inpututil.KeyPressDuration(key) > 20 {
-			move = engine.NewMoveAction(core.DirWest)
+			action = engine.NewMoveAction(core.DirWest)
 			s.playerLeft = true
 		}
 		if controls.Right.IsKey(key) && inpututil.KeyPressDuration(key) > 20 {
-			move = engine.NewMoveAction(core.DirEast)
+			action = engine.NewMoveAction(core.DirEast)
 			s.playerLeft = false
 		}
 	}
@@ -92,44 +95,43 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 			return
 		}
 
+		var tappedDir core.Direction = -1
+
 		if controls.Up.IsKey(key) {
-			move = engine.NewMoveAction(core.DirNorth)
-			s.delayFrames = 0
+			tappedDir = core.DirNorth
 		}
 		if controls.Down.IsKey(key) {
-			move = engine.NewMoveAction(core.DirSouth)
-			s.delayFrames = 0
+			tappedDir = core.DirSouth
 		}
 		if controls.Left.IsKey(key) {
-			move = engine.NewMoveAction(core.DirWest)
+			tappedDir = core.DirWest
 			s.playerLeft = true
-			s.delayFrames = 0
 		}
 		if controls.Right.IsKey(key) {
-			move = engine.NewMoveAction(core.DirEast)
+			tappedDir = core.DirEast
 			s.playerLeft = false
-			s.delayFrames = 0
+		}
+
+		if tappedDir >= 0 {
+			destTile := currTile.AdjacentTileDir(tappedDir, gm)
+			if destTile.Creature() != nil {
+				action = engine.NewAttackAction(destTile.Creature())
+			} else {
+				action = engine.NewMoveAction(tappedDir)
+				s.delayFrames = 0
+				s.effect.Play("walk")
+			}
 		}
 
 		if controls.Inventory.IsKey(key) {
-			if s.state == GameStateInventory {
-				s.state = GameStatePlaying
-			} else {
-				s.SwitchStateInventory()
-			}
-		}
-
-		if controls.Escape.IsKey(key) {
-			if s.state == GameStateInventory {
-				s.state = GameStatePlaying
-			}
+			s.SwitchStateInventory()
 		}
 
 		if controls.Get.IsKey(key) {
-			tile := s.game.Player().CurrentTile()
-			appear := tile.GetAppearance()
+			appear := currTile.Appearance()
 
 			// If it's not floor, player must be on one or more items
+			// as we can't stand on walls or creatures
 			if appear.Graphic != "floor" {
 				s.pickUpItem = true
 			}
@@ -142,8 +144,10 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 		return
 	}
 
-	if move != nil {
-		result := move.Execute(*s.game)
+	if action != nil {
+		result := action.Execute(*s.game)
+
+		// TODO: This logic is probably not right long term
 		if !result.Success {
 			return
 		}
@@ -153,7 +157,10 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 			s.delayFrames = result.EnergySpent
 		}
 
-		s.effect.Play("walk")
+		// Play sound effects for walking
+		if _, ok := action.(*engine.MoveAction); ok {
+			s.effect.Play("walk")
+		}
 
 		s.viewPort = s.game.GetViewPort(VP_COLS, VP_ROWS)
 		s.game.UpdateFOV(s.viewDist)
@@ -184,7 +191,7 @@ func (s *PlayingState) Draw(screen *ebiten.Image) {
 	for x := s.viewPort.X; x < s.viewPort.Width+s.viewPort.X; x++ {
 		for y := s.viewPort.Y; y < s.viewPort.Height+s.viewPort.Y; y++ {
 			tile := gameMap.Tile(x, y)
-			appear := tile.GetAppearance()
+			appear := tile.Appearance()
 			drawX := x*s.spSize - offsetX
 			drawY := y*s.spSize - offsetY
 

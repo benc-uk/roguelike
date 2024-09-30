@@ -57,9 +57,9 @@ func (node *bspNode) traverseBSP(gm *GameMap, itemFactory *itemGenerator, creatu
 	if rng.IntN(100) < 70 {
 		// Create a room at the center of leaf nodes
 		if node.Left == nil && node.Right == nil {
-			// Room size is randomly 40-70% of the node size
-			width := node.Width * (40 + rng.IntN(30)) / 100
-			height := node.Height * (40 + rng.IntN(30)) / 100
+			// Room size is randomly % of the node size
+			width := node.Width * (40 + rng.IntN(50)) / 100
+			height := node.Height * (40 + rng.IntN(50)) / 100
 			room := core.NewRect(node.center.X-width/2, node.center.Y-height/2, width, height)
 
 			// Carve the room area
@@ -71,13 +71,13 @@ func (node *bspNode) traverseBSP(gm *GameMap, itemFactory *itemGenerator, creatu
 				pos := room.RandomPos(rng)
 
 				item := itemFactory.createRandomItem()
-				gm.TileAt(pos).addEntity(item)
+				gm.TileAt(pos).addItem(item)
 			}
 
 			// Place one creature in the room
 			pos := room.RandomPos(rng)
 			creature := creatureGenerator.createRandomCreature()
-			gm.TileAt(pos).addEntity(creature)
+			gm.TileAt(pos).placeCreature(creature)
 		}
 	}
 }

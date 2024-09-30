@@ -132,19 +132,20 @@ func (el entityList) AllCreatures() []*creature {
 	return creatures
 }
 
-func (el entityList) Last() *entity {
+func (el entityList) Last() entity {
 	if len(el) == 0 {
 		return nil
 	}
-	return &el[len(el)-1]
+
+	return el[len(el)-1]
 }
 
-func (el entityList) First() *entity {
+func (el entityList) First() entity {
 	if len(el) == 0 {
 		return nil
 	}
 
-	return &el[0]
+	return el[0]
 }
 
 func (el entityList) IsEmpty() bool {
