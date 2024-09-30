@@ -133,8 +133,8 @@ func NewGame(dataFileDir string, seed uint64, listeners ...EventListener) *Game 
 	g.player = NewPlayer(g.gameMap.randomFloorTile(true))
 
 	levelText := fmt.Sprintf("You are on level %d of %s", g.Map().Depth(), g.Map().Description())
-	events.new("new_game", nil, "Welcome adventurer "+g.Player().Name())
-	events.new("enter_level", nil, levelText)
+	events.new(EventMiscMessage, nil, "Welcome adventurer "+g.Player().Name())
+	events.new(EventMiscMessage, nil, levelText)
 
 	return g
 }

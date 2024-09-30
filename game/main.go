@@ -23,7 +23,7 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_015"
+var version string = "0.0.1-alpha_016"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
@@ -85,11 +85,13 @@ type EbitenGame struct {
 
 	events   []*engine.GameEvent
 	eventLog []string
+	seed     uint64
 
 	frameCount int64
+	flashCount int
 
 	// Audio
-	effect *audio.Effects
+	sfxPlayer *audio.Effects
 
 	// State handlers
 	handlers map[GameState]GameStateHander
@@ -111,6 +113,13 @@ func (g *EbitenGame) Update() error {
 
 func (g *EbitenGame) Draw(screen *ebiten.Image) {
 	g.frameCount++
+
+	if g.flashCount > 0 {
+		g.flashCount--
+		screen.Fill(color.White)
+		return
+	}
+
 	screen.Fill(color.Black)
 
 	// Based on the current state, call the appropriate draw handler
@@ -126,14 +135,46 @@ func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, scree
 	return g.scrWidth, g.scrHeight
 }
 
+func (g *EbitenGame) StartNewGame() {
+	g.game = engine.NewGame(basePath+"assets/datafiles", g.seed, g.EventListener)
+	g.game.UpdateFOV(g.viewDist)
+	g.viewPort = g.game.GetViewPort(VP_COLS, VP_ROWS)
+
+	g.state = GameStatePlaying
+}
+
+func (g *EbitenGame) EventListener(e engine.GameEvent) {
+	var lastEvent *engine.GameEvent = nil
+	if len(g.events) > 0 {
+		lastEvent = g.events[len(g.events)-1]
+	}
+	if !e.SameAs(lastEvent) {
+		g.events = append(g.events, &e)
+		g.eventLog = append(g.eventLog, e.Text())
+	}
+
+	if e.Type() == engine.EventCreatureKilled {
+		g.sfxPlayer.Play("hurt")
+	}
+
+	if e.Type() == engine.EventItemPickup {
+		g.sfxPlayer.Play("pickup")
+	}
+
+	// Pass all events to state handlers
+	g.handlers[g.state].PassEvent(e)
+}
+
 func main() {
 	log.Printf("GoRogue v%s is starting...", version)
 
 	// Arguments and flags
 	var seed uint64
 	var disableAudio bool
+	var quickStart bool
 	flag.Uint64Var(&seed, "seed", 0, "Seed for the game world")
 	flag.BoolVar(&disableAudio, "noaudio", false, "Disable audio")
+	flag.BoolVar(&quickStart, "quickstart", false, "Skip the title screen")
 	flag.Parse()
 
 	// Window icon uses embedded bytes
@@ -154,18 +195,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sound, err := audio.NewEffects(path.Join(basePath, ASSETS_DIR, "sounds.yaml"), !disableAudio)
+	effects, err := audio.NewEffects(path.Join(basePath, ASSETS_DIR, "sounds.yaml"), !disableAudio)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	palette := palSet.Palettes["default"].Colours
 
+	// Either no seed provided or it was invalid, better generate a random one
+	if seed == 0 {
+		seed = rand.Uint64N(100000000)
+		log.Printf("Generated random seed: %d", seed)
+	}
+
 	spSize := bank.Size()
 	graphics.SetTileSize(spSize)
 	ebitenGame := &EbitenGame{
 		game:       nil,
-		state:      GameStatePlaying,
+		state:      GameStateTitle,
 		touches:    make(map[ebiten.TouchID]*touch),
 		spSize:     spSize,
 		scrWidth:   VP_COLS * spSize,
@@ -175,11 +222,17 @@ func main() {
 		palette:    palette,
 		viewPort:   core.NewRect(0, 0, VP_COLS, VP_ROWS),
 		viewDist:   6,
-		effect:     sound,
+		sfxPlayer:  effects,
+		seed:       seed,
 	}
 
 	// Build the map of state handlers for each game state
 	ebitenGame.handlers = map[GameState]GameStateHander{
+		GameStateTitle: &TitleState{
+			EbitenGame: ebitenGame,
+			quickStart: quickStart,
+		},
+
 		GameStatePlaying: &PlayingState{
 			EbitenGame: ebitenGame,
 		},
@@ -189,43 +242,7 @@ func main() {
 		},
 	}
 
-	// Either no seed provided or it was invalid, better generate a random one
-	if seed == 0 {
-		seed = rand.Uint64N(100000000)
-		log.Printf("Generated random seed: %d", seed)
-	}
-
-	// Event listener for game events & messages
-	listener := func(e engine.GameEvent) {
-		var lastEvent *engine.GameEvent = nil
-		if len(ebitenGame.events) > 0 {
-			lastEvent = ebitenGame.events[len(ebitenGame.events)-1]
-		}
-		if !e.SameAs(lastEvent) {
-			ebitenGame.events = append(ebitenGame.events, &e)
-			ebitenGame.eventLog = append(ebitenGame.eventLog, e.Text())
-		}
-
-		if e.Type() == engine.EventCreatureKilled {
-			ebitenGame.effect.Play("hurt")
-		}
-
-		if e.Type() == engine.EventItemPickup {
-			ebitenGame.effect.Play("pickup")
-		}
-
-		// Pass all events to state handlers
-		ebitenGame.handlers[ebitenGame.state].PassEvent(e)
-	}
-
-	game := engine.NewGame(basePath+"assets/datafiles", seed, listener)
-	ebitenGame.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
-	game.UpdateFOV(ebitenGame.viewDist)
-
-	// IMPORTANT! Link both structs
-	ebitenGame.game = game
-
-	// Phew - finally start the ebiten game loop
+	// Finally start the ebiten game loop
 	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
 	ebiten.SetWindowPosition(0, 0)
 	ebiten.SetWindowTitle("GoRogue")

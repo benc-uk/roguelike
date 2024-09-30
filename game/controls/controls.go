@@ -13,6 +13,7 @@ const (
 	Drop
 	Get
 	Escape
+	Select
 )
 
 // TODO: Move this to some sort of config file
@@ -25,6 +26,7 @@ var controls = map[control][]ebiten.Key{
 	Drop:      {ebiten.KeyD},
 	Get:       {ebiten.KeyG},
 	Escape:    {ebiten.KeyEscape},
+	Select:    {ebiten.KeyEnter, ebiten.KeySpace},
 }
 
 func (c control) Keys() []ebiten.Key {

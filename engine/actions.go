@@ -72,7 +72,7 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 		}
 
 		if item.dropped {
-			events.new("item_pickup_dropped", item, fmt.Sprintf("You see a %s you previously dropped", item.Name()))
+			events.new(EventItemSkipped, item, fmt.Sprintf("You see a %s you previously dropped", item.Name()))
 			return ActionResult{true, 40}
 		}
 
@@ -101,7 +101,7 @@ func (a *AttackAction) Execute(g Game) ActionResult {
 	message := fmt.Sprintf("You %s a %s",
 		randString("killed", "defeated", "felled", "vanquished", "slayed", "destroyed", "murdered"),
 		a.target.Name())
-	events.new("creature_killed", a.target, message)
+	events.new(EventCreatureKilled, a.target, message)
 	p.exp += a.target.xp
 
 	return ActionResult{true, 60}
@@ -115,7 +115,7 @@ func (a *PickupAction) Execute(g Game) ActionResult {
 		return ActionResult{true, 40}
 	}
 
-	events.new("item_pickup_fail", a.item, "You are carrying too much!")
+	events.new(EventPackFull, a.item, "You are carrying too much!")
 	return ActionResult{false, 0}
 }
 

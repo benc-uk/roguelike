@@ -122,7 +122,7 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 			} else {
 				action = engine.NewMoveAction(tappedDir)
 				s.delayFrames = 0
-				s.effect.Play("walk")
+				s.sfxPlayer.Play("walk")
 			}
 		}
 
@@ -163,7 +163,7 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 
 		// Play sound effects for walking
 		if _, ok := action.(*engine.MoveAction); ok {
-			s.effect.Play("walk")
+			s.sfxPlayer.Play("walk")
 		}
 
 		s.viewPort = s.game.GetViewPort(VP_COLS, VP_ROWS)

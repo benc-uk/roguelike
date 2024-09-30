@@ -51,19 +51,26 @@
     function setGameSeed(go) {
       let seed = 0;
 
+      go.argv = ["__ignored__"]
+
       // If the URL has a seed parameter, use it
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has("seed")) {
         seed = urlParams.get("seed");
+        go.argv.push("-seed", seed);
+      }
+
+      let quickstart = false;
+      if (urlParams.has("quickstart")) {
+        go.argv.push("-quickstart");
+        quickstart = true;
       }
 
       if (!seed) {
         // Otherwise, generate a random seed
         seed = Math.floor(Math.random() * 100000000).toString();
-        window.history.replaceState({}, document.title, `?seed=${seed}`);
+        window.history.pushState("", "", `?seed=${seed}${quickstart ? "&quickstart" : ""}`);
       }
-
-      go.argv = ["__ignored__", "-seed", seed];
     }
   </script>
 </body>

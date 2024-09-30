@@ -15,11 +15,11 @@ type InventoryState struct {
 	*EbitenGame
 
 	// Internal vars for this state
-	invCursor int
+	cursor int
 }
 
 func (s *InventoryState) Init() {
-	s.invCursor = 0
+	s.cursor = 0
 }
 
 func (s *InventoryState) PassEvent(e engine.GameEvent) {
@@ -32,21 +32,21 @@ func (s *InventoryState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) 
 		}
 
 		if controls.Up.IsKey(key) {
-			s.invCursor--
-			if s.invCursor < 0 {
-				s.invCursor = 0
+			s.cursor--
+			if s.cursor < 0 {
+				s.cursor = 0
 			}
 		}
 
 		if controls.Down.IsKey(key) {
-			s.invCursor++
-			if s.invCursor >= len(s.game.Player().Inventory()) {
-				s.invCursor = len(s.game.Player().Inventory()) - 1
+			s.cursor++
+			if s.cursor >= len(s.game.Player().Inventory()) {
+				s.cursor = len(s.game.Player().Inventory()) - 1
 			}
 		}
 
 		if controls.Drop.IsKey(key) {
-			a := engine.NewDropAction(s.game.Player().Inventory()[s.invCursor])
+			a := engine.NewDropAction(s.game.Player().Inventory()[s.cursor])
 			a.Execute(*s.game)
 			s.state = GameStatePlaying
 		}
@@ -66,18 +66,15 @@ func (s *InventoryState) Draw(screen *ebiten.Image) {
 
 	// Draw the player's inventory
 	for i, item := range p.Inventory() {
-		curString := "    "
-		if i == s.invCursor {
-			curString = "  ⌦ "
-		}
 
 		equipLocDesc := ""
 		if item.EquipLocation() != engine.EquipLocationNone {
 			equipLocDesc = fmt.Sprintf("[%s]", item.EquipLocation())
 		}
 
-		graphics.DrawTextRow(screen, fmt.Sprintf("%s  %s", curString, item.Name()), i+3, graphics.ColourTrans)
+		graphics.DrawTextRow(screen, fmt.Sprintf("      %s", item.Name()), i+3, graphics.ColourTrans)
 		graphics.DrawTextRow(screen, fmt.Sprintf("                          %s", equipLocDesc), i+3, graphics.ColourTrans)
+		graphics.DrawTextRow(screen, "  ⌦", 3+s.cursor, graphics.ColourTrans)
 
 		sprite := s.bank.Sprite(item.Graphic())
 		if sprite != nil {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"roguelike/engine"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -9,15 +10,15 @@ type ExampleState struct {
 	*EbitenGame
 }
 
-func (h *ExampleState) Init() {
+func (s *ExampleState) Init() {
 }
 
-func (g *ExampleState) PassEvent(e engine.GameEvent) {
+func (s *ExampleState) PassEvent(e engine.GameEvent) {
 }
 
 
-func (h *ExampleState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
+func (s *ExampleState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 }
 
-func (h *ExampleState) Draw(screen *ebiten.Image) {
+func (s *ExampleState) Draw(screen *ebiten.Image) {
 }

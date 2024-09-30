@@ -7,12 +7,15 @@ package engine
 type GameEventType string
 
 const (
+	EventMiscMessage    = "misc_message"
 	EventGameState      = "game_state"
 	EventItemPickup     = "item_pickup"
 	EventItemMultiple   = "item_pickup_multi"
+	EventItemSkipped    = "item_pickup_skipped"
 	EventItemUsed       = "item_used"
 	EventItemDropped    = "item_dropped"
 	EventCreatureKilled = "creature_killed"
+	EventPackFull       = "player_pack_full"
 )
 
 type GameEvent struct {
