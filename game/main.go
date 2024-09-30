@@ -164,13 +164,12 @@ func main() {
 	spSize := bank.Size()
 	graphics.SetTileSize(spSize)
 	ebitenGame := &EbitenGame{
-		game:      nil,
-		state:     GameStatePlaying,
-		touches:   make(map[ebiten.TouchID]*touch),
-		spSize:    spSize,
-		scrWidth:  VP_COLS * spSize,
-		scrHeight: (VP_ROWS + 1) * spSize, // Adds an extra row for status bar
-
+		game:       nil,
+		state:      GameStatePlaying,
+		touches:    make(map[ebiten.TouchID]*touch),
+		spSize:     spSize,
+		scrWidth:   VP_COLS * spSize,
+		scrHeight:  (VP_ROWS + 1) * spSize, // Adds an extra row for status bar
 		bank:       bank,
 		paletteSet: palSet,
 		palette:    palette,
@@ -179,7 +178,7 @@ func main() {
 		effect:     sound,
 	}
 
-	// Build a map of state handlers for each game state
+	// Build the map of state handlers for each game state
 	ebitenGame.handlers = map[GameState]GameStateHander{
 		GameStatePlaying: &PlayingState{
 			EbitenGame: ebitenGame,
@@ -190,20 +189,22 @@ func main() {
 		},
 	}
 
-	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
-	ebiten.SetWindowPosition(0, 0)
-	ebiten.SetWindowTitle("GoRogue")
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	ebiten.SetWindowIcon([]image.Image{icon})
-
 	// Either no seed provided or it was invalid, better generate a random one
 	if seed == 0 {
 		seed = rand.Uint64N(100000000)
 		log.Printf("Generated random seed: %d", seed)
 	}
 
+	// Event listener for game events & messages
 	listener := func(e engine.GameEvent) {
-		ebitenGame.events = append(ebitenGame.events, &e)
+		var lastEvent *engine.GameEvent = nil
+		if len(ebitenGame.events) > 0 {
+			lastEvent = ebitenGame.events[len(ebitenGame.events)-1]
+		}
+		if !e.SameAs(lastEvent) {
+			ebitenGame.events = append(ebitenGame.events, &e)
+		}
+
 		ebitenGame.eventLog = append(ebitenGame.eventLog, e.Text())
 
 		if e.Type() == engine.EventCreatureKilled {
@@ -219,16 +220,18 @@ func main() {
 	}
 
 	game := engine.NewGame(basePath+"assets/datafiles", seed, listener)
-
-	// game.AddEventListener()
-
 	ebitenGame.viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 	game.UpdateFOV(ebitenGame.viewDist)
 
 	// IMPORTANT! Link both structs
 	ebitenGame.game = game
 
-	// Phew - finally start the ebiten game loop with RunGame
+	// Phew - finally start the ebiten game loop
+	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
+	ebiten.SetWindowPosition(0, 0)
+	ebiten.SetWindowTitle("GoRogue")
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	ebiten.SetWindowIcon([]image.Image{icon})
 	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)
 	}

@@ -34,6 +34,18 @@ func (e GameEvent) Entity() entity {
 	return e.entity
 }
 
+func (e GameEvent) SameAs(other *GameEvent) bool {
+	if other == nil {
+		return false
+	}
+
+	if e.entity == nil || other.entity != nil {
+		return e.eventType == other.eventType && e.text == other.text
+	}
+
+	return e.eventType == other.eventType && e.text == other.text && e.entity == other.entity
+}
+
 type eventManager struct {
 	// Log of game events
 	eventListeners []EventListener

@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"roguelike/core"
 	"strings"
 
@@ -87,16 +86,18 @@ func (p *Player) MaxItems() int {
 	return playerMaxItems
 }
 
-func (p *Player) DropItem(item *Item) {
+func (p *Player) DropItem(item *Item) bool {
 	if !p.backpack.Contains(item) {
-		return
+		return false
 	}
 
 	if placedOK := p.currentTile.addItem(item); placedOK {
 		p.backpack.Remove(item)
-		events.new(EventItemDropped, item, fmt.Sprintf("You dropped the %s", item.Name()))
 		item.dropped = true
+		return true
 	}
+
+	return false
 }
 
 func (p *Player) CurrentTile() *tile {

@@ -18,11 +18,6 @@ type InventoryState struct {
 	invCursor int
 }
 
-func (g *EbitenGame) SwitchStateInventory() {
-	g.handlers[GameStateInventory].Init()
-	g.state = GameStateInventory
-}
-
 func (s *InventoryState) Init() {
 	s.invCursor = 0
 }
@@ -51,13 +46,9 @@ func (s *InventoryState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) 
 		}
 
 		if controls.Drop.IsKey(key) {
-			p := s.game.Player()
-			if len(p.Inventory()) > 0 {
-				item := p.Inventory()[s.invCursor]
-
-				p.DropItem(item)
-				s.state = GameStatePlaying
-			}
+			a := engine.NewDropAction(s.game.Player().Inventory()[s.invCursor])
+			a.Execute(*s.game)
+			s.state = GameStatePlaying
 		}
 	}
 }

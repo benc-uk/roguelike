@@ -26,12 +26,28 @@ type AttackAction struct {
 	target *creature
 }
 
+type PickupAction struct {
+	item *Item
+}
+
+type DropAction struct {
+	item *Item
+}
+
 func NewMoveAction(d core.Direction) *MoveAction {
 	return &MoveAction{d}
 }
 
 func NewAttackAction(target *creature) *AttackAction {
 	return &AttackAction{target}
+}
+
+func NewPickupAction(item *Item) *PickupAction {
+	return &PickupAction{item}
+}
+
+func NewDropAction(item *Item) *DropAction {
+	return &DropAction{item}
 }
 
 func (a *MoveAction) Execute(g Game) ActionResult {
@@ -52,20 +68,16 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 	if len(items) == 1 {
 		item, isItem := items[0].(*Item)
 		if !isItem {
-			return ActionResult{false, 0}
+			return ActionResult{true, energy}
 		}
 
 		if item.dropped {
 			events.new("item_pickup_dropped", item, fmt.Sprintf("You see a %s you previously dropped", item.Name()))
-			return ActionResult{false, 0}
+			return ActionResult{true, 40}
 		}
 
-		if p.PickupItem(item) {
-			events.new(EventItemPickup, item, "Picked up "+item.Name())
-			energy = 40
-		} else {
-			events.new("item_pickup_fail", item, "You are carrying too much!")
-		}
+		pickupAction := NewPickupAction(item)
+		return pickupAction.Execute(g)
 	} else if len(items) > 1 {
 		events.new(EventItemMultiple, nil, fmt.Sprintf("You stand over a pile of %d items", len(items)))
 	}
@@ -77,6 +89,7 @@ func (a *AttackAction) Execute(g Game) ActionResult {
 	p := g.Player()
 
 	// Check adjacent
+	// TODO: Maybe remove this for ranged attacks
 	if !p.pos.IsNeighbour(*a.target.pos) {
 		return ActionResult{false, 0}
 	}
@@ -92,4 +105,28 @@ func (a *AttackAction) Execute(g Game) ActionResult {
 	p.exp += a.target.xp
 
 	return ActionResult{true, 60}
+}
+
+func (a *PickupAction) Execute(g Game) ActionResult {
+	p := g.Player()
+
+	if p.PickupItem(a.item) {
+		events.new(EventItemPickup, a.item, "Picked up "+a.item.Name())
+		return ActionResult{true, 40}
+	}
+
+	events.new("item_pickup_fail", a.item, "You are carrying too much!")
+	return ActionResult{false, 0}
+}
+
+func (a *DropAction) Execute(g Game) ActionResult {
+	p := g.Player()
+
+	if p.DropItem(a.item) {
+		events.new(EventItemDropped, a.item, fmt.Sprintf("You dropped the %s", a.item.Name()))
+		return ActionResult{true, 40}
+	}
+
+	events.new(EventItemDropped, a.item, fmt.Sprintf("You can't drop the %s here", a.item.Name()))
+	return ActionResult{false, 0}
 }

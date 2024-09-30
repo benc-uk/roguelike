@@ -85,8 +85,11 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 				items := tile.ListItems()
 				if index < len(items) {
 					item := items[index]
+					a := engine.NewPickupAction(&item)
+					res := a.Execute(*s.game)
+
 					// Last item picked up, switch out of pickup mode
-					if s.game.Player().PickupItem(&item) && len(items) == 1 {
+					if res.Success && len(items) == 1 {
 						s.pickUpItem = false
 					}
 				}
@@ -124,7 +127,8 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 		}
 
 		if controls.Inventory.IsKey(key) {
-			s.SwitchStateInventory()
+			s.state = GameStateInventory
+			s.handlers[s.state].Init()
 		}
 
 		if controls.Get.IsKey(key) {
