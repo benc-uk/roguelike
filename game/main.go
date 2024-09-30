@@ -23,7 +23,7 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_016"
+var version string = "0.0.1-alpha_017"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded

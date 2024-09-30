@@ -34,6 +34,10 @@ type DropAction struct {
 	item *Item
 }
 
+type UseAction struct {
+	item *Item
+}
+
 func NewMoveAction(d core.Direction) *MoveAction {
 	return &MoveAction{d}
 }
@@ -48,6 +52,10 @@ func NewPickupAction(item *Item) *PickupAction {
 
 func NewDropAction(item *Item) *DropAction {
 	return &DropAction{item}
+}
+
+func NewUseAction(item *Item) *UseAction {
+	return &UseAction{item}
 }
 
 func (a *MoveAction) Execute(g Game) ActionResult {
@@ -128,5 +136,13 @@ func (a *DropAction) Execute(g Game) ActionResult {
 	}
 
 	events.new(EventItemDropped, a.item, fmt.Sprintf("You can't drop the %s here", a.item.Name()))
+	return ActionResult{false, 0}
+}
+
+func (a *UseAction) Execute(g Game) ActionResult {
+	if a.item.Use(g) {
+		return ActionResult{true, 40}
+	}
+
 	return ActionResult{false, 0}
 }

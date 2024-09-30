@@ -29,7 +29,7 @@
       go.importObject
     );
 
-    setGameSeed(go);
+    setupGameArgs(go);
     go.run(wasmSource.instance);
 
     // ---------------------------------------------------
@@ -48,9 +48,10 @@
     }
 
     // Helper function to get the seed from the URL or generate a random one
-    function setGameSeed(go) {
+    function setupGameArgs(go) {
       let seed = 0;
 
+      // When running from WASM the first argument is normally empty, and not the program name
       go.argv = ["__ignored__"]
 
       // If the URL has a seed parameter, use it
@@ -60,6 +61,7 @@
         go.argv.push("-seed", seed);
       }
 
+      // Quickstart mode skips the title screen
       let quickstart = false;
       if (urlParams.has("quickstart")) {
         go.argv.push("-quickstart");

@@ -6,10 +6,9 @@ items:
     colour: 9
     usable: true
     rarity: 0.5
-    onUseScript: -|
-      h = player.GetHealth()
-      h = h + 10
-      player.SetHealth(h)
+    onUseScript: |
+      player.SetHP(player.HP() + 10)
+      "You drink the potion, it's refreshing! [+10HP]"
 
   potion_pink:
     description: A sickly pink potion that is probably bad for you
@@ -18,10 +17,9 @@ items:
     usable: true
     rarity: 0.5
     colour: 12
-    onUseScript: -|
-      h = player.GetHealth()
-      h = h - 10
-      player.SetHealth(h)
+    onUseScript: |
+      player.SetHP(player.HP() - 10)
+      "The potion tastes terrible! [Poisoned -10HP]"
 
   sword:
     description: A basic iron sword, it's a bit rusty and blunt
@@ -51,7 +49,5 @@ items:
     usable: true
     rarity: 0.5
     colour: 11
-    onUseScript: -|
-      h = player.GetHealth()
-      h = h + 5
-      player.SetHealth(h)
+    onUseScript: |
+      player.SetHP(player.HP() + 7)

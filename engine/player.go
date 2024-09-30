@@ -58,7 +58,7 @@ func (p *Player) Name() string {
 	return p.name
 }
 
-func (p *Player) CurrentHP() int {
+func (p *Player) HP() int {
 	return p.currentHP
 }
 
@@ -100,7 +100,7 @@ func (p *Player) DropItem(item *Item) bool {
 	return false
 }
 
-func (p *Player) CurrentTile() *tile {
+func (p *Player) Tile() *tile {
 	return p.currentTile
 }
 
@@ -120,4 +120,12 @@ func (p *Player) PickupItem(item *Item) bool {
 	item.pos = nil
 
 	return true
+}
+
+func (p *Player) SetHP(hp int) {
+	p.currentHP = hp
+}
+
+func (p *Player) SetMaxHP(hp int) {
+	p.maxHP = hp
 }

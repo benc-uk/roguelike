@@ -32,7 +32,7 @@ func (s *PlayingState) PassEvent(e engine.GameEvent) {
 func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 	var action engine.Action
 	player := s.game.Player()
-	currTile := player.CurrentTile()
+	currTile := player.Tile()
 	gm := s.game.Map()
 
 	// Loop over taps (there should only be one for reasons)
@@ -81,7 +81,7 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 					index = 9
 				}
 
-				tile := s.game.Player().CurrentTile()
+				tile := s.game.Player().Tile()
 				items := tile.ListItems()
 				if index < len(items) {
 					item := items[index]
@@ -239,7 +239,7 @@ func (s *PlayingState) Draw(screen *ebiten.Image) {
 	}
 
 	// Draw the status bar, it was at row VP_ROWS-1 but we added a row for the status bar
-	statusText := fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ▼%d", p.Name(), p.CurrentHP(), p.MaxHP(), p.Exp(), p.Level())
+	statusText := fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ▼%d", p.Name(), p.HP(), p.MaxHP(), p.Exp(), p.Level())
 	graphics.DrawTextRow(screen, statusText, VP_ROWS, graphics.ColourStatus)
 
 	// Events & messages
@@ -249,7 +249,7 @@ func (s *PlayingState) Draw(screen *ebiten.Image) {
 
 	// Sub-mode for multiple items
 	if s.pickUpItem {
-		t := s.game.Player().CurrentTile()
+		t := s.game.Player().Tile()
 
 		bodyText := ""
 		for i, item := range t.ListItems() {

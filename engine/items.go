@@ -3,9 +3,11 @@ package engine
 
 import (
 	"fmt"
+	"log"
 	"roguelike/core"
 	"slices"
 
+	"github.com/dop251/goja"
 	"gopkg.in/yaml.v3"
 )
 
@@ -85,6 +87,38 @@ func (i Item) EquipLocation() equipLocation {
 	return i.equipLocation
 }
 
+func (i Item) Usable() bool {
+	return i.usable
+}
+
+func (i Item) Use(g Game) bool {
+	if i.onUseScript == "" || !i.usable {
+		return false
+	}
+
+	vm := goja.New()
+	vm.Set("player", g.player)
+	result, err := vm.RunString(i.onUseScript)
+	if err != nil {
+		log.Printf("Error running item script: %s", err)
+		events.new(EventMiscMessage, &i, err.Error())
+		return false
+	}
+
+	if result != nil {
+		if msgText, ok := result.Export().(string); ok {
+			events.new(EventMiscMessage, &i, msgText)
+		} else {
+			events.new(EventMiscMessage, &i, "The item's effect is unknown")
+		}
+	}
+
+	// Items have single use
+	g.player.backpack.Remove(&i)
+
+	return true
+}
+
 // ===== Item Generator =================================================================================================
 
 type itemGenerator struct {
@@ -126,7 +160,7 @@ func newItemGenerator(dataFile string) (*itemGenerator, error) {
 
 	for id, item := range itemsFile.Items {
 		gen.genFunctions[id] = func() *Item {
-			return &Item{
+			i := &Item{
 				entityBase: entityBase{
 					id:         id,
 					instanceID: core.RandId(6),
@@ -163,6 +197,8 @@ func newItemGenerator(dataFile string) (*itemGenerator, error) {
 					}
 				}(),
 			}
+
+			return i
 		}
 
 		gen.keys = append(gen.keys, id)

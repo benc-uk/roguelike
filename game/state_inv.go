@@ -15,11 +15,13 @@ type InventoryState struct {
 	*EbitenGame
 
 	// Internal vars for this state
-	cursor int
+	cursor    int
+	inventory []*engine.Item
 }
 
 func (s *InventoryState) Init() {
 	s.cursor = 0
+	s.inventory = s.game.Player().Inventory()
 }
 
 func (s *InventoryState) PassEvent(e engine.GameEvent) {
@@ -40,32 +42,39 @@ func (s *InventoryState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) 
 
 		if controls.Down.IsKey(key) {
 			s.cursor++
-			if s.cursor >= len(s.game.Player().Inventory()) {
-				s.cursor = len(s.game.Player().Inventory()) - 1
+			if s.cursor >= len(s.inventory) {
+				s.cursor = len(s.inventory) - 1
 			}
 		}
 
 		if controls.Drop.IsKey(key) {
-			a := engine.NewDropAction(s.game.Player().Inventory()[s.cursor])
-			a.Execute(*s.game)
+			a := engine.NewDropAction(s.inventory[s.cursor])
+			_ = a.Execute(*s.game)
 			s.state = GameStatePlaying
+		}
+
+		if controls.Select.IsKey(key) {
+			a := engine.NewUseAction(s.inventory[s.cursor])
+
+			result := a.Execute(*s.game)
+			if result.Success {
+				s.state = GameStatePlaying
+			}
 		}
 	}
 }
 
 func (s *InventoryState) Draw(screen *ebiten.Image) {
-	p := s.game.Player()
-
 	// Draw the inventory screen
 	graphics.DrawTextBox(screen, 0, 0, VP_COLS-1, 2, graphics.ColourInv)
 	graphics.DrawTextBox(screen, 2, 0, VP_COLS-1, VP_ROWS-2, graphics.ColourInv)
 
-	countCarried := len(p.Inventory())
-	countMax := p.MaxItems()
+	countCarried := len(s.inventory)
+	countMax := s.game.Player().MaxItems()
 	graphics.DrawTextRow(screen, fmt.Sprintf("  Backpack (%d/%d)", countCarried, countMax), 1, graphics.ColourTrans)
 
 	// Draw the player's inventory
-	for i, item := range p.Inventory() {
+	for i, item := range s.inventory {
 
 		equipLocDesc := ""
 		if item.EquipLocation() != engine.EquipLocationNone {
