@@ -26,7 +26,7 @@ sprites:
   - id: trap
     x: 84
     'y': 0
-  - id: sword
+  - id: armour
     x: 0
     'y': 12
   - id: potion
@@ -86,10 +86,10 @@ sprites:
   - id: statue
     x: 36
     'y': 36
-  - id: sprite_9ziq7
+  - id: blank1
     x: 48
     'y': 36
-  - id: sprite_iv4ng
+  - id: blank2
     x: 60
     'y': 36
   - id: scroll

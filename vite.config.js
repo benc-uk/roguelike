@@ -10,7 +10,7 @@ const fullReloadAlways = {
 export default {
   root: "./web",
   server: {
-    port: 3000,
+    port: 8000,
   },
   build: {
     watch: {

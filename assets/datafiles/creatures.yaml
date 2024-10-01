@@ -61,7 +61,7 @@ creatures:
 
   ghost:
     name: ghost
-    graphic: ghost
+    graphic: spirit
     colour: 2
     description: A floating, ethereal spirit.
     hostile: true
@@ -107,6 +107,18 @@ creatures:
     speed: 8
     xp: 80
 
+  acid_spider:
+    name: acid spider
+    graphic: spider
+    colour: 7
+    description: A green acid-spitting spider.
+    hostile: true
+    hp: 40
+    attack: 8
+    defense: 8
+    speed: 8
+    xp: 80
+
   ogre:
     name: ogre
     graphic: ogre
@@ -130,3 +142,15 @@ creatures:
     defense: 10
     speed: 10
     xp: 100
+
+  floating_eye:
+    name: floating eye
+    graphic: floating_eye
+    colour: 12
+    description: A giant floating eyeball.
+    hostile: true
+    hp: 55
+    attack: 11
+    defense: 11
+    speed: 11
+    xp: 110

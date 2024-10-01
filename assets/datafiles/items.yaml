@@ -56,7 +56,7 @@ items:
     rarity: 0.5
     colour: 5
     equipProperties:
-      defence: +5
+      defence: +2
 
   meat:
     description: A hunk of meat, it looks like it's been cooked
@@ -67,3 +67,30 @@ items:
     colour: 11
     onUseScript: |
       player.SetHP(player.HP() + 7)
+
+  leather_armour:
+    description: A set of leather armour, it's seen better days
+    name: leather armour
+    graphic: armour
+    equipLocation: body
+    colour: 3
+    equipProperties:
+      defence: +2
+
+  chainmail:
+    description: A set of chainmail armour, it's a bit rusty
+    name: chainmail armour
+    graphic: armour
+    equipLocation: body
+    colour: 1
+    equipProperties:
+      defence: +4
+
+  rusty_helmet:
+    description: A rusty helmet, it makes your head itch
+    name: rusty helmet
+    graphic: helm
+    equipLocation: head
+    colour: 5
+    equipProperties:
+      defence: +1

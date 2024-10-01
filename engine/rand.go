@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 // ============================================================================
@@ -34,8 +35,9 @@ type DiceRoll struct {
 }
 
 func ParseDiceRoll(dice string) (DiceRoll, bool) {
-	re := regexp.MustCompile(`(\d+)d(\d+)([+-]\d+)?`)
-	matches := re.FindStringSubmatch(dice)
+	re := regexp.MustCompile(`(\d*)d(\d+)([+-]\d+)?`)
+	matches := re.FindStringSubmatch(strings.ToLower(dice))
+
 	if len(matches) == 0 {
 		return DiceRoll{}, false
 	}
@@ -55,7 +57,11 @@ func ParseDiceRoll(dice string) (DiceRoll, bool) {
 	}
 
 	if matches[3] != "" {
-		modifier, _ = strconv.Atoi(matches[3])
+		var err error
+		modifier, err = strconv.Atoi(matches[3])
+		if err != nil {
+			return DiceRoll{}, false
+		}
 	}
 
 	return DiceRoll{num, sides, modifier}, true
