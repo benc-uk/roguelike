@@ -62,7 +62,7 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 	p := g.Player()
 	m := g.Map()
 
-	destTile := p.currentTile.AdjacentTileDir(a.direction, m)
+	destTile := m.AdjacentTile(p.currentTile, a.direction)
 
 	if destTile == nil || destTile.BlocksMove() {
 		return ActionResult{false, 0}
@@ -140,7 +140,7 @@ func (a *DropAction) Execute(g Game) ActionResult {
 }
 
 func (a *UseAction) Execute(g Game) ActionResult {
-	if a.item.Use(g) {
+	if a.item.use(g) {
 		return ActionResult{true, 40}
 	}
 

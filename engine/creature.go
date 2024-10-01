@@ -18,6 +18,10 @@ type creature struct {
 	currentTile *tile
 	hp          int //nolint
 	xp          int //nolint
+	depth       int //nolint
+
+	defence int      //nolint
+	attack  DiceRoll //nolint
 }
 
 func (c creature) String() string {

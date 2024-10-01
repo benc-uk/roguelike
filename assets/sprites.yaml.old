@@ -8,25 +8,25 @@ sprites:
   - id: door
     x: 12
     'y': 0
-  - id: door_open
+  - id: rat
     x: 24
     'y': 0
-  - id: floor
+  - id: crate
     x: 36
     'y': 0
-  - id: player
+  - id: roots
     x: 48
     'y': 0
-  - id: stairs_up
+  - id: dirt
     x: 60
     'y': 0
-  - id: stairs_down
+  - id: slime
     x: 72
     'y': 0
-  - id: trap
+  - id: ox_guy
     x: 84
     'y': 0
-  - id: sword
+  - id: bricks
     x: 0
     'y': 12
   - id: potion
@@ -35,55 +35,55 @@ sprites:
   - id: meat
     x: 24
     'y': 12
-  - id: shield
-    x: 36
-    'y': 12
-  - id: amulet
-    x: 48
-    'y': 12
-  - id: boots
-    x: 60
-    'y': 12
-  - id: book
-    x: 72
-    'y': 12
-  - id: gloves
-    x: 84
-    'y': 12
-  - id: bow
-    x: 0
-    'y': 24
   - id: sword
-    x: 12
-    'y': 24
-  - id: dagger
-    x: 24
-    'y': 24
-  - id: axe
     x: 36
-    'y': 24
-  - id: mace
+    'y': 12
+  - id: shield
     x: 48
-    'y': 24
-  - id: club
+    'y': 12
+  - id: goblin
     x: 60
-    'y': 24
-  - id: staff
+    'y': 12
+  - id: ghost
     x: 72
-    'y': 24
-  - id: ring
-    x: 84
-    'y': 24
+    'y': 12
   - id: barrel
+    x: 84
+    'y': 12
+  - id: player
     x: 0
-    'y': 36
-  - id: crate
+    'y': 24
+  - id: book
     x: 12
-    'y': 36
+    'y': 24
   - id: skeleton
     x: 24
+    'y': 24
+  - id: floor
+    x: 36
+    'y': 24
+  - id: sprite_82gdwq
+    x: 48
+    'y': 24
+  - id: sprite_fkx1bz
+    x: 60
+    'y': 24
+  - id: sprite_udtknb
+    x: 72
+    'y': 24
+  - id: sprite_o8raym
+    x: 84
+    'y': 24
+  - id: sprite_zpk5dh
+    x: 0
     'y': 36
-  - id: statue
+  - id: sprite_6n0rlc
+    x: 12
+    'y': 36
+  - id: sprite_xnn9x
+    x: 24
+    'y': 36
+  - id: sprite_0afj9k
     x: 36
     'y': 36
   - id: sprite_9ziq7
@@ -92,10 +92,10 @@ sprites:
   - id: sprite_iv4ng
     x: 60
     'y': 36
-  - id: scroll
+  - id: sprite_wqa0fh
     x: 72
     'y': 36
-  - id: helm
+  - id: sprite_9hnn1b
     x: 84
     'y': 36
   - id: sprite_mrzs5d
@@ -122,61 +122,61 @@ sprites:
   - id: sprite_kdh0p
     x: 84
     'y': 48
-  - id: slime
+  - id: sprite_alq0cr
     x: 0
     'y': 60
-  - id: ogre
+  - id: sprite_75fn3
     x: 12
     'y': 60
-  - id: goblin
+  - id: sprite_a3osj9
     x: 24
     'y': 60
-  - id: spirit
+  - id: sprite_s5izda
     x: 36
     'y': 60
-  - id: skeleton
+  - id: sprite_f8mbev9
     x: 48
     'y': 60
-  - id: rat
+  - id: sprite_hyijg9
     x: 60
     'y': 60
-  - id: centipede
+  - id: sprite_3wu08r
     x: 72
     'y': 60
-  - id: bat
+  - id: sprite_f9bedr
     x: 84
     'y': 60
-  - id: dog
+  - id: sprite_8h0gbe
     x: 0
     'y': 72
-  - id: floating_eye
+  - id: sprite_dvfceq
     x: 12
     'y': 72
-  - id: wizard
+  - id: sprite_sjsi1w
     x: 24
     'y': 72
-  - id: worms
+  - id: sprite_i4obfk
     x: 36
     'y': 72
-  - id: spider
+  - id: sprite_eodqj
     x: 48
     'y': 72
-  - id: snake
+  - id: sprite_io5wx
     x: 60
     'y': 72
-  - id: troll
+  - id: sprite_6nuvzb
     x: 72
     'y': 72
-  - id: cat
+  - id: sprite_ahwwmg
     x: 84
     'y': 72
-  - id: tentacle
+  - id: sprite_1wdmkr
     x: 0
     'y': 84
-  - id: zombie
+  - id: sprite_a8wfojn
     x: 12
     'y': 84
-  - id: imp
+  - id: sprite_pxrv7
     x: 24
     'y': 84
   - id: sprite_y9sbkl

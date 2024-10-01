@@ -70,7 +70,7 @@ func (s *InventoryState) Draw(screen *ebiten.Image) {
 	graphics.DrawTextBox(screen, 2, 0, VP_COLS-1, VP_ROWS-2, graphics.ColourInv)
 
 	countCarried := len(s.inventory)
-	countMax := s.game.Player().MaxItems()
+	countMax := s.game.Player().BackpackSize()
 	graphics.DrawTextRow(screen, fmt.Sprintf("  Backpack (%d/%d)", countCarried, countMax), 1, graphics.ColourTrans)
 
 	// Draw the player's inventory

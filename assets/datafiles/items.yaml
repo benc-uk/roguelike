@@ -1,36 +1,52 @@
 items:
   potion_blue:
-    description: A refreshing blue potion that restores health
+    description: A refreshing looking blue potion
     name: blue potion
     graphic: potion
     colour: 9
     usable: true
-    rarity: 0.5
     onUseScript: |
-      player.SetHP(player.HP() + 10)
-      "You drink the potion, it's refreshing! [+10HP]"
+      player.SetHP(player.HP() + 25)
+      "You drink the potion, it's refreshing!"
 
   potion_pink:
-    description: A sickly pink potion that is probably bad for you
+    description: A sickly pink potion that looks like it is probably bad for you
     name: pink potion
     graphic: potion
     usable: true
-    rarity: 0.5
     colour: 12
     onUseScript: |
       player.SetHP(player.HP() - 10)
-      "The potion tastes terrible! [Poisoned -10HP]"
+      "The potion tastes terrible!"
 
   sword:
     description: A basic iron sword, it's a bit rusty and blunt
     name: iron sword
     graphic: sword
-    equipLocation: weapon
-    rarity: 1.0
+    equipLocation: hands
     colour: 14
     equipProperties:
       toHit: +5
-      damage: "1d6"
+      attack: "1d6"
+
+  axe:
+    description: A heavy axe, it looks like it could do some serious damage
+    name: battle axe
+    graphic: axe
+    equipLocation: hands
+    colour: 2
+    equipProperties:
+      toHit: -5
+      attack: "1d10"
+
+  amulet_str:
+    description: A ruby amulet that glows with a warm light
+    name: amulet of strength
+    graphic: amulet
+    equipLocation: neck
+    colour: 10
+    equipProperties:
+      damage: +2
 
   shield:
     description: A rusty shield, it's seen better days
@@ -40,7 +56,7 @@ items:
     rarity: 0.5
     colour: 5
     equipProperties:
-      armour: +5
+      defence: +5
 
   meat:
     description: A hunk of meat, it looks like it's been cooked

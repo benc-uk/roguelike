@@ -22,13 +22,13 @@ Deployed versions to try out:
 ## Plan and Todo List:
 
 - [ ] Debug and cheat modes
-- [ ] Sounds
+- [x] Sounds
 - [ ] Combat Animations
-- [ ] Game states (menu, in-game, gameover etc)
-  - [ ] Title screen
+- [x] Game states (menu, in-game, gameover etc)
+  - [x] Title screen
 - [ ] Character generation
 - [ ] Saving and loading
-- [ ] HUD
+- [x] HUD
   - [x] Status bar
 - [x] Events
   - [ ] Logging
@@ -38,12 +38,14 @@ Deployed versions to try out:
   - [x] Generation using BSP
   - [ ] Generation using WFC
   - [ ] Generation using Cellular Automata
-- [ ] Inventory system
-  - [ ] Inventory screen
-  - [ ] Scriptable items using JS
+- [ ] Item system
+  - [x] Inventory screen
+  - [x] Scriptable items using JS
   - [x] Pick up items
-  - [ ] Drop items
-  - [ ] Use items
+  - [x] Drop items
+  - [x] Use items
+  - [ ] Equip items
+  - [ ] Identification
 - [ ] Implement creatures/monsters
   - [ ] Pathfinding A\* etc
   - [ ] Scriptable AI using JS (?)

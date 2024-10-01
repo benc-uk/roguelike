@@ -10,6 +10,7 @@ creatures:
     defense: 1
     speed: 1
     xp: 10
+
   goblin:
     name: goblin
     graphic: goblin
@@ -21,6 +22,7 @@ creatures:
     defense: 2
     speed: 2
     xp: 20
+
   hob_goblin:
     name: hob-goblin
     graphic: goblin
@@ -32,6 +34,7 @@ creatures:
     defense: 2
     speed: 2
     xp: 20
+
   slime:
     name: slime
     graphic: slime
@@ -43,6 +46,7 @@ creatures:
     defense: 3
     speed: 3
     xp: 30
+
   skeleton:
     name: skeleton
     graphic: skeleton
@@ -54,3 +58,75 @@ creatures:
     defense: 4
     speed: 4
     xp: 40
+
+  ghost:
+    name: ghost
+    graphic: ghost
+    colour: 2
+    description: A floating, ethereal spirit.
+    hostile: true
+    hp: 25
+    attack: 5
+    defense: 5
+    speed: 5
+    xp: 50
+
+  centipede:
+    name: centipede
+    graphic: centipede
+    colour: 11
+    description: A long, many-legged insect.
+    hostile: true
+    hp: 30
+    attack: 6
+    defense: 6
+    speed: 6
+    xp: 60
+
+  orc:
+    name: orc
+    graphic: ogre
+    colour: 7
+    description: A large, brutish humanoid.
+    hostile: true
+    hp: 35
+    attack: 7
+    defense: 7
+    speed: 7
+    xp: 70
+
+  spider:
+    name: spider
+    graphic: spider
+    colour: 10
+    description: A large, hairy spider.
+    hostile: true
+    hp: 40
+    attack: 8
+    defense: 8
+    speed: 8
+    xp: 80
+
+  ogre:
+    name: ogre
+    graphic: ogre
+    colour: 4
+    description: A huge, brutish humanoid.
+    hostile: true
+    hp: 45
+    attack: 9
+    defense: 9
+    speed: 9
+    xp: 90
+
+  troll:
+    name: troll
+    graphic: troll
+    colour: 9
+    description: A large, ugly humanoid.
+    hostile: true
+    hp: 50
+    attack: 10
+    defense: 10
+    speed: 10
+    xp: 100

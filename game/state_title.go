@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"log"
+	"math"
 	"roguelike/core"
 	"roguelike/engine"
 	"roguelike/game/controls"
@@ -28,6 +30,7 @@ func (s *TitleState) PassEvent(e engine.GameEvent) {
 
 func (s *TitleState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 	if s.quickStart {
+		log.Println("Quick starting, skipping title screen and starting new game")
 		s.StartNewGame()
 		s.quickStart = false
 		return
@@ -61,16 +64,17 @@ func (s *TitleState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 
 func (s *TitleState) Draw(screen *ebiten.Image) {
 	graphics.DrawTextBox(screen, 2, 0, VP_COLS-1, VP_ROWS-4, graphics.ColourTitle)
-	graphics.DrawTextBox(screen, 5, 0, VP_COLS-1, 2, color.RGBA{0, 20, 80, 0xff})
+	f := (math.Sin(float64(s.frameCount)*0.06) + 1) / 2
+	graphics.DrawTextBox(screen, 5, 0, VP_COLS-1, 2, color.RGBA{0, 20, uint8((200 * f) + 55), 0xff})
 	graphics.DrawTextRow(screen, fmt.Sprintf("%sGo WASM Roguelike", core.MakeStr(17, " ")), 6, graphics.ColourTrans)
 
-	graphics.DrawTextRow(screen, fmt.Sprintf("%sNEW GAME", core.MakeStr(21, " ")), 9, graphics.ColourTrans)
-	graphics.DrawTextRow(screen, fmt.Sprintf("%sLOAD GAME", core.MakeStr(21, " ")), 10, graphics.ColourTrans)
-	graphics.DrawTextRow(screen, fmt.Sprintf("%sQUIT", core.MakeStr(21, " ")), 11, graphics.ColourTrans)
+	graphics.DrawTextRow(screen, fmt.Sprintf("%sNEW GAME", core.MakeStr(20, " ")), 9, graphics.ColourTrans)
+	graphics.DrawTextRow(screen, fmt.Sprintf("%sLOAD GAME", core.MakeStr(20, " ")), 10, graphics.ColourTrans)
+	graphics.DrawTextRow(screen, fmt.Sprintf("%sQUIT", core.MakeStr(20, " ")), 11, graphics.ColourTrans)
 	graphics.DrawTextRow(screen, fmt.Sprintf("%d", s.seed), 17, graphics.ColourTrans)
 
 	// Draw the cursor
-	graphics.DrawTextRow(screen, fmt.Sprintf("%s⌦", core.MakeStr(19, " ")), s.cursor+9, graphics.ColourTrans)
+	graphics.DrawTextRow(screen, fmt.Sprintf("%s⌦", core.MakeStr(18, " ")), s.cursor+9, graphics.ColourTrans)
 
 	s1 := s.bank.Sprite("slime")
 	s2 := s.bank.Sprite("potion")

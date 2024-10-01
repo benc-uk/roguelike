@@ -18,8 +18,14 @@ type Player struct {
 	currentTile *tile
 	name        string
 
+	// Health
 	currentHP int
 	maxHP     int
+
+	// Base attributes, can be modified by equipment
+	defence      int //nolint Defence protects against damage
+	attackDamage int //nolint Base damage added to weapon damage
+	attackChance int //nolint Base chance to hit
 
 	exp   int
 	level int
@@ -82,7 +88,7 @@ func (p *Player) Inventory() []*Item {
 	return p.backpack.AllItems()
 }
 
-func (p *Player) MaxItems() int {
+func (p *Player) BackpackSize() int {
 	return playerMaxItems
 }
 

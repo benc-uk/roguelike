@@ -71,7 +71,7 @@
       if (!seed) {
         // Otherwise, generate a random seed
         seed = Math.floor(Math.random() * 100000000).toString();
-        window.history.pushState("", "", `?seed=${seed}${quickstart ? "&quickstart" : ""}`);
+        window.history.pushState("", "", `?seed=${seed}${quickstart ? "&qs" : ""}`);
       }
     }
   </script>

@@ -16,7 +16,8 @@ import (
 
 // ===== Tiles ================================================================
 
-type tileType int // TileType is an integer representing the type of tile
+// TileType represents the type of tile
+type tileType int
 
 const (
 	tileTypeFloor tileType = iota
@@ -25,6 +26,7 @@ const (
 
 const maxTileItems = 10
 
+// Tile is a single square on the map which can contain stuff
 type tile struct {
 	pos
 	tileType   tileType
@@ -33,10 +35,11 @@ type tile struct {
 	blocksMove bool
 	blocksLOS  bool
 	items      entityList
-	creature   *creature  //nolint
+	creature   *creature
 	furniture  *furniture //nolint
 }
 
+// Appearance is a struct that holds the appearance of a tile
 type Appearance struct {
 	Graphic string
 	Colour  string
@@ -44,12 +47,13 @@ type Appearance struct {
 }
 
 func newWall(x, y int) tile {
-	return tile{pos: pos{X: x, Y: y}, tileType: tileTypeWall, blocksMove: true, blocksLOS: true}
-}
-
-// nolint
-func newFloor(pos core.Pos) tile {
-	return tile{pos: pos, tileType: tileTypeFloor, blocksMove: false, blocksLOS: false}
+	return tile{
+		pos:        pos{X: x, Y: y},
+		tileType:   tileTypeWall,
+		blocksMove: true,
+		blocksLOS:  true,
+		items:      nil,
+	}
 }
 
 func (t *tile) makeFloor() {
@@ -73,6 +77,7 @@ func (t *tile) makeWall() {
 	t.blocksLOS = true
 }
 
+// Add an item to the tile's item stack, up to the max allowed
 func (t *tile) addItem(i *Item) bool {
 	if t == nil {
 		return false
@@ -93,6 +98,7 @@ func (t *tile) addItem(i *Item) bool {
 	return true
 }
 
+// Place a creature on this tile
 func (t *tile) placeCreature(c *creature) bool {
 	// Only one creature per tile
 	if t.creature != nil {
@@ -141,6 +147,7 @@ func (t *tile) Appearance() *Appearance {
 	return &Appearance{Graphic: "floor", InFOV: t.inFOV}
 }
 
+// BlocksMove returns true if this tile currently blocks movement
 func (t *tile) BlocksMove() bool {
 	if t == nil {
 		return true
@@ -160,15 +167,26 @@ func (t *tile) BlocksMove() bool {
 	return t.blocksMove
 }
 
+// BlocksLOS returns true if this tile currently blocks line of sight
 func (t *tile) BlocksLOS() bool {
+	if t == nil {
+		return true
+	}
+
+	if t.creature != nil {
+		return t.creature.BlocksLOS()
+	}
+
 	for _, e := range t.items {
 		if e.BlocksLOS() {
 			return true
 		}
 	}
+
 	return t.blocksLOS
 }
 
+// ListItems returns a list of items on this tile
 func (t *tile) ListItems() []Item {
 	itemsOut := make([]Item, 0)
 	for _, item := range t.items.AllItems() {
@@ -178,6 +196,7 @@ func (t *tile) ListItems() []Item {
 	return itemsOut
 }
 
+// Returns the creature on this tile, if any
 func (t *tile) Creature() *creature {
 	if t == nil {
 		return nil
@@ -186,26 +205,16 @@ func (t *tile) Creature() *creature {
 	return t.creature
 }
 
-func (t *tile) AdjacentTileDir(dir core.Direction, m *GameMap) *tile {
-	destPos := t.pos.Add(dir.Pos())
-	destTile := m.TileAt(destPos)
-
-	if destTile == nil {
-		return nil
-	}
-
-	return destTile
-}
-
 // ===== GameMap ==============================================================
 
+// A game level is a 2D grid of tiles
 type GameMap struct {
 	size
-	tiles [][]tile // 2D array of tiles
+	tiles [][]tile // 2D array of tiles, this holds the world
 
 	fovList     []*tile // List of all tiles in the FOV
 	depth       int     // Depth of the map
-	description string
+	description string  // Some human-readable description of the map
 }
 
 // NewMap creates a new map with the given width and height
@@ -230,11 +239,12 @@ func NewMap(width, height, depth int) *GameMap {
 	return m
 }
 
+// Get a tile from x, y coordinates
 func (m *GameMap) Tile(x, y int) *tile {
-	p := pos{X: x, Y: y}
-	return m.TileAt(p)
+	return m.TileAt(pos{X: x, Y: y})
 }
 
+// Get a tile from a position
 func (m *GameMap) TileAt(pos core.Pos) *tile {
 	if !pos.InBounds(m.Width, m.Height) {
 		return nil
@@ -243,30 +253,52 @@ func (m *GameMap) TileAt(pos core.Pos) *tile {
 	return &m.tiles[pos.X][pos.Y]
 }
 
+// The size (width and height) of the map
 func (m *GameMap) Size() core.Size {
 	return m.size
 }
 
+// The description of the map
 func (m *GameMap) Description() string {
 	return m.description
 }
 
+// The depth/level of the map
 func (m *GameMap) Depth() int {
 	return m.depth
 }
 
-func (m *GameMap) floorArea(x, y, w, h int) {
+// Returns an adjacent tile in the given direction
+func (m *GameMap) AdjacentTile(t *tile, dir core.Direction) *tile {
+	destPos := t.pos.Add(dir.Pos())
+	destTile := m.TileAt(destPos)
+
+	if destTile == nil {
+		return nil
+	}
+
+	return destTile
+}
+
+// Set an area of the map to be floor or wall
+func (m *GameMap) setArea(wall bool, x, y, w, h int) {
 	for i := x; i < x+w; i++ {
 		for j := y; j < y+h; j++ {
-			m.Tile(i, j).makeFloor()
+			if wall {
+				m.tiles[i][j].makeWall()
+			} else {
+				m.tiles[i][j].makeFloor()
+			}
 		}
 	}
 }
 
-func (m *GameMap) floorAreaRect(r core.Rect) {
-	m.floorArea(r.X, r.Y, r.Width, r.Height)
+// Set an area of the map to be floor or wall
+func (m *GameMap) setAreaRect(wall bool, r core.Rect) {
+	m.setArea(wall, r.X, r.Y, r.Width, r.Height)
 }
 
+// Reveal the entire map
 // nolint
 func (m *GameMap) revealMap() {
 	for x := 0; x < m.Width; x++ {
@@ -276,6 +308,7 @@ func (m *GameMap) revealMap() {
 	}
 }
 
+// Find a random floor tile on the map
 func (m *GameMap) randomFloorTile(noItems bool) *tile {
 	for {
 		x := rng.IntN(m.Width)
@@ -296,6 +329,7 @@ func (m *GameMap) randomFloorTile(noItems bool) *tile {
 	}
 }
 
+// Dump the whole map to a PNG file called map.png
 // nolint
 func (m *GameMap) dumpPNG() {
 	tilesize := 16

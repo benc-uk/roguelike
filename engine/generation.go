@@ -63,14 +63,14 @@ func (node *bspNode) traverseBSP(gm *GameMap, itemFactory *itemGenerator, creatu
 			room := core.NewRect(node.center.X-width/2, node.center.Y-height/2, width, height)
 
 			// Carve the room area
-			gm.floorAreaRect(room)
+			gm.setAreaRect(false, room)
 
 			// Place 0-3 items in the room
 			numItems := rng.IntN(4)
 			for i := 0; i < numItems; i++ {
 				pos := room.RandomPos(rng)
 
-				item := itemFactory.createRandomItem()
+				item := itemFactory.createRandomItem(rarityCommon)
 				gm.TileAt(pos).addItem(item)
 			}
 
@@ -97,7 +97,7 @@ func (node *bspNode) createCorridors(gm *GameMap) {
 		}
 
 		// Carve the corridor
-		gm.floorAreaRect(corridor)
+		gm.setAreaRect(false, corridor)
 
 		// Recurse
 		node.Left.createCorridors(gm)

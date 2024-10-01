@@ -116,7 +116,7 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 		}
 
 		if tappedDir >= 0 {
-			destTile := currTile.AdjacentTileDir(tappedDir, gm)
+			destTile := gm.AdjacentTile(currTile, tappedDir)
 			if destTile.Creature() != nil {
 				action = engine.NewAttackAction(destTile.Creature())
 			} else {

@@ -1,4 +1,3 @@
-EDITOR_DEPLOY_BASE ?= /sprite-editor/
 GAME_BASE_PATH ?= ./
 .DEFAULT_GOAL := help
 
@@ -31,19 +30,12 @@ serve: build-wasm ## Serve the web app
 watch-wasm: build-wasm ## Hot rebuild WASM binary in web directory
 	air -c .air-wasm.toml --build.bin "true"
 
-site: clean build-wasm editor-build ## Build/bundle the site for deployment
-	mkdir -p site/sprite-editor
-	cp -r ./sprite-editor/dist/* ./site/sprite-editor
+site: clean build-wasm ## Build/bundle the site for deployment
+	mkdir -p site/
 	cp -r ./web/* ./site
 
-editor-serve: ## Serve the sprite editor
-	npx vite --port 8000 ./sprite-editor
-
-editor-build: ## Bundle the sprite editor web app
-	npx vite build ./sprite-editor --target esnext --base $(EDITOR_DEPLOY_BASE)
-
 clean: ## Clean up
-	rm -rf bin/ web/main.wasm site/ sprite-editor/dist/ web/assets site/
+	rm -rf bin/ web/main.wasm site/ web/assets site/
 	find . -name ".vite" -type d -exec rm -rf {} \; || true
 
 localwin: clean build-bin

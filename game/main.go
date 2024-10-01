@@ -98,6 +98,8 @@ type EbitenGame struct {
 }
 
 func (g *EbitenGame) Update() error {
+	g.frameCount++
+
 	heldKeys := inpututil.AppendPressedKeys(nil)
 	tappedKeys := inpututil.AppendJustPressedKeys(nil)
 
@@ -112,8 +114,6 @@ func (g *EbitenGame) Update() error {
 }
 
 func (g *EbitenGame) Draw(screen *ebiten.Image) {
-	g.frameCount++
-
 	if g.flashCount > 0 {
 		g.flashCount--
 		screen.Fill(color.White)
@@ -244,10 +244,13 @@ func main() {
 
 	// Finally start the ebiten game loop
 	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
-	ebiten.SetWindowPosition(0, 0)
 	ebiten.SetWindowTitle("GoRogue")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowIcon([]image.Image{icon})
+
+	ebiten.SetVsyncEnabled(true)
+	ebiten.SetTPS(60)
+
 	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)
 	}

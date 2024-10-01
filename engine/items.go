@@ -15,49 +15,6 @@ import (
 // Item entities are things like weapons, armour, potions etc
 // ============================================================================
 
-type equipLocation int
-
-// TODO: Player can equip more than one ring!
-const (
-	EquipLocationNone equipLocation = iota
-	equipLocationWeapon
-	equipLocationMissile
-	equipLocationBody
-	equipLocationShield
-	equipLocationHead
-	equipLocationFeet
-	equipLocationHands
-	equipLocationRing
-	equipLocationAmulet
-)
-
-func (el equipLocation) String() string {
-	switch el {
-	case EquipLocationNone:
-		return "none"
-	case equipLocationWeapon:
-		return "weapon"
-	case equipLocationMissile:
-		return "missile"
-	case equipLocationBody:
-		return "body"
-	case equipLocationShield:
-		return "shield"
-	case equipLocationHead:
-		return "head"
-	case equipLocationFeet:
-		return "feet"
-	case equipLocationHands:
-		return "hands"
-	case equipLocationRing:
-		return "ring"
-	case equipLocationAmulet:
-		return "amulet"
-	default:
-		return "none"
-	}
-}
-
 type Item struct {
 	entityBase
 	usable        bool          // Can be used by the player
@@ -65,6 +22,7 @@ type Item struct {
 	dropped       bool          // Previously dropped on the ground
 	weight        int           // Weight of the item
 	onUseScript   string        // Script to run when the item is used
+	rarity        rarity        // Rarity of the item
 }
 
 func (i Item) Type() entityType {
@@ -91,7 +49,15 @@ func (i Item) Usable() bool {
 	return i.usable
 }
 
-func (i Item) Use(g Game) bool {
+func (i Item) Weight() int {
+	return i.weight
+}
+
+func (i Item) Rarity() rarity {
+	return i.rarity
+}
+
+func (i Item) use(g Game) bool {
 	if i.onUseScript == "" || !i.usable {
 		return false
 	}
@@ -121,6 +87,7 @@ func (i Item) Use(g Game) bool {
 
 // ===== Item Generator =================================================================================================
 
+// The itemGenerator is a kind of factory for creating items
 type itemGenerator struct {
 	genFunctions map[string](func() *Item)
 	keys         []string
@@ -158,22 +125,23 @@ func newItemGenerator(dataFile string) (*itemGenerator, error) {
 		keys:         make([]string, 0),
 	}
 
-	for id, item := range itemsFile.Items {
+	for id, entry := range itemsFile.Items {
+		// TODO: Needs to be rarity aware
 		gen.genFunctions[id] = func() *Item {
 			i := &Item{
 				entityBase: entityBase{
 					id:         id,
 					instanceID: core.RandId(6),
-					desc:       item.Description,
-					name:       item.Name,
-					graphicId:  item.Graphic,
-					colour:     item.Colour,
+					desc:       entry.Description,
+					name:       entry.Name,
+					graphicId:  entry.Graphic,
+					colour:     entry.Colour,
 				},
-				usable:      item.Usable,
-				weight:      item.Weight,
-				onUseScript: item.OnUseScript,
+				usable:      entry.Usable,
+				weight:      entry.Weight,
+				onUseScript: entry.OnUseScript,
 				equipLocation: func() equipLocation {
-					switch item.EquipLocation {
+					switch entry.EquipLocation {
 					case "weapon":
 						return equipLocationWeapon
 					case "missile":
@@ -189,9 +157,9 @@ func newItemGenerator(dataFile string) (*itemGenerator, error) {
 					case "hands":
 						return equipLocationHands
 					case "ring":
-						return equipLocationRing
+						return equipLocationFinger
 					case "amulet":
-						return equipLocationAmulet
+						return equipLocationNeck
 					default:
 						return EquipLocationNone
 					}
@@ -221,12 +189,94 @@ func (gen itemGenerator) createItem(id string) *Item {
 	return itemFunc()
 }
 
-func (gen itemGenerator) createRandomItem() *Item {
+func (gen itemGenerator) createRandomItem(rarity rarity) *Item {
 	if len(gen.genFunctions) == 0 {
 		return nil
 	}
 
+	//	generatorAtRarity := make([]func() *Item, 0)
+
 	// Get a random item, we have to use the keys slice as the map iteration order is random
 	id := gen.keys[rng.IntN(len(gen.keys))]
 	return gen.createItem(id)
+}
+
+// ====== Item Equip Location =================================================================================================
+
+type equipLocation int
+
+// TODO: Player can equip more than one ring!
+const (
+	EquipLocationNone equipLocation = iota
+	equipLocationWeapon
+	equipLocationMissile
+	equipLocationBody
+	equipLocationShield
+	equipLocationHead
+	equipLocationFeet
+	equipLocationHands
+	equipLocationFinger
+	equipLocationNeck
+)
+
+func (el equipLocation) String() string {
+	switch el {
+	case EquipLocationNone:
+		return "none"
+	case equipLocationWeapon:
+		return "weapon"
+	case equipLocationMissile:
+		return "missile"
+	case equipLocationBody:
+		return "body"
+	case equipLocationShield:
+		return "shield"
+	case equipLocationHead:
+		return "head"
+	case equipLocationFeet:
+		return "feet"
+	case equipLocationHands:
+		return "hands"
+	case equipLocationFinger:
+		return "ring"
+	case equipLocationNeck:
+		return "amulet"
+	default:
+		return "none"
+	}
+}
+
+// ====== Item Rarity =================================================================================================
+
+type rarity int
+
+const (
+	rarityVeryCommon rarity = iota
+	rarityCommon
+	rarityUncommon
+	rarityRare
+	rarityVeryRare
+	rarityEpic
+	rarityLegendary
+)
+
+func (r rarity) String() string {
+	switch r {
+	case rarityVeryCommon:
+		return "very common"
+	case rarityCommon:
+		return "common"
+	case rarityUncommon:
+		return "uncommon"
+	case rarityRare:
+		return "rare"
+	case rarityVeryRare:
+		return "very rare"
+	case rarityEpic:
+		return "epic"
+	case rarityLegendary:
+		return "legendary"
+	default:
+		return "unknown"
+	}
 }
