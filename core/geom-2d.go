@@ -36,8 +36,8 @@ func (r Rect) String() string {
 	return fmt.Sprintf("%s %s", r.Pos, r.Size)
 }
 
-func (r Rect) Contains(p Pos) bool {
-	return p.X >= r.X && p.X < r.X+r.Width && p.Y >= r.Y && p.Y < r.Y+r.Height
+func (r Rect) Contains(x, y int) bool {
+	return x >= r.X && x < r.X+r.Width && y >= r.Y && y < r.Y+r.Height
 }
 
 func (r Rect) IntersectingRect(other Rect) Rect {

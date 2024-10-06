@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"roguelike/core"
 	"roguelike/engine"
 	"roguelike/game/controls"
@@ -35,19 +36,25 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 	currTile := player.Tile()
 	gm := s.game.Map()
 
-	// Loop over taps (there should only be one for reasons)
-	for _, tap := range s.taps {
-		if tap.X < s.scrWidth/4 {
-			action = engine.NewMoveAction(core.DirWest)
-		} else if tap.X > s.scrWidth/4*3 {
-			action = engine.NewMoveAction(core.DirEast)
-		}
+	var tappedDir core.Direction = -1
 
-		if tap.Y < s.scrHeight/4 {
-			action = engine.NewMoveAction(core.DirNorth)
-		} else if tap.Y > s.scrHeight/4*3 {
-			action = engine.NewMoveAction(core.DirSouth)
-		}
+	bottomTapZone := core.NewRect(0, s.scrHeight-s.scrHeight/4, s.scrWidth, s.scrHeight/4)
+	topTapZone := core.NewRect(0, 0, s.scrWidth, s.scrHeight/4)
+	rightTapZone := core.NewRect(s.scrWidth-s.scrWidth/4, 0, s.scrWidth/4, s.scrHeight)
+	leftTapZone := core.NewRect(0, 0, s.scrWidth/4, s.scrHeight)
+
+	// Handle touch controls
+	if s.TouchData.DidTapIn(rightTapZone) {
+		tappedDir = core.DirEast
+	}
+	if s.TouchData.DidTapIn(leftTapZone) {
+		tappedDir = core.DirWest
+	}
+	if s.TouchData.DidTapIn(topTapZone) {
+		tappedDir = core.DirNorth
+	}
+	if s.TouchData.DidTapIn(bottomTapZone) {
+		tappedDir = core.DirSouth
 	}
 
 	// Held keys require a delay before moving the player
@@ -63,6 +70,25 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 			s.playerLeft = true
 		}
 		if controls.Right.IsKey(key) && inpututil.KeyPressDuration(key) > 20 {
+			action = engine.NewMoveAction(core.DirEast)
+			s.playerLeft = false
+		}
+	}
+
+	// Held touches require a delay before moving the player
+	for _, t := range s.TouchData.Touches() {
+		durr := inpututil.TouchPressDuration(t.ID)
+		if topTapZone.ContainsPos(t.Pos) && durr > 20 {
+			action = engine.NewMoveAction(core.DirNorth)
+		}
+		if bottomTapZone.ContainsPos(t.Pos) && durr > 20 {
+			action = engine.NewMoveAction(core.DirSouth)
+		}
+		if leftTapZone.ContainsPos(t.Pos) && durr > 20 {
+			action = engine.NewMoveAction(core.DirWest)
+			s.playerLeft = true
+		}
+		if rightTapZone.ContainsPos(t.Pos) && durr > 20 {
 			action = engine.NewMoveAction(core.DirEast)
 			s.playerLeft = false
 		}
@@ -98,36 +124,16 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 			return
 		}
 
-		var tappedDir core.Direction = -1
-
-		if controls.Up.IsKey(key) {
-			tappedDir = core.DirNorth
-		}
-		if controls.Down.IsKey(key) {
-			tappedDir = core.DirSouth
-		}
-		if controls.Left.IsKey(key) {
-			tappedDir = core.DirWest
-			s.playerLeft = true
-		}
-		if controls.Right.IsKey(key) {
-			tappedDir = core.DirEast
-			s.playerLeft = false
-		}
-
-		if tappedDir >= 0 {
-			destTile := gm.AdjacentTile(currTile, tappedDir)
-			if destTile.Creature() != nil {
-				action = engine.NewAttackAction(destTile.Creature())
-			} else {
-				action = engine.NewMoveAction(tappedDir)
-				s.delayFrames = 0
-				s.sfxPlayer.Play("walk")
+		if controls.Save.IsKey(key) {
+			b, err := s.game.MarshalJSON()
+			if err != nil {
+				fmt.Println(err)
 			}
+			log.Println(string(b))
 		}
 
 		if controls.Inventory.IsKey(key) {
-			s.state = GameStateInventory
+			s.state = gameStateInventory
 			s.handlers[s.state].Init()
 		}
 
@@ -139,6 +145,37 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 			if appear.Graphic != "floor" {
 				s.pickUpItem = true
 			}
+		}
+
+		if controls.Up.IsKey(key) {
+			tappedDir = core.DirNorth
+		}
+		if controls.Down.IsKey(key) {
+			tappedDir = core.DirSouth
+		}
+		if controls.Left.IsKey(key) {
+			tappedDir = core.DirWest
+		}
+		if controls.Right.IsKey(key) {
+			tappedDir = core.DirEast
+		}
+	}
+
+	if tappedDir >= 0 {
+		if tappedDir == core.DirWest {
+			s.playerLeft = true
+		}
+		if tappedDir == core.DirEast {
+			s.playerLeft = false
+		}
+
+		destTile := gm.AdjacentTile(currTile, tappedDir)
+		if destTile.Creature() != nil {
+			action = engine.NewAttackAction(destTile.Creature())
+		} else {
+			action = engine.NewMoveAction(tappedDir)
+			s.delayFrames = 0
+			s.sfxPlayer.Play("walk")
 		}
 	}
 
@@ -167,7 +204,6 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 		}
 
 		s.viewPort = s.game.GetViewPort(VP_COLS, VP_ROWS)
-		s.game.UpdateFOV(s.viewDist)
 
 		// Handle events and age them
 		for _, e := range s.events {
@@ -185,6 +221,9 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 }
 
 func (s *PlayingState) Draw(screen *ebiten.Image) {
+	graphics.FgColour = graphics.ColourWhite
+	graphics.BgColour = graphics.ColourTrans
+
 	gameMap := s.game.Map()
 	p := s.game.Player()
 
@@ -240,11 +279,14 @@ func (s *PlayingState) Draw(screen *ebiten.Image) {
 
 	// Draw the status bar, it was at row VP_ROWS-1 but we added a row for the status bar
 	statusText := fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ▼%d", p.Name(), p.HP(), p.MaxHP(), p.Exp(), p.Level())
-	graphics.DrawTextRow(screen, statusText, VP_ROWS, graphics.ColourStatus)
+	graphics.BgColour = graphics.ColourStatus
+	graphics.DrawTextRow(screen, statusText, VP_ROWS)
+
+	graphics.BgColour = graphics.ColourLog
 
 	// Events & messages
 	for i, e := range s.events {
-		graphics.DrawTextRow(screen, e.Text(), i, graphics.ColourLog)
+		graphics.DrawTextRow(screen, e.Text(), i)
 	}
 
 	// Sub-mode for multiple items
@@ -253,10 +295,10 @@ func (s *PlayingState) Draw(screen *ebiten.Image) {
 
 		bodyText := ""
 		for i, item := range t.ListItems() {
-			bodyText += fmt.Sprintf("%d: %s\n", i+1, item.Name())
+			bodyText += fmt.Sprintf("%-2d %s\n", i+1, item.NameTitle())
 		}
 
 		bodyText = strings.Trim(bodyText, "\n")
-		graphics.DrawDialogBox(screen, VP_COLS-1, "Pickup an item, using number keys", bodyText)
+		graphics.DrawDialogBox(screen, "Pickup an item, using number keys", bodyText)
 	}
 }

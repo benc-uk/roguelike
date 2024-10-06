@@ -12,7 +12,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background-color: rgb(12, 31, 34) !important;
+      background-color: rgb(11, 45, 127) !important;
     }
   </style>
 </head>
@@ -39,7 +39,8 @@
     const gameCanvas = document.querySelector("canvas")
 
     // Go fullscreen on mobile devices when the user taps the screen
-    if (isMobile) {
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isMobile && !isLocalhost) {
       gameCanvas.addEventListener("touchstart", () => {
         if (!document.fullscreenElement) {
           gameCanvas.requestFullscreen();

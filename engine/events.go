@@ -14,6 +14,8 @@ const (
 	EventItemSkipped    = "item_pickup_skipped"
 	EventItemUsed       = "item_used"
 	EventItemDropped    = "item_dropped"
+	EventItemEquipped   = "item_equipped"
+	EventItemUnequipped = "item_unequipped"
 	EventCreatureKilled = "creature_killed"
 	EventPackFull       = "player_pack_full"
 )

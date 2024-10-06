@@ -4,6 +4,7 @@ package engine
 import (
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"roguelike/core"
 	"slices"
 
@@ -23,6 +24,7 @@ type Item struct {
 	weight        int           // Weight of the item
 	onUseScript   string        // Script to run when the item is used
 	rarity        rarity        // Rarity of the item
+	consumable    bool          // Consumable items are removed from the player's inventory when used
 }
 
 func (i Item) Type() entityType {
@@ -45,6 +47,10 @@ func (i Item) EquipLocation() equipLocation {
 	return i.equipLocation
 }
 
+func (i Item) IsEquipment() bool {
+	return i.equipLocation != EquipLocationNone
+}
+
 func (i Item) Usable() bool {
 	return i.usable
 }
@@ -57,13 +63,34 @@ func (i Item) Rarity() rarity {
 	return i.rarity
 }
 
+func (i Item) ItemType() string {
+	if i.usable {
+		return "Usable / Consumable"
+	}
+
+	if i.equipLocation != EquipLocationNone {
+		return "Equipment"
+	}
+
+	return "Unknown"
+}
+
 func (i Item) use(g Game) bool {
 	if i.onUseScript == "" || !i.usable {
 		return false
 	}
 
 	vm := goja.New()
+
+	// Push some globals into the vm for use in the scriptlets
 	vm.Set("player", g.player)
+	vm.Set("chance", func(chance int) bool {
+		return rand.IntN(100) < chance
+	})
+	vm.Set("rand", func(min, max int) int {
+		return rand.IntN(max-min) + min
+	})
+
 	result, err := vm.RunString(i.onUseScript)
 	if err != nil {
 		log.Printf("Error running item script: %s", err)
@@ -102,6 +129,7 @@ type yamlItem struct {
 	EquipLocation string `yaml:"equipLocation"`
 	Weight        int    `yaml:"weight"`
 	OnUseScript   string `yaml:"onUseScript"`
+	Consumable    bool   `yaml:"consumable"`
 }
 
 type yamlItemsFile struct {
@@ -158,7 +186,7 @@ func newItemGenerator(dataFile string) (*itemGenerator, error) {
 						return equipLocationHands
 					case "ring":
 						return equipLocationFinger
-					case "amulet":
+					case "neck":
 						return equipLocationNeck
 					default:
 						return EquipLocationNone
@@ -240,7 +268,7 @@ func (el equipLocation) String() string {
 	case equipLocationFinger:
 		return "ring"
 	case equipLocationNeck:
-		return "amulet"
+		return "neck"
 	default:
 		return "none"
 	}

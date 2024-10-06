@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand/v2"
 	"roguelike/core"
 	"roguelike/engine"
 
@@ -20,9 +21,9 @@ const (
 )
 
 func main() {
-	game = engine.NewGame(basePath+"assets/datafiles", 1111)
+	seed := rand.Uint64()
+	game = engine.NewGame(basePath+"assets/datafiles", seed, 6)
 	viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
-	game.UpdateFOV(6)
 	area, _ := pterm.DefaultArea.WithFullscreen().Start()
 
 	drawScreen(area)
@@ -47,7 +48,6 @@ func main() {
 
 		if move != nil {
 			move.Execute(*game)
-			game.UpdateFOV(6)
 			viewPort = game.GetViewPort(VP_COLS, VP_ROWS)
 		}
 

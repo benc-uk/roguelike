@@ -14,6 +14,7 @@ import (
 	"roguelike/core"
 	"roguelike/engine"
 	"roguelike/game/audio"
+	"roguelike/game/controls"
 	"roguelike/game/graphics"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -23,34 +24,33 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_018"
+var version string = "0.0.1-alpha_020"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
 
 const (
-	PAL_INDEX_WALL   = 0
-	PAL_INDEX_FLOOR  = 3
-	PAL_INDEX_PLAYER = 10
-	VP_ROWS          = 17 // Number of rows of tiles in the viewport, +1 for status bar
-	VP_COLS          = 26 // Number of columns of tiles in the viewport
-	MAX_EVENT_AGE    = 8  // Max number of events to store
-	INITIAL_SCALE    = 4
-	ASSETS_DIR       = "assets"
+	PAL_INDEX_WALL   = 0        // Colour of walls
+	PAL_INDEX_FLOOR  = 3        // Colour of floors
+	PAL_INDEX_PLAYER = 10       // Colour of the player
+	VP_ROWS          = 17       // Number of rows of tiles in the viewport, +1 for status bar
+	VP_COLS          = 26       // Number of columns of tiles in the viewport
+	VIEW_DIST        = 6        // View distance in tiles
+	MAX_EVENT_AGE    = 8        // Max number of events to store
+	INITIAL_SCALE    = 4        // When the window is first opened, only applies to non-web builds
+	ASSETS_DIR       = "assets" // Directory where all the game assets are stored
 )
 
-type GameState int
+// gameState is an enum for the different global states the game can be in
+type gameState int
 
 const (
-	GameStateTitle GameState = iota
-	GameStatePlaying
-	GameStateInventory
-	GameStateCharacter
-	GameStateGameOver
-	GameStatePlayerGen
+	gameStateTitle     gameState = iota // Title screen
+	gameStatePlaying                    // Playing the game
+	gameStateInventory                  // Viewing the inventory
 )
 
-// GameStateHander is an interface for processing the game in a given state
+// GameStateHander is an interface for handlers for each game state
 type GameStateHander interface {
 	Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key)
 	Draw(screen *ebiten.Image)
@@ -58,11 +58,11 @@ type GameStateHander interface {
 	PassEvent(evt engine.GameEvent)
 }
 
-// Implements the ebiten.Game interface
+// Implements the main ebiten.Game interface
 // Holds external state for the rendering & running of the game
 type EbitenGame struct {
-	game  *engine.Game
-	state GameState // nolint
+	game  *engine.Game // The game engine state - nil if not playing
+	state gameState    // Current game state
 
 	// Core consts for rendering the window
 	spSize    int // const - size of each tile in pixels
@@ -74,14 +74,10 @@ type EbitenGame struct {
 	paletteSet *graphics.PaletteSet
 	palette    color.Palette // Current palette
 
-	// Viewport & FOV
 	viewPort core.Rect // The area of the map that is visible
-	viewDist int       // View distance in tiles (const)
+	//viewDist int       // View distance in tiles (const)
 
-	// Weird crap for touch controls
-	touches  map[ebiten.TouchID]*touch
-	touchIDs []ebiten.TouchID
-	taps     []tap
+	controls.TouchData // Embedded touch controls
 
 	events   []*engine.GameEvent
 	eventLog []string
@@ -94,7 +90,7 @@ type EbitenGame struct {
 	sfxPlayer *audio.Effects
 
 	// State handlers
-	handlers map[GameState]GameStateHander
+	handlers map[gameState]GameStateHander
 }
 
 func (g *EbitenGame) Update() error {
@@ -104,8 +100,7 @@ func (g *EbitenGame) Update() error {
 	tappedKeys := inpututil.AppendJustPressedKeys(nil)
 
 	// Touch controls - figure out taps and touches
-	g.taps = handleTaps(g.taps, g.touches)
-	handleTouches(g.touchIDs, g.touches)
+	g.TouchData.Update()
 
 	// Based on the current state, call the appropriate update handler
 	g.handlers[g.state].Update(heldKeys, tappedKeys)
@@ -136,11 +131,10 @@ func (g *EbitenGame) Layout(outsideWidth, outsideHeight int) (screenWidth, scree
 }
 
 func (g *EbitenGame) StartNewGame() {
-	g.game = engine.NewGame(basePath+"assets/datafiles", g.seed, g.EventListener)
-	g.game.UpdateFOV(g.viewDist)
+	g.game = engine.NewGame(basePath+"assets/datafiles", g.seed, VIEW_DIST, g.EventListener)
 	g.viewPort = g.game.GetViewPort(VP_COLS, VP_ROWS)
 
-	g.state = GameStatePlaying
+	g.state = gameStatePlaying
 }
 
 func (g *EbitenGame) EventListener(e engine.GameEvent) {
@@ -209,11 +203,11 @@ func main() {
 	}
 
 	spSize := bank.Size()
-	graphics.SetTileSize(spSize)
+	graphics.SetTileSize(spSize, VP_ROWS+1, VP_COLS)
 	ebitenGame := &EbitenGame{
 		game:       nil,
-		state:      GameStateTitle,
-		touches:    make(map[ebiten.TouchID]*touch),
+		state:      gameStateTitle,
+		TouchData:  controls.NewTouchData(),
 		spSize:     spSize,
 		scrWidth:   VP_COLS * spSize,
 		scrHeight:  (VP_ROWS + 1) * spSize, // Adds an extra row for status bar
@@ -221,23 +215,22 @@ func main() {
 		paletteSet: palSet,
 		palette:    palette,
 		viewPort:   core.NewRect(0, 0, VP_COLS, VP_ROWS),
-		viewDist:   6,
 		sfxPlayer:  effects,
 		seed:       seed,
 	}
 
 	// Build the map of state handlers for each game state
-	ebitenGame.handlers = map[GameState]GameStateHander{
-		GameStateTitle: &TitleState{
+	ebitenGame.handlers = map[gameState]GameStateHander{
+		gameStateTitle: &TitleState{
 			EbitenGame: ebitenGame,
 			quickStart: quickStart,
 		},
 
-		GameStatePlaying: &PlayingState{
+		gameStatePlaying: &PlayingState{
 			EbitenGame: ebitenGame,
 		},
 
-		GameStateInventory: &InventoryState{
+		gameStateInventory: &InventoryState{
 			EbitenGame: ebitenGame,
 		},
 	}

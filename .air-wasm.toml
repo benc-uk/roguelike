@@ -4,10 +4,11 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 bin = ""
+pre_cmd = ["cp -r assets/ web/"]
 cmd = "env GOOS=js GOARCH=wasm go build -o web/main.wasm roguelike/game"
 delay = 1000
-exclude_dir = ["assets", "web", "bin", ".vite", "sprite-editor", "site", "etc"]
-exclude_file = []
+exclude_dir = ["web", "bin", ".vite", "sprite-editor", "site", "etc"]
+include_ext = ["go", "yaml"]
 kill_delay = "0s"
 log = "build-errors.log"
 poll = false

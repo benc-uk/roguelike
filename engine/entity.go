@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"strings"
 )
 
 // ============================================================================
@@ -57,6 +58,10 @@ func (e entityBase) Description() string {
 
 func (e entityBase) Name() string {
 	return e.name
+}
+
+func (e entityBase) NameTitle() string {
+	return strings.ToUpper(e.name[:1]) + e.name[1:]
 }
 
 func (e entityBase) Appearance() Appearance {

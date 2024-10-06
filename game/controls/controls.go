@@ -14,6 +14,8 @@ const (
 	Get
 	Escape
 	Select
+	Save
+	Info
 )
 
 // TODO: Move this to some sort of config file
@@ -27,6 +29,8 @@ var controls = map[control][]ebiten.Key{
 	Get:       {ebiten.KeyG},
 	Escape:    {ebiten.KeyEscape},
 	Select:    {ebiten.KeyEnter, ebiten.KeySpace},
+	Save:      {ebiten.KeyP},
+	Info:      {ebiten.KeyL},
 }
 
 func (c control) Keys() []ebiten.Key {

@@ -12,20 +12,33 @@ import (
 // This is a seedable RNG for random but repeatable generation of levels etc
 // ============================================================================
 
-var rng *rand.Rand
+type gameRNG struct {
+	*rand.Rand
+}
+
+// Global singleton RNG for the game, for reasons of determinism
+var rng gameRNG
 
 func init() {
 	s := rand.NewPCG(0, 0)
-	rng = rand.New(s)
+	rng = gameRNG{rand.New(s)}
 }
 
 func seedRNG(seed uint64) {
 	s := rand.NewPCG(seed, seed)
-	rng = rand.New(s)
+	rng = gameRNG{rand.New(s)}
 }
 
 func randString(strings ...string) string {
 	return strings[rng.IntN(len(strings))]
+}
+
+func GetRNG() gameRNG {
+	return rng
+}
+
+func (r gameRNG) Chance(percentage int) bool {
+	return r.IntN(100) < percentage
 }
 
 type DiceRoll struct {

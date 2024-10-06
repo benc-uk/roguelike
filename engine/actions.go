@@ -38,6 +38,10 @@ type UseAction struct {
 	item *Item
 }
 
+type EquipAction struct {
+	item *Item
+}
+
 func NewMoveAction(d core.Direction) *MoveAction {
 	return &MoveAction{d}
 }
@@ -56,6 +60,10 @@ func NewDropAction(item *Item) *DropAction {
 
 func NewUseAction(item *Item) *UseAction {
 	return &UseAction{item}
+}
+
+func NewEquipAction(item *Item) *EquipAction {
+	return &EquipAction{item}
 }
 
 func (a *MoveAction) Execute(g Game) ActionResult {
@@ -90,6 +98,7 @@ func (a *MoveAction) Execute(g Game) ActionResult {
 		events.new(EventItemMultiple, nil, fmt.Sprintf("You stand over a pile of %d items", len(items)))
 	}
 
+	g.updateFOV()
 	return ActionResult{true, energy}
 }
 
@@ -145,4 +154,36 @@ func (a *UseAction) Execute(g Game) ActionResult {
 	}
 
 	return ActionResult{false, 0}
+}
+
+func (a *EquipAction) Execute(g Game) ActionResult {
+	p := g.Player()
+
+	if !a.item.IsEquipment() {
+		return ActionResult{false, 0}
+	}
+
+	slot := a.item.EquipLocation()
+
+	if p.IsEquipped(a.item) {
+		p.UnequipItem(slot)
+
+		msg := fmt.Sprintf("You take off the %s", a.item.Name())
+		if slot == equipLocationWeapon || slot == equipLocationShield || slot == equipLocationMissile {
+			msg = fmt.Sprintf("You stop wielding the %s", a.item.Name())
+		}
+
+		events.new(EventItemUnequipped, a.item, msg)
+	} else {
+		p.EquipItem(a.item, slot)
+
+		msg := fmt.Sprintf("You are now wearing the %s", a.item.Name())
+		if slot == equipLocationWeapon || slot == equipLocationShield || slot == equipLocationMissile {
+			msg = fmt.Sprintf("You are now wielding the %s", a.item.Name())
+		}
+
+		events.new(EventItemEquipped, a.item, msg)
+	}
+
+	return ActionResult{true, 40}
 }

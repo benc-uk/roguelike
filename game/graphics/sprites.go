@@ -21,6 +21,8 @@ type sprite struct {
 	size  core.Size
 }
 
+const fovDim = 0.2
+
 func (s *sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, inFOV bool, flipX bool, flipY bool) {
 	if s == nil {
 		return
@@ -43,7 +45,7 @@ func (s *sprite) Draw(screen *ebiten.Image, x int, y int, colour color.Color, in
 	op.ColorScale.ScaleWithColor(colour)
 
 	if !inFOV {
-		op.ColorScale.ScaleAlpha(float32(fovScale))
+		op.ColorScale.ScaleAlpha(float32(fovDim))
 	}
 
 	screen.DrawImage(s.image, op)

@@ -2,6 +2,7 @@ package engine
 
 import (
 	"roguelike/core"
+	"sort"
 	"strings"
 
 	fn "github.com/s0rg/fantasyname"
@@ -34,6 +35,8 @@ type Player struct {
 
 	// Inspired by Angband https://angband.readthedocs.io/en/latest/command.html#inventory-commands
 	equipSlots map[equipLocation]*Item
+
+	fovDistance int
 }
 
 func NewPlayer(tile *tile, items ...Item) *Player {
@@ -55,6 +58,7 @@ func NewPlayer(tile *tile, items ...Item) *Player {
 		level:       1,
 		backpack:    NewEntityList(),
 		equipSlots:  make(map[equipLocation]*Item),
+		fovDistance: 6,
 	}
 
 	return p
@@ -85,7 +89,23 @@ func (p *Player) Pos() core.Pos {
 }
 
 func (p *Player) Inventory() []*Item {
-	return p.backpack.AllItems()
+	items := make([]*Item, 0, len(p.backpack)+len(p.equipSlots))
+
+	for _, i := range p.backpack {
+		items = append(items, i.(*Item))
+	}
+
+	// add all equipped items
+	for _, i := range p.equipSlots {
+		items = append(items, i)
+	}
+
+	// sort the items by id
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].name < items[j].name
+	})
+
+	return items
 }
 
 func (p *Player) BackpackSize() int {
@@ -134,4 +154,35 @@ func (p *Player) SetHP(hp int) {
 
 func (p *Player) SetMaxHP(hp int) {
 	p.maxHP = hp
+}
+
+func (p *Player) EquipItem(item *Item, slot equipLocation) {
+	if !p.backpack.Contains(item) {
+		return
+	}
+
+	// Unequip any item in the slot
+	if i, ok := p.equipSlots[slot]; ok {
+		p.backpack.Add(i)
+	}
+
+	p.backpack.Remove(item)
+	p.equipSlots[slot] = item
+}
+
+func (p *Player) UnequipItem(slot equipLocation) {
+	if i, ok := p.equipSlots[slot]; ok {
+		p.backpack.Add(i)
+		delete(p.equipSlots, slot)
+	}
+}
+
+func (p *Player) IsEquipped(item *Item) bool {
+	for _, i := range p.equipSlots {
+		if i == item {
+			return true
+		}
+	}
+
+	return false
 }

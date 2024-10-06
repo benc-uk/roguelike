@@ -7,6 +7,7 @@ require (
 	github.com/dop251/goja v0.0.0-20240927123429-241b342198c2
 	github.com/hajimehoshi/bitmapfont/v3 v3.2.0
 	github.com/hajimehoshi/ebiten/v2 v2.8.0
+	github.com/mitchellh/go-wordwrap v1.0.1
 	github.com/pterm/pterm v0.12.79
 	github.com/s0rg/fantasyname v1.3.5
 	gopkg.in/yaml.v3 v3.0.1
