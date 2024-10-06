@@ -37,13 +37,6 @@ func (s *InventoryState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) 
 			s.state = gameStatePlaying
 		}
 
-		if s.describingItem {
-			if controls.Info.IsKey(key) || controls.Escape.IsKey(key) {
-				s.describingItem = false
-			}
-			continue
-		}
-
 		if controls.Up.IsKey(key) {
 			s.cursor--
 			if s.cursor < 0 {
@@ -60,6 +53,13 @@ func (s *InventoryState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) 
 
 		// Update the item we're looking at
 		s.item = s.inv[s.cursor]
+
+		if s.describingItem {
+			if controls.Info.IsKey(key) || controls.Escape.IsKey(key) {
+				s.describingItem = false
+			}
+			continue
+		}
 
 		if controls.Drop.IsKey(key) {
 			a := engine.NewDropAction(s.item)
@@ -100,10 +100,11 @@ func (s *InventoryState) Draw(screen *ebiten.Image) {
 	graphics.DrawBox(screen, 2, 1, VP_COLS-2, VP_ROWS-2)
 
 	graphics.BgColour = graphics.ColourTrans
+	countCarried := len(s.inv)
 
 	// In mode where we're describing an item
 	if s.describingItem {
-		graphics.DrawTextRow(screen, fmt.Sprintf("   %s", s.item.NameTitle()), 1)
+		graphics.DrawTextRow(screen, fmt.Sprintf("   %d/%d %s", s.cursor+1, countCarried, s.item.NameTitle()), 1)
 		text := "Type: " + s.item.ItemType() + "\n"
 		text += "Rarity: " + s.item.Rarity().String() + "\n"
 		if s.item.IsEquipment() {
@@ -116,7 +117,6 @@ func (s *InventoryState) Draw(screen *ebiten.Image) {
 		return
 	}
 
-	countCarried := len(s.inv)
 	countMax := s.game.Player().BackpackSize()
 	graphics.DrawTextRow(screen, fmt.Sprintf("   Backpack (%d/%d)", countCarried, countMax), 1)
 
