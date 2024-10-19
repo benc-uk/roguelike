@@ -27,8 +27,8 @@ items:
     graphic: sword
     equipLocation: weapon
     colour: 14
-    equipProperties:
-      toHit: +5
+    effects:
+      toHit: +10
       attack: "1d6"
 
   axe:
@@ -37,8 +37,9 @@ items:
     graphic: axe
     equipLocation: weapon
     colour: 2
-    equipProperties:
-      toHit: -5
+    effects:
+      toHit: -15
+      damage: +2
       attack: "1d10"
 
   amulet_str:
@@ -47,7 +48,7 @@ items:
     graphic: amulet
     equipLocation: neck
     colour: 10
-    equipProperties:
+    effects:
       damage: +2
 
   shield:
@@ -57,7 +58,7 @@ items:
     equipLocation: shield
     rarity: 0.5
     colour: 5
-    equipProperties:
+    effects:
       defence: +2
 
   meat:
@@ -83,7 +84,7 @@ items:
     graphic: armour
     equipLocation: body
     colour: 3
-    equipProperties:
+    effects:
       defence: +2
 
   chainmail:
@@ -92,7 +93,7 @@ items:
     graphic: armour
     equipLocation: body
     colour: 1
-    equipProperties:
+    effects:
       defence: +4
 
   rusty_helmet:
@@ -101,7 +102,7 @@ items:
     graphic: helm
     equipLocation: head
     colour: 5
-    equipProperties:
+    effects:
       defence: +1
 
   scroll_of_cthon:

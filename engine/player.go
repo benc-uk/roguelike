@@ -12,7 +12,7 @@ import (
 // Player data structure holds the player's state
 // ============================================================================
 
-const playerMaxItems = 10
+const PLAYER_MAX_ITEMS = 10
 
 type Player struct {
 	pos
@@ -20,13 +20,14 @@ type Player struct {
 	name        string
 
 	// Health
-	currentHP int
-	maxHP     int
+	hp    int
+	maxHP int
 
 	// Base attributes, can be modified by equipment
-	defence      int //nolint Defence protects against damage
-	attackDamage int //nolint Base damage added to weapon damage
-	attackChance int //nolint Base chance to hit
+	defence      int      //nolint Defence protects against damage
+	attackDamage int      //nolint Base damage added to weapon damage
+	attackChance int      //nolint Base chance to hit
+	attackRoll   DiceRoll //nolint Dice roll for attack damage
 
 	exp   int
 	level int
@@ -49,16 +50,20 @@ func NewPlayer(tile *tile, items ...Item) *Player {
 	}
 
 	p := &Player{
-		pos:         tile.pos,
-		currentTile: tile,
-		name:        name,
-		currentHP:   10,
-		maxHP:       50,
-		exp:         0,
-		level:       1,
-		backpack:    NewEntityList(),
-		equipSlots:  make(map[equipLocation]*Item),
-		fovDistance: 6,
+		pos:          tile.pos,
+		currentTile:  tile,
+		name:         name,
+		hp:           10,
+		maxHP:        50,
+		exp:          0,
+		level:        1,
+		backpack:     NewEntityList(),
+		equipSlots:   make(map[equipLocation]*Item),
+		fovDistance:  6,
+		defence:      0,
+		attackDamage: 1,
+		attackChance: 75,
+		attackRoll:   DiceRoll{0, 0, 0},
 	}
 
 	return p
@@ -69,7 +74,7 @@ func (p *Player) Name() string {
 }
 
 func (p *Player) HP() int {
-	return p.currentHP
+	return p.hp
 }
 
 func (p *Player) MaxHP() int {
@@ -109,7 +114,7 @@ func (p *Player) Inventory() []*Item {
 }
 
 func (p *Player) BackpackSize() int {
-	return playerMaxItems
+	return PLAYER_MAX_ITEMS
 }
 
 func (p *Player) DropItem(item *Item) bool {
@@ -137,7 +142,7 @@ func (p *Player) moveToTile(t *tile) {
 
 // Pickup an item from the ground, returning true if the item was picked up
 func (p *Player) PickupItem(item *Item) bool {
-	if len(p.backpack) >= playerMaxItems {
+	if len(p.backpack) >= PLAYER_MAX_ITEMS {
 		return false
 	}
 
@@ -149,7 +154,7 @@ func (p *Player) PickupItem(item *Item) bool {
 }
 
 func (p *Player) SetHP(hp int) {
-	p.currentHP = hp
+	p.hp = hp
 }
 
 func (p *Player) SetMaxHP(hp int) {
@@ -168,12 +173,24 @@ func (p *Player) EquipItem(item *Item, slot equipLocation) {
 
 	p.backpack.Remove(item)
 	p.equipSlots[slot] = item
+	item.equipped = true
+
+	// Apply any effects of the item
+	for _, e := range item.effects {
+		e.apply(p)
+	}
 }
 
 func (p *Player) UnequipItem(slot equipLocation) {
 	if i, ok := p.equipSlots[slot]; ok {
 		p.backpack.Add(i)
 		delete(p.equipSlots, slot)
+		i.equipped = false
+
+		// Remove any effects of the item
+		for _, e := range i.effects {
+			e.remove(p)
+		}
 	}
 }
 
@@ -185,4 +202,20 @@ func (p *Player) IsEquipped(item *Item) bool {
 	}
 
 	return false
+}
+
+func (p *Player) StatDefence() int {
+	return p.defence
+}
+
+func (p *Player) StatBaseDamage() int {
+	return p.attackDamage
+}
+
+func (p *Player) StatHitChance() int {
+	return p.attackChance
+}
+
+func (p *Player) StatAttackRoll() DiceRoll {
+	return p.attackRoll
 }

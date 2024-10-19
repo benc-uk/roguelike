@@ -113,6 +113,16 @@ func (a *AttackAction) Execute(g Game) ActionResult {
 
 	// Attack the target
 	// TODO: Add a combat system here :)
+	hitRoll := d100.Roll()
+	events.new(EventMiscMessage, a.target, fmt.Sprintf("Hit roll: %d need < %d", hitRoll, p.attackChance))
+	if hitRoll > p.attackChance {
+		events.new(EventCombatMissed, a.target, "You missed!")
+		return ActionResult{false, 0}
+	}
+
+	rollResult := p.attackRoll.Roll() + p.attackDamage
+	events.new(EventCombatHit, nil, fmt.Sprintf("Attack: %s+%d → %d", p.attackRoll, p.attackDamage, rollResult))
+
 	a.target.currentTile.creature = nil
 	a.target.currentTile = nil
 	message := fmt.Sprintf("You %s a %s",
@@ -132,19 +142,24 @@ func (a *PickupAction) Execute(g Game) ActionResult {
 		return ActionResult{true, 40}
 	}
 
-	events.new(EventPackFull, a.item, "You are carrying too much!")
+	events.new(EventPackFull, a.item, "Carrying too much!")
 	return ActionResult{false, 0}
 }
 
 func (a *DropAction) Execute(g Game) ActionResult {
 	p := g.Player()
 
+	if a.item.IsEquipped() {
+		events.new(EventItemDropped, a.item, "Can't drop an equipped item")
+		return ActionResult{false, 0}
+	}
+
 	if p.DropItem(a.item) {
-		events.new(EventItemDropped, a.item, fmt.Sprintf("You dropped the %s", a.item.Name()))
+		events.new(EventItemDropped, a.item, fmt.Sprintf("Dropped the %s", a.item.Name()))
 		return ActionResult{true, 40}
 	}
 
-	events.new(EventItemDropped, a.item, fmt.Sprintf("You can't drop the %s here", a.item.Name()))
+	events.new(EventItemDropped, a.item, fmt.Sprintf("Can't drop the %s here", a.item.Name()))
 	return ActionResult{false, 0}
 }
 
@@ -168,18 +183,23 @@ func (a *EquipAction) Execute(g Game) ActionResult {
 	if p.IsEquipped(a.item) {
 		p.UnequipItem(slot)
 
-		msg := fmt.Sprintf("You take off the %s", a.item.Name())
+		msg := fmt.Sprintf("The %s was taken off", a.item.Name())
 		if slot == equipLocationWeapon || slot == equipLocationShield || slot == equipLocationMissile {
-			msg = fmt.Sprintf("You stop wielding the %s", a.item.Name())
+			msg = fmt.Sprintf("No longer wielding a %s", a.item.Name())
 		}
 
 		events.new(EventItemUnequipped, a.item, msg)
 	} else {
+		// Is there an existing item in the slot?
+		if i, ok := p.equipSlots[slot]; ok {
+			p.UnequipItem(i.EquipLocation())
+		}
+
 		p.EquipItem(a.item, slot)
 
-		msg := fmt.Sprintf("You are now wearing the %s", a.item.Name())
+		msg := fmt.Sprintf("Now wearing a %s", a.item.Name())
 		if slot == equipLocationWeapon || slot == equipLocationShield || slot == equipLocationMissile {
-			msg = fmt.Sprintf("You are now wielding the %s", a.item.Name())
+			msg = fmt.Sprintf("Wielding a %s", a.item.Name())
 		}
 
 		events.new(EventItemEquipped, a.item, msg)

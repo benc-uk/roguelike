@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"regexp"
 	"strconv"
@@ -47,6 +48,8 @@ type DiceRoll struct {
 	modifier int
 }
 
+var d100 = DiceRoll{1, 100, 0}
+
 func ParseDiceRoll(dice string) (DiceRoll, bool) {
 	re := regexp.MustCompile(`(\d*)d(\d+)([+-]\d+)?`)
 	matches := re.FindStringSubmatch(strings.ToLower(dice))
@@ -87,4 +90,24 @@ func (d DiceRoll) Roll() int {
 	}
 
 	return total + d.modifier
+}
+
+func (d DiceRoll) String() string {
+	if d.modifier == 0 && d.num == 0 && d.sides == 0 {
+		return "0"
+	}
+
+	if d.num == 1 && d.modifier == 0 {
+		return fmt.Sprintf("d%d", d.sides)
+	}
+
+	if d.num == 1 {
+		return fmt.Sprintf("d%d%+d", d.sides, d.modifier)
+	}
+
+	if d.modifier == 0 {
+		return fmt.Sprintf("%dd%d", d.num, d.sides)
+	}
+
+	return fmt.Sprintf("%dd%d%+d", d.num, d.sides, d.modifier)
 }

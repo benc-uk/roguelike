@@ -7,6 +7,7 @@ import (
 	"math/rand/v2"
 	"roguelike/core"
 	"slices"
+	"strings"
 
 	"github.com/dop251/goja"
 	"gopkg.in/yaml.v3"
@@ -25,6 +26,8 @@ type Item struct {
 	onUseScript   string        // Script to run when the item is used
 	rarity        rarity        // Rarity of the item
 	consumable    bool          // Consumable items are removed from the player's inventory when used
+	equipped      bool          // Is the item currently equipped
+	effects       []effect      // Effects of the item
 }
 
 func (i Item) Type() entityType {
@@ -63,6 +66,10 @@ func (i Item) Rarity() rarity {
 	return i.rarity
 }
 
+func (i Item) IsEquipped() bool {
+	return i.equipped
+}
+
 func (i Item) ItemType() string {
 	if i.usable {
 		return "Usable / Consumable"
@@ -73,6 +80,15 @@ func (i Item) ItemType() string {
 	}
 
 	return "Unknown"
+}
+
+func (i Item) DescribeEffects() string {
+	descs := make([]string, 0)
+	for _, e := range i.effects {
+		descs = append(descs, e.description())
+	}
+
+	return strings.Join(descs, ", ")
 }
 
 func (i Item) use(g Game) bool {
@@ -121,15 +137,16 @@ type itemGenerator struct {
 }
 
 type yamlItem struct {
-	Description   string `yaml:"description"`
-	Name          string `yaml:"name"`
-	Graphic       string `yaml:"graphic"`
-	Colour        string `yaml:"colour"`
-	Usable        bool   `yaml:"usable"`
-	EquipLocation string `yaml:"equipLocation"`
-	Weight        int    `yaml:"weight"`
-	OnUseScript   string `yaml:"onUseScript"`
-	Consumable    bool   `yaml:"consumable"`
+	Description   string            `yaml:"description"`
+	Name          string            `yaml:"name"`
+	Graphic       string            `yaml:"graphic"`
+	Colour        string            `yaml:"colour"`
+	Usable        bool              `yaml:"usable"`
+	EquipLocation string            `yaml:"equipLocation"`
+	Weight        int               `yaml:"weight"`
+	OnUseScript   string            `yaml:"onUseScript"`
+	Consumable    bool              `yaml:"consumable"`
+	Effects       map[string]string `yaml:"effects"`
 }
 
 type yamlItemsFile struct {
@@ -192,6 +209,14 @@ func newItemGenerator(dataFile string) (*itemGenerator, error) {
 						return EquipLocationNone
 					}
 				}(),
+			}
+
+			// Loop over the effects, parse them and add them to the item
+			for effectName, effectValue := range entry.Effects {
+				effect := newEffect(effectName, effectValue)
+				if effect != nil {
+					i.effects = append(i.effects, *effect)
+				}
 			}
 
 			return i

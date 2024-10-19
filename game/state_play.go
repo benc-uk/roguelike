@@ -210,7 +210,7 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 			e.Age++
 		}
 
-		// Remove old events
+		// Remove old events in a separate loop
 		for i := 0; i < len(s.events); i++ {
 			e := s.events[i]
 			if e.Age > MAX_EVENT_AGE {
@@ -278,7 +278,8 @@ func (s *PlayingState) Draw(screen *ebiten.Image) {
 	}
 
 	// Draw the status bar, it was at row VP_ROWS-1 but we added a row for the status bar
-	statusText := fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ▼%d", p.Name(), p.HP(), p.MaxHP(), p.Exp(), p.Level())
+	attackStr := fmt.Sprintf("%d%% ↦ %s+%d", p.StatHitChance(), p.StatAttackRoll().String(), p.StatBaseDamage())
+	statusText := fmt.Sprintf("%s    ♥%d/%d   ⌘%d   ⚃%d  ⊗%s", p.Name(), p.HP(), p.MaxHP(), p.Exp(), p.StatDefence(), attackStr)
 	graphics.BgColour = graphics.ColourStatus
 	graphics.DrawTextRow(screen, statusText, VP_ROWS)
 

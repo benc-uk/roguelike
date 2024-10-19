@@ -24,7 +24,12 @@ type InventoryState struct {
 func (s *InventoryState) Init() {
 	s.cursor = 0
 	s.inv = s.game.Player().Inventory()
-	s.item = s.inv[s.cursor]
+
+	s.item = nil
+	if len(s.inv) > 0 {
+		s.item = s.inv[0]
+	}
+
 	s.describingItem = false
 }
 
@@ -52,7 +57,9 @@ func (s *InventoryState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) 
 		}
 
 		// Update the item we're looking at
-		s.item = s.inv[s.cursor]
+		if len(s.inv) > 0 {
+			s.item = s.inv[s.cursor]
+		}
 
 		if s.describingItem {
 			if controls.Info.IsKey(key) || controls.Escape.IsKey(key) {
@@ -109,7 +116,9 @@ func (s *InventoryState) Draw(screen *ebiten.Image) {
 		text += "Rarity: " + s.item.Rarity().String() + "\n"
 		if s.item.IsEquipment() {
 			text += "Equip Location: " + s.item.EquipLocation().String() + "\n"
+			text += "Effects: " + s.item.DescribeEffects() + "\n"
 		}
+
 		text += "\n" + s.item.Description()
 		graphics.DrawWrappedText(screen, text, 3, 3, VP_COLS+18)
 
@@ -137,7 +146,7 @@ func (s *InventoryState) Draw(screen *ebiten.Image) {
 			}
 		}
 
-		extra2 := ""
+		extra2 := item.DescribeEffects()
 
 		sprite := s.bank.Sprite(item.Graphic())
 		if sprite != nil {
@@ -145,7 +154,7 @@ func (s *InventoryState) Draw(screen *ebiten.Image) {
 		}
 
 		graphics.DrawTextRow(screen, fmt.Sprintf("       %s %s %s", item.NameTitle(), extra1, extra2), i+3)
-		graphics.FgColour = graphics.ColourTurq
+		graphics.FgColour = graphics.ColourCursor
 		graphics.DrawTextRow(screen, "   ⌦", 3+s.cursor)
 	}
 }

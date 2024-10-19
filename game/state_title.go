@@ -70,10 +70,10 @@ func (s *TitleState) Draw(screen *ebiten.Image) {
 	graphics.FgColour = graphics.ColourWhite
 	graphics.BgColour = graphics.ColourTitle
 
-	graphics.DrawBox(screen, 2, 0, VP_COLS-1, VP_ROWS-4)
+	graphics.DrawBox(screen, 2, 1, VP_COLS-2, VP_ROWS-4)
 	f := (math.Sin(float64(s.frameCount)*0.06) + 1) / 2
 	graphics.BgColour = color.RGBA{0, 0, uint8(f * 255), 0xff}
-	graphics.DrawBox(screen, 5, 0, VP_COLS-1, 2)
+	graphics.DrawBox(screen, 5, 1, VP_COLS-2, 2)
 
 	graphics.BgColour = graphics.ColourTrans
 	graphics.DrawTextRow(screen, fmt.Sprintf("%sGo WASM Roguelike", core.MakeStr(17, " ")), 6)
@@ -93,6 +93,6 @@ func (s *TitleState) Draw(screen *ebiten.Image) {
 	s2.Draw(screen, 19*12+6, 6*12, color.White, true, false, false)
 
 	// Draw the cursor
-	graphics.FgColour = graphics.ColourTurq
+	graphics.FgColour = graphics.ColourCursor
 	graphics.DrawTextRow(screen, fmt.Sprintf("%s⌦", core.MakeStr(18, " ")), s.cursor+9)
 }

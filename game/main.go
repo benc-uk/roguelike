@@ -24,7 +24,7 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_021"
+var version string = "0.0.1-alpha_022"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
@@ -36,7 +36,8 @@ const (
 	VP_ROWS          = 17       // Number of rows of tiles in the viewport, +1 for status bar
 	VP_COLS          = 26       // Number of columns of tiles in the viewport
 	VIEW_DIST        = 6        // View distance in tiles
-	MAX_EVENT_AGE    = 8        // Max number of events to store
+	MAX_EVENT_AGE    = 7        // Events older than this are removed from the display
+	MAX_EVENTS       = 5        // Max number of events to display
 	INITIAL_SCALE    = 4        // When the window is first opened, only applies to non-web builds
 	ASSETS_DIR       = "assets" // Directory where all the game assets are stored
 )
@@ -75,7 +76,6 @@ type EbitenGame struct {
 	palette    color.Palette // Current palette
 
 	viewPort core.Rect // The area of the map that is visible
-	//viewDist int       // View distance in tiles (const)
 
 	controls.TouchData // Embedded touch controls
 
@@ -142,9 +142,15 @@ func (g *EbitenGame) EventListener(e engine.GameEvent) {
 	if len(g.events) > 0 {
 		lastEvent = g.events[len(g.events)-1]
 	}
+
 	if !e.SameAs(lastEvent) {
 		g.events = append(g.events, &e)
 		g.eventLog = append(g.eventLog, e.Text())
+
+		if len(g.events) > MAX_EVENTS {
+			g.events = g.events[1:]
+			g.eventLog = g.eventLog[1:]
+		}
 	}
 
 	if e.Type() == engine.EventCreatureKilled {
@@ -203,7 +209,7 @@ func main() {
 	}
 
 	spSize := bank.Size()
-	graphics.SetTileSize(spSize, VP_ROWS+1, VP_COLS)
+	graphics.InitGraphics(spSize, VP_ROWS+1, VP_COLS)
 	ebitenGame := &EbitenGame{
 		game:       nil,
 		state:      gameStateTitle,

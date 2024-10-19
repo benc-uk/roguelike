@@ -39,6 +39,7 @@ func TestDiceRoll_Roll(t *testing.T) {
 		{DiceRoll{3, 10, -2}, 1, 28},
 		{DiceRoll{1, 12, 0}, 1, 12},
 		{DiceRoll{17, 20, 150}, 167, 490},
+		{DiceRoll{0, 0, 0}, 0, 0},
 	}
 
 	for _, test := range tests {

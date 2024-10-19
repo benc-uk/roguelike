@@ -17,7 +17,7 @@ var tileSzH = tileSz / 2
 var scrRows = 25
 var scrCols = 80
 
-func SetTileSize(tileSize int, screenRows, screenCols int) {
+func InitGraphics(tileSize int, screenRows, screenCols int) {
 	tileSz = tileSize
 	tileSzH = tileSize / 2
 	scrRows = screenRows

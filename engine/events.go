@@ -17,6 +17,8 @@ const (
 	EventItemEquipped   = "item_equipped"
 	EventItemUnequipped = "item_unequipped"
 	EventCreatureKilled = "creature_killed"
+	EventCombatMissed   = "combat_missed"
+	EventCombatHit      = "combat_hit"
 	EventPackFull       = "player_pack_full"
 )
 
