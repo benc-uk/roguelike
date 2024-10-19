@@ -38,7 +38,7 @@ jobs:
       - name: Build and bundle site
         run: make site
         env:
-          GAME_BASE_PATH: /roguelike/
+          GAME_BASE_PATH: /
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
