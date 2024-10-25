@@ -27,6 +27,10 @@ type bspGenerator struct {
 	gameMap *GameMap
 }
 
+func newBSPGenerator(maxDepth int, gameMap *GameMap) *bspGenerator {
+	return &bspGenerator{maxDepth, gameMap}
+}
+
 func (b bspNode) isLeaf() bool {
 	return b.Left == nil && b.Right == nil
 }

@@ -1,9 +1,5 @@
 package engine
 
-import (
-	"math/rand/v2"
-)
-
 // ============================================================================
 // Generator for the game map using celluar automata, to make caves
 // ============================================================================
@@ -41,7 +37,7 @@ func (gen *caGenerator) generate() {
 	// Start with a random map
 	for x := 0; x < gen.width; x++ {
 		for y := 0; y < gen.height; y++ {
-			if rand.Float64() < startChance {
+			if rng.Float64() < startChance {
 				gen.cells[x][y] = true
 			} else {
 				gen.cells[x][y] = false

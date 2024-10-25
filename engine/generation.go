@@ -50,7 +50,7 @@ func generateMap(g *Game, dataFileDir string) {
 	}
 
 	var gen Generator
-	gen = &bspGenerator{genDepth, g.gameMap}
+	gen = newBSPGenerator(genDepth, g.gameMap)
 
 	// 25% chance of a cave map
 	if rng.IntN(4) == 0 {
