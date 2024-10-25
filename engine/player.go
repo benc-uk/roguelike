@@ -1,5 +1,9 @@
 package engine
 
+// ============================================================================
+// Player data structure holds the player's state
+// ============================================================================
+
 import (
 	"roguelike/core"
 	"sort"
@@ -7,10 +11,6 @@ import (
 
 	fn "github.com/s0rg/fantasyname"
 )
-
-// ============================================================================
-// Player data structure holds the player's state
-// ============================================================================
 
 const PLAYER_MAX_ITEMS = 10
 

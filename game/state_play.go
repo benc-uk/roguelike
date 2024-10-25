@@ -230,6 +230,15 @@ func (s *PlayingState) Draw(screen *ebiten.Image) {
 	offsetX := s.viewPort.X * s.spSize
 	offsetY := s.viewPort.Y * s.spSize
 
+	wallSprite := s.bank.Sprite("wall")
+	wallPalIndex := PAL_INDEX_WALL
+
+	// Alternate wall sprite for caves
+	if strings.Contains(s.game.Map().Description(), "cave") {
+		wallSprite = s.bank.Sprite("rock")
+		wallPalIndex = PAL_INDEX_ROCK
+	}
+
 	// Draw the map
 	for x := s.viewPort.X; x < s.viewPort.Width+s.viewPort.X; x++ {
 		for y := s.viewPort.Y; y < s.viewPort.Height+s.viewPort.Y; y++ {
@@ -253,7 +262,7 @@ func (s *PlayingState) Draw(screen *ebiten.Image) {
 
 			// Walls
 			if appear.Graphic == "wall" {
-				s.bank.Sprite("wall").Draw(screen, drawX, drawY, s.palette[PAL_INDEX_WALL], appear.InFOV, false, false)
+				wallSprite.Draw(screen, drawX, drawY, s.palette[wallPalIndex], appear.InFOV, false, false)
 				continue
 			}
 

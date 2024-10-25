@@ -24,13 +24,14 @@ import (
 
 // These are injected by the build system
 var basePath string = "./"
-var version string = "0.0.1-alpha_022"
+var version string = "0.0.1-alpha_023"
 
 //go:embed icon.png
 var iconBytes []byte // Icon for the window is embedded
 
 const (
 	PAL_INDEX_WALL   = 0        // Colour of walls
+	PAL_INDEX_ROCK   = 4        // Colour of rocks
 	PAL_INDEX_FLOOR  = 3        // Colour of floors
 	PAL_INDEX_PLAYER = 10       // Colour of the player
 	VP_ROWS          = 17       // Number of rows of tiles in the viewport, +1 for status bar
@@ -240,6 +241,10 @@ func main() {
 			EbitenGame: ebitenGame,
 		},
 	}
+
+	// DEBUG!
+	// engine.NewGame(basePath+"assets/datafiles", ebitenGame.seed, VIEW_DIST, ebitenGame.EventListener)
+	// return
 
 	// Finally start the ebiten game loop
 	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))

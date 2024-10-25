@@ -164,6 +164,7 @@ func (a *DropAction) Execute(g Game) ActionResult {
 }
 
 func (a *UseAction) Execute(g Game) ActionResult {
+	// Call the item's use method
 	if a.item.use(g) {
 		return ActionResult{true, 40}
 	}

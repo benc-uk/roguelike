@@ -32,54 +32,7 @@ func NewGame(dataFileDir string, seed uint64, viewDist int, listeners ...EventLi
 	// Register event listeners
 	events.addEventListeners(listeners...)
 
-	var err error
-	g.itemGen, err = newItemGenerator(dataFileDir + "/items.yaml")
-	if err != nil {
-		panic(err)
-	}
-
-	g.creatureGen, err = newCreatureGenerator(dataFileDir + "/creatures.yaml")
-	if err != nil {
-		panic(err)
-	}
-
-	size := rng.IntN(4)
-	depth := 1
-	switch size {
-	case 0:
-		{
-			// Tiny
-			g.gameMap = NewMap(32, 32, depth)
-			genDepth := rng.IntN(3) + 3
-			g.gameMap.GenerateBSP(genDepth, g.itemGen, g.creatureGen) // 4 or 5 also works
-			g.gameMap.description = "a tiny dungeon"
-		}
-
-	case 1:
-		{
-			// Small
-			g.gameMap = NewMap(40, 40, depth)
-			genDepth := rng.IntN(3) + 4
-			g.gameMap.GenerateBSP(genDepth, g.itemGen, g.creatureGen) // 4 or 5 also works
-			g.gameMap.description = "a small dungeon"
-		}
-
-	case 2:
-		{
-			// Medium
-			g.gameMap = NewMap(48, 48, depth)
-			g.gameMap.GenerateBSP(6, g.itemGen, g.creatureGen) // 5 also works
-			g.gameMap.description = "a medium dungeon"
-		}
-
-	case 3:
-		{
-			// Large
-			g.gameMap = NewMap(64, 64, depth)
-			g.gameMap.GenerateBSP(6, g.itemGen, g.creatureGen) // 5 also works
-			g.gameMap.description = "a large dungeon"
-		}
-	}
+	generateMap(g, dataFileDir)
 
 	g.player = NewPlayer(g.gameMap.randomFloorTile(true))
 	g.player.fovDistance = viewDist
@@ -88,12 +41,10 @@ func NewGame(dataFileDir string, seed uint64, viewDist int, listeners ...EventLi
 	events.new(EventMiscMessage, nil, "Welcome adventurer "+g.Player().Name())
 	events.new(EventMiscMessage, nil, levelText)
 
+	g.gameMap.dumpPNG()
+
 	// DEBUG
 	// g.player.backpack.Add(g.itemGen.createItem("meat"))
-	// g.player.backpack.Add(g.itemGen.createItem("meat"))
-	// g.player.backpack.Add(g.itemGen.createItem("scroll_of_cthon"))
-	// g.player.backpack.Add(g.itemGen.createItem("leather_armour"))
-	// g.player.backpack.Add(g.itemGen.createItem("chainmail"))
 
 	g.updateFOV()
 	return g

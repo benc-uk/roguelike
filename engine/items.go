@@ -3,7 +3,6 @@ package engine
 
 import (
 	"fmt"
-	"log"
 	"math/rand/v2"
 	"roguelike/core"
 	"slices"
@@ -109,16 +108,15 @@ func (i Item) use(g Game) bool {
 
 	result, err := vm.RunString(i.onUseScript)
 	if err != nil {
-		log.Printf("Error running item script: %s", err)
-		events.new(EventMiscMessage, &i, err.Error())
+		events.new(EventSystemMsg, &i, err.Error())
 		return false
 	}
 
 	if result != nil {
 		if msgText, ok := result.Export().(string); ok {
-			events.new(EventMiscMessage, &i, msgText)
+			events.new(EventItemUsed, &i, msgText)
 		} else {
-			events.new(EventMiscMessage, &i, "The item's effect is unknown")
+			events.new(EventItemUsed, &i, "The item's effect is unknown")
 		}
 	}
 

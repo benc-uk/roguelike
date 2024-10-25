@@ -212,9 +212,10 @@ type GameMap struct {
 	size
 	tiles [][]tile // 2D array of tiles, this holds the world
 
-	fovList     []*tile // List of all tiles in the FOV
-	depth       int     // Depth of the map
-	description string  // Some human-readable description of the map
+	fovList          []*tile // List of all tiles in the FOV
+	depth            int     // Depth of the map
+	description      string  // Some human-readable description of the map
+	generationMethod string
 }
 
 // NewMap creates a new map with the given width and height
@@ -228,9 +229,9 @@ func NewMap(width, height, depth int) *GameMap {
 		description: "Empty map",
 	}
 
-	m.tiles = make([][]tile, width)
+	m.tiles = make([][]tile, height)
 	for x := range m.tiles {
-		m.tiles[x] = make([]tile, height)
+		m.tiles[x] = make([]tile, width)
 		for y := range m.tiles[x] {
 			m.tiles[x][y] = newWall(x, y)
 		}
@@ -352,4 +353,13 @@ func (m *GameMap) dumpPNG() {
 	file := "map.png"
 	f, _ := os.Create(file)
 	_ = png.Encode(f, img)
+}
+
+//nolint:unused
+func (m *GameMap) enumerateFunc(f func(tile *tile, x, y int)) {
+	for x := 0; x < m.Width; x++ {
+		for y := 0; y < m.Height; y++ {
+			f(m.Tile(x, y), x, y)
+		}
+	}
 }

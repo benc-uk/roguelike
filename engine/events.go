@@ -1,5 +1,7 @@
 package engine
 
+import "fmt"
+
 // ============================================================================
 // Events are used to communicate to listeners to changes in the game state
 // ============================================================================
@@ -7,8 +9,9 @@ package engine
 type GameEventType string
 
 const (
-	EventMiscMessage    = "misc_message"
-	EventGameState      = "game_state"
+	EventMiscMessage = "misc_message"
+	EventSystemMsg   = "system_message"
+
 	EventItemPickup     = "item_pickup"
 	EventItemMultiple   = "item_pickup_multi"
 	EventItemSkipped    = "item_pickup_skipped"
@@ -16,10 +19,12 @@ const (
 	EventItemDropped    = "item_dropped"
 	EventItemEquipped   = "item_equipped"
 	EventItemUnequipped = "item_unequipped"
+
 	EventCreatureKilled = "creature_killed"
 	EventCombatMissed   = "combat_missed"
 	EventCombatHit      = "combat_hit"
-	EventPackFull       = "player_pack_full"
+
+	EventPackFull = "player_pack_full"
 )
 
 type GameEvent struct {
@@ -78,4 +83,9 @@ func (em *eventManager) new(eventType GameEventType, entity entity, text string)
 	for _, listener := range em.eventListeners {
 		listener(e)
 	}
+}
+
+//nolint:unused
+func debug(format string, a ...any) {
+	events.new(EventMiscMessage, nil, "DEBUG:"+fmt.Sprintf(format, a...))
 }
