@@ -39,8 +39,7 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: "v1.60"
-          args: "-E gofmt"
+          args: "--config .dev/golangci.yaml"
 
       - name: Build
         run: make build-bin
