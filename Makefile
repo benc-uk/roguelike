@@ -25,7 +25,7 @@ format: ## Format the code
 	gofmt -l -w .
 
 serve: build-wasm ## Serve the web app
-	npx vite 
+	npx vite -c .dev/vite.config.js
 
 watch-wasm: build-wasm ## Hot rebuild WASM binary in web directory
 	go tool -modfile=.dev/tools.mod air -c .dev/air-wasm.toml
