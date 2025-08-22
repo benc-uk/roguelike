@@ -44,16 +44,16 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 	leftTapZone := core.NewRect(0, 0, s.scrWidth/4, s.scrHeight)
 
 	// Handle touch controls
-	if s.TouchData.DidTapIn(rightTapZone) {
+	if s.DidTapIn(rightTapZone) {
 		tappedDir = core.DirEast
 	}
-	if s.TouchData.DidTapIn(leftTapZone) {
+	if s.DidTapIn(leftTapZone) {
 		tappedDir = core.DirWest
 	}
-	if s.TouchData.DidTapIn(topTapZone) {
+	if s.DidTapIn(topTapZone) {
 		tappedDir = core.DirNorth
 	}
-	if s.TouchData.DidTapIn(bottomTapZone) {
+	if s.DidTapIn(bottomTapZone) {
 		tappedDir = core.DirSouth
 	}
 
@@ -76,7 +76,7 @@ func (s *PlayingState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 	}
 
 	// Held touches require a delay before moving the player
-	for _, t := range s.TouchData.Touches() {
+	for _, t := range s.Touches() {
 		durr := inpututil.TouchPressDuration(t.ID)
 		if topTapZone.ContainsPos(t.Pos) && durr > 20 {
 			action = engine.NewMoveAction(core.DirNorth)

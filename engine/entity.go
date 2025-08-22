@@ -24,7 +24,7 @@ type entityBase struct {
 	instanceID string
 
 	blocksMove bool
-	blocksLOS  bool // nolint
+	blocksLOS  bool
 
 	desc string
 	name string

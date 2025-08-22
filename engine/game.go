@@ -22,6 +22,7 @@ type Game struct {
 
 // Create a new game instance, it all starts here
 func NewGame(dataFileDir string, seed uint64, viewDist int, listeners ...EventListener) *Game {
+	// Seed the shared global RNG
 	seedRNG(seed)
 
 	g := &Game{}
@@ -40,8 +41,6 @@ func NewGame(dataFileDir string, seed uint64, viewDist int, listeners ...EventLi
 	levelText := fmt.Sprintf("You are on level %d of %s", g.Map().Depth(), g.Map().Description())
 	events.new(EventMiscMessage, nil, "Welcome adventurer "+g.Player().Name())
 	events.new(EventMiscMessage, nil, levelText)
-
-	g.gameMap.dumpPNG()
 
 	// DEBUG
 	// g.player.backpack.Add(g.itemGen.createItem("meat"))

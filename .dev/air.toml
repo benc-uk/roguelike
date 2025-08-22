@@ -2,10 +2,10 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-args_bin = []
 # seed 108154 2132143 87461333
-bin = "./tmp/main -noaudio -quickstart"
-cmd = "go build -o ./tmp/main ./game"
+bin = "tmp/main"
+args_bin = ["-noaudio", "-quickstart"]
+cmd = "go build -o tmp/main roguelike/game"
 delay = 1000
 exclude_dir = ["web", "bin", ".vite", "sprite-editor", "site", "etc"]
 include_ext = ["go", "yaml"]

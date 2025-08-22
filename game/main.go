@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	_ "image/png"
+	"image/draw"
+	"image/png"
 	"log"
 	"math/rand/v2"
+	"os"
 	"path"
 	"roguelike/core"
 	"roguelike/engine"
@@ -135,6 +137,9 @@ func (g *EbitenGame) StartNewGame() {
 	g.game = engine.NewGame(basePath+"assets/datafiles", g.seed, VIEW_DIST, g.EventListener)
 	g.viewPort = g.game.GetViewPort(VP_COLS, VP_ROWS)
 
+	// Debug only - dump the map to a PNG file
+	dumpMapPNG(g.game.Map(), fmt.Sprintf("twmp/map_%d.png", g.seed))
+
 	g.state = gameStatePlaying
 }
 
@@ -242,10 +247,6 @@ func main() {
 		},
 	}
 
-	// DEBUG!
-	// engine.NewGame(basePath+"assets/datafiles", ebitenGame.seed, VIEW_DIST, ebitenGame.EventListener)
-	// return
-
 	// Finally start the ebiten game loop
 	ebiten.SetWindowSize(int(float64(ebitenGame.scrWidth)*INITIAL_SCALE), int(float64(ebitenGame.scrHeight)*INITIAL_SCALE))
 	ebiten.SetWindowTitle("GoRogue")
@@ -258,4 +259,30 @@ func main() {
 	if err := ebiten.RunGame(ebitenGame); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// Dump the whole map to a PNG file
+func dumpMapPNG(m *engine.GameMap, outpath string) {
+	tilesize := 16
+	// Create a new image
+	img := image.NewRGBA(image.Rect(0, 0, m.Width*tilesize, m.Height*tilesize))
+
+	// Draw the map
+	for x := 0; x < m.Width; x++ {
+		for y := 0; y < m.Height; y++ {
+			tile := m.Tile(x, y)
+
+			if tile.IsWallHint {
+				draw.Draw(img, image.Rect(x*tilesize, y*tilesize, x*tilesize+tilesize, y*tilesize+tilesize), &image.Uniform{color.Black}, image.Point{}, draw.Src)
+			} else {
+				draw.Draw(img, image.Rect(x*tilesize, y*tilesize, x*tilesize+tilesize, y*tilesize+tilesize), &image.Uniform{color.White}, image.Point{}, draw.Src)
+			}
+		}
+	}
+
+	// Encode as PNG file
+	file := outpath
+	_ = os.MkdirAll(path.Dir(file), 0755)
+	f, _ := os.Create(file)
+	_ = png.Encode(f, img)
 }

@@ -1,12 +1,6 @@
 package engine
 
 import (
-	"image"
-	"image/color"
-	"image/draw"
-	"image/png"
-	_ "image/png"
-	"os"
 	"roguelike/core"
 )
 
@@ -37,6 +31,7 @@ type tile struct {
 	items      entityList
 	creature   *creature
 	furniture  *furniture //nolint
+	IsWallHint bool       // Used really only for debugging/dumping the map
 }
 
 // Appearance is a struct that holds the appearance of a tile
@@ -53,6 +48,7 @@ func newWall(x, y int) tile {
 		blocksMove: true,
 		blocksLOS:  true,
 		items:      nil,
+		IsWallHint: true,
 	}
 }
 
@@ -64,6 +60,7 @@ func (t *tile) makeFloor() {
 	t.tileType = tileTypeFloor
 	t.blocksMove = false
 	t.blocksLOS = false
+	t.IsWallHint = false
 }
 
 // nolint
@@ -75,6 +72,7 @@ func (t *tile) makeWall() {
 	t.tileType = tileTypeWall
 	t.blocksMove = true
 	t.blocksLOS = true
+	t.IsWallHint = true
 }
 
 // Add an item to the tile's item stack, up to the max allowed
@@ -271,7 +269,7 @@ func (m *GameMap) Depth() int {
 
 // Returns an adjacent tile in the given direction
 func (m *GameMap) AdjacentTile(t *tile, dir core.Direction) *tile {
-	destPos := t.pos.Add(dir.Pos())
+	destPos := t.Add(dir.Pos())
 	destTile := m.TileAt(destPos)
 
 	if destTile == nil {
@@ -328,31 +326,6 @@ func (m *GameMap) randomFloorTile(noItems bool) *tile {
 			return t
 		}
 	}
-}
-
-// Dump the whole map to a PNG file called map.png
-// nolint
-func (m *GameMap) dumpPNG() {
-	tilesize := 16
-	// Create a new image
-	img := image.NewRGBA(image.Rect(0, 0, m.Width*tilesize, m.Height*tilesize))
-
-	// Draw the map
-	for x := 0; x < m.Width; x++ {
-		for y := 0; y < m.Height; y++ {
-			tile := m.Tile(x, y)
-			if tile.tileType == tileTypeWall {
-				draw.Draw(img, image.Rect(x*tilesize, y*tilesize, x*tilesize+tilesize, y*tilesize+tilesize), &image.Uniform{color.Black}, image.Point{}, draw.Src)
-			} else {
-				draw.Draw(img, image.Rect(x*tilesize, y*tilesize, x*tilesize+tilesize, y*tilesize+tilesize), &image.Uniform{color.White}, image.Point{}, draw.Src)
-			}
-		}
-	}
-
-	// Encode as PNG file
-	file := "map.png"
-	f, _ := os.Create(file)
-	_ = png.Encode(f, img)
 }
 
 //nolint:unused

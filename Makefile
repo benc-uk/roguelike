@@ -16,10 +16,10 @@ build-wasm: ## Build as WASM for web, and copy assets
 	cp -r assets/ web/
 
 watch: ## Watch for changes and rebuild as local binary
-	air -c .air.toml
+	go tool -modfile=.dev/tools.mod air -c .dev/air.toml
 
 lint: ## Check for linting problems
-	golangci-lint run -E gofmt
+	go tool -modfile=.dev/tools.mod golangci-lint run -c .dev/golangci.yaml
 
 format: ## Format the code
 	gofmt -l -w .
@@ -28,7 +28,7 @@ serve: build-wasm ## Serve the web app
 	npx vite 
 
 watch-wasm: build-wasm ## Hot rebuild WASM binary in web directory
-	air -c .air-wasm.toml --build.bin "true"
+	go tool -modfile=.dev/tools.mod air -c .dev/air-wasm.toml
 
 site: clean build-wasm ## Build/bundle the site for deployment
 	mkdir -p site/

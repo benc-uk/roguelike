@@ -107,7 +107,7 @@ func (a *AttackAction) Execute(g Game) ActionResult {
 
 	// Check adjacent
 	// TODO: Maybe remove this for ranged attacks
-	if !p.pos.IsNeighbour(*a.target.pos) {
+	if !p.IsNeighbour(*a.target.pos) {
 		return ActionResult{false, 0}
 	}
 

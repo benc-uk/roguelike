@@ -60,7 +60,7 @@ func NewPallettSet(metaFile string) (*PaletteSet, error) {
 
 // GetRGBPalette returns a color.Palette (array of color.RGBA) from the loaded palettes
 func GetRGBPalette(pal []string) color.Palette {
-	var p color.Palette = make(color.Palette, len(pal))
+	var p = make(color.Palette, len(pal))
 	for i, c := range pal {
 		p[i] = HexStringToRGBA(c)
 	}

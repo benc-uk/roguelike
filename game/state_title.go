@@ -61,7 +61,7 @@ func (s *TitleState) Update(heldKeys []ebiten.Key, tappedKeys []ebiten.Key) {
 		}
 	}
 
-	if newGameRect := core.NewRect(120, 9*s.spSize, 60, s.spSize); s.TouchData.DidTapIn(newGameRect) {
+	if newGameRect := core.NewRect(120, 9*s.spSize, 60, s.spSize); s.DidTapIn(newGameRect) {
 		s.StartNewGame()
 	}
 }

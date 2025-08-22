@@ -3,7 +3,7 @@ tmp_dir = "tmp"
 
 [build]
 args_bin = []
-bin = ""
+full_bin = "true"
 pre_cmd = ["cp -r assets/ web/"]
 cmd = "env GOOS=js GOARCH=wasm go build -o web/main.wasm roguelike/game"
 delay = 1000
